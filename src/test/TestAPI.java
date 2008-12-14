@@ -1,6 +1,6 @@
 package test;
 
-import stwing.calc.*;
+import javacalculus.*;
 
 public class TestAPI {
 	public static void main(String[] args) {
