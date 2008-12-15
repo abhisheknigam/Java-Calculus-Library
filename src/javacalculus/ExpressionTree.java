@@ -4,8 +4,7 @@ import java.util.ArrayList;
 
 public class ExpressionTree 
 {
-	private Node Head;
-	private String myExpression=null;
+	private Node head;
 	
 	public ExpressionTree (String expression)
 	{
@@ -28,8 +27,42 @@ public class ExpressionTree
 		makeMyArray(buffer.toString());
 	}
 	
-	private void makeMyArray(String expression)
+	private Node makeMyArray(String expression)
 	{
+		StringBuffer fname=new StringBuffer();
+		Node current=head;
+		
+		for (int i=0; i<expression.length(); i++)
+		{
+			char a=expression.charAt(i);
+			//Farms out parentheses recursively
+			if(a=='(')
+			{
+				int leftCounter=0;
+				for (int j=i;j<expression.length();j++)
+				{
+					char b=expression.charAt(j);
+					if(b=='(')
+						leftCounter++;
+					else if (b==')')
+					{
+						if (leftCounter==0)
+							current=makeMyArray(expression.substring(i+1,j-1));
+						else
+							leftCounter--;
+					}
+				}
+			}
+			
+//			if (a!='+'&&a!='-'&&a!='*'&&a!='/'&&a!='%'&&a!='^'&&a!='('&&a!=')')
+//				fname.append(a);
+//			else
+//			{
+//				current=new Node(fname.toString(),current,null,null);				
+//			}
+			
+		}
+		return null;
 		
 	}
 	
@@ -54,13 +87,30 @@ private class Node
 	private String myValue;
 	private Node left;
 	private Node right;
+	private Node parent;
 	
-	public Node (String value, Node left, Node right)
+	public Node (String value, Node parent, Node left, Node right)
 	{
 		myValue=value;
 		this.left=left;
 		this.right=right;
+		this.parent=parent;
 	}
+	
+	public Node getLeft()
+	{	return left;	}
+	
+	public Node getRight()
+	{	return right;	}
+	
+	public Node getParent()
+	{	return parent;	}
+	
+	public void setLeft(Node l)
+	{	left=l;	}
+	
+	public void setRight(Node r)
+	{	right=r;	}
 	
 	public double eval()
 	{
