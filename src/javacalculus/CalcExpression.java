@@ -4,6 +4,7 @@
 package javacalculus;
 
 import java.util.LinkedList;
+import java.util.Vector;
 
 /**
  * @author Duyun Chen
@@ -14,7 +15,7 @@ public class CalcExpression
 	private ExpressionString expression;
 	private ExpressionNode syntaxTree;
 	private String variableName = "x";
-	private double evaluateValue = Double.NaN;
+	private String evaluateValue = null;
 	
 	private class ExpressionString extends LinkedList<Character> {
 		private static final long serialVersionUID = 6878646602060108582L;
@@ -44,7 +45,7 @@ public class CalcExpression
 			left = l;
 			right = r;
 			operator = op;
-			System.out.println("Binary Node Created");
+			//System.out.println("Binary Node Created");
 		}
 		
 		public double value() {
@@ -52,25 +53,25 @@ public class CalcExpression
 			if (right instanceof VariableNode) ((VariableNode)right).setValue(evaluateValue);
 			switch (operator) {
 				case '+':
-					System.out.println("Adding...");
+					//System.out.println("Adding...");
 					return left.value() + right.value();
 				case '-':
-					System.out.println("Subtracting...");
+					//System.out.println("Subtracting...");
 					return left.value() - right.value();
 				case '*':
-					System.out.println("Multiplying...");
+					//System.out.println("Multiplying...");
 					return left.value() * right.value();
 				case '/':
-					System.out.println("Dividing...");
+					//System.out.println("Dividing...");
 					return left.value() / right.value();
 				case '%':
-					System.out.println("Modulusing...");
+					//System.out.println("Modulusing...");
 					return left.value() % right.value();
 				case '^':
-					System.out.println("Exponentiating...");
+					//System.out.println("Exponentiating...");
 					return Math.pow(left.value(), right.value());
 				default:
-					System.out.println("This situation is not possible.. so...");
+					//System.out.println("This situation is not possible.. so...");
 					return 0;
 			}
 		}
@@ -79,7 +80,7 @@ public class CalcExpression
 	private class ConstantNode extends ExpressionNode {
 		private double constant;
 		public ConstantNode(double c) {
-			System.out.println("Constant Node Created");
+			//System.out.println("Constant Node Created");
 			constant = c;
 		}
 		public double value() {
@@ -92,7 +93,7 @@ public class CalcExpression
 		private String operation;
 		
 		public UnaryOperatorNode(String op, ExpressionNode in) {
-			System.out.println("Unary Node Created");
+			//System.out.println("Unary Node Created");
 			exp = in;
 			operation = op;
 		}
@@ -101,42 +102,49 @@ public class CalcExpression
 			return operation;
 		}
 		
-		public double value() { //hellz yeah! Nested ternary operators ftw!
+		public double value() { 
 			double out = Double.NaN;
 			if (exp instanceof VariableNode) {
 				VariableNode node = (VariableNode)exp;
 				node.setValue(evaluateValue);
-				out = evaluateValue;
+				out = node.value();
 			}
-			else {
-				out = ((VariableNode)exp).value();
+			else { 
+				out = (exp).value();
 			}
-			out = 	(operation.equalsIgnoreCase("-")? -out:
+			out = 	(operation.equalsIgnoreCase("-")? -out: //hellz yeah! Nested ternary operators ftw!
 					(operation.equalsIgnoreCase("sin")? Math.sin(out):
 					(operation.equalsIgnoreCase("cos")? Math.cos(out):
 					(operation.equalsIgnoreCase("tan")? Math.tan(out):
 					(operation.equalsIgnoreCase("log")? Math.log(out):
+					(operation.equalsIgnoreCase("ln")? Math.log(out)/Math.log(Math.E):
 					(operation.equalsIgnoreCase("exp")? Math.exp(out):
 					(operation.equalsIgnoreCase("asin")? Math.asin(out):
 					(operation.equalsIgnoreCase("acos")? Math.acos(out):
 					(operation.equalsIgnoreCase("atan")? Math.atan(out):
+					(operation.equalsIgnoreCase("arcsin")? Math.asin(out):
+					(operation.equalsIgnoreCase("arccos")? Math.acos(out):
+					(operation.equalsIgnoreCase("arctan")? Math.atan(out):
+					(operation.equalsIgnoreCase("sinh")? Math.sinh(out):
+					(operation.equalsIgnoreCase("cosh")? Math.cosh(out):
+					(operation.equalsIgnoreCase("tanh")? Math.tanh(out):
 					(operation.equalsIgnoreCase("abs")? Math.abs(out):
-						Double.NaN))))))))));
+						Double.NaN)))))))))))))))));
 			return out;
 		}
 	}
 	
 	private class VariableNode extends ExpressionNode {
-		private double varValue;
+		private CalcExpression varValue;
 		private String name;
 		
 		public VariableNode(String n) {
-			System.out.println("Variable Node Created");
+			//System.out.println("Variable Node Created");
 			name = n;
 		}
 		
-		public void setValue(double in) {
-			varValue = in;
+		public void setValue(String in) {
+			varValue = new CalcExpression(in);
 		}
 		
 		public String getName() {
@@ -144,7 +152,7 @@ public class CalcExpression
 		}
 		
 		public double value() {
-			return varValue;
+			return varValue.value();
 		}
 	}
 	
@@ -162,15 +170,13 @@ public class CalcExpression
 	       negative = true;
 	    }
 	    ExpressionNode exp;   // The expression tree for the expression.
-	    exp = levelOneTree(in);  // Start with the first term.
-	    if (negative)
-	    	exp = new UnaryOperatorNode("-", exp);
-
-	    if (in.peek() == null) return exp;
+	    exp = levelOneTree(in);  // Start with the level one precedence (+, -).
+	    if (negative) exp = new UnaryOperatorNode("-", exp);
+	    if (in.peek() == null) return exp; //input char list is empty now
 	    
 		while (in.peek() == '+' || in.peek() == '-') {
-		             //Read the next term and combine it with the
-		             //previous terms into a bigger expression tree.
+		             //Parse the next precedence level and combine it with the
+		             //previous tree into a bigger expression tree.
 			char op = in.getChar();
 		    ExpressionNode nextLevel = levelOneTree(in);
 		    exp = new BinaryOperatorNode(op, exp, nextLevel);
@@ -187,8 +193,8 @@ public class CalcExpression
 		if (in.peek() == null) return tree;
 		
 		while (in.peek() == '*' || in.peek() == '/' || in.peek() == '%') {
-		               // Read the next factor, and combine it with the
-		               // previous factors into a bigger expression tree.
+		               // Read the next level, and combine it with the
+		               // previous tree(s) into a bigger expression tree.
 		    char op = in.getChar();
 		    ExpressionNode nextLevelTree = levelTwoTree(in);
 		    tree = new BinaryOperatorNode(op, tree, nextLevelTree);
@@ -199,13 +205,13 @@ public class CalcExpression
 	}
 	
 	private ExpressionNode levelTwoTree(ExpressionString in) throws CalcSyntaxFailException {
-		ExpressionNode tree = levelThreeTree(in);
+		ExpressionNode tree = levelThreeTree(in); //get root tree
 		
 		if (in.peek() == null) return tree;
 		
 		while (in.peek() == '^') {
 		               // Read the next precedence level, and combine it with the
-		               // previous expression into a bigger expression tree.
+		               // previous root tree into a bigger tree.
 		    char op = in.getChar();
 		    ExpressionNode nextLevelTree = levelThreeTree(in);
 		    tree = new BinaryOperatorNode(op, tree, nextLevelTree);
@@ -219,18 +225,11 @@ public class CalcExpression
         // Read a level three expression (unary functions) from the current line of input and
         // return an expression tree representing the level three expression.
     	StringBuffer word = new StringBuffer();
-	    while (in.peek() != null && Character.isLetter(in.peek())) {
-	       word.append(in.getChar());
-	    }
-	    if (word.toString().equalsIgnoreCase("pi")) {	//first handle pi const
-	    	return new ConstantNode(Math.PI);
-	    }
-	    else if (word.toString().equalsIgnoreCase("e")) {	//e const
-	    	return new ConstantNode(Math.E);
-	    }
-	    else if (word.toString().equalsIgnoreCase(variableName)) {
-	    	return new VariableNode(variableName);
-	    }
+	    while (in.peek() != null && Character.isLetter(in.peek())) word.append(in.getChar());
+	    
+	    if (word.toString().equalsIgnoreCase("pi")) return new ConstantNode(Math.PI);	//first handle pi const
+	    else if (word.toString().equalsIgnoreCase("e")) return new ConstantNode(Math.E);	//e const
+	    else if (word.toString().equalsIgnoreCase(variableName)) return new VariableNode(variableName); //handle variables
 	    else if (word.length() > 0) { //otherwise, must be unary function
 	    	UnaryOperatorNode node = new UnaryOperatorNode(word.toString(), levelFourTree(in));
 	    	if (Double.isNaN(node.value())) { //if node is NaN, it means the function is not in the list
@@ -238,26 +237,23 @@ public class CalcExpression
 	    	}
 	    	return node;
 	    }
-	    else return levelFourTree(in);
+	    else return levelFourTree(in); //recurse into parenthesis
 	}
 	
     private ExpressionNode levelFourTree(ExpressionString in) throws CalcSyntaxFailException {
+    	if (in.peek() == null) throw new CalcSyntaxFailException("Incomplete Expression");
         // Read a level four expression (parenthesis) from the current line of input and
         // return an expression tree representing the expression.
-    	if (in.peek() == null) return null;
     	char ch = in.peek();
     	StringBuffer num = new StringBuffer();
-    	StringBuffer word = new StringBuffer();
 	    while (Character.isDigit(ch = in.peek()) || in.peek() == '.') {
-	           // The factor is a number.  Return a ConstantNode.
 	       num.append(in.getChar());
 	       if (in.peek() == null) break;
 	    }
-	    if (num.length() > 0) {
+	    if (num.length() > 0) { // The input is a number.  Return a ConstantNode.
 	    	double number = Double.parseDouble(num.toString());
 	    	return new ConstantNode(number);
 	    }    
-	    
 	    else if (ch == '(') {
 	          // The is an expression in parentheses.
 	    	in.getChar();  // Read the "("
@@ -267,23 +263,17 @@ public class CalcExpression
 	    	in.getChar();  // Read the ")"
 	    	return exp;
 	    }
-	    
-	    else if ( ch == '\n' )
-	    	throw new CalcSyntaxFailException("End-of-line encountered in the middle of an expression.");
-	    else if ( ch == ')' )
-	    	throw new CalcSyntaxFailException("Extra right parenthesis.");
-	    else if ( ch == '+' || ch == '-' || ch == '*' || ch == '/' )
-	    	throw new CalcSyntaxFailException("Misplaced operator: " + ch);
-	    else
-	    	throw new CalcSyntaxFailException("Unexpected character \"" + ch + "\" encountered.");
+	    //Error handling
+	    else if ( ch == '\n' ) throw new CalcSyntaxFailException("End-of-line encountered in the middle of an expression.");
+	    else if ( ch == ')' ) throw new CalcSyntaxFailException("Extra right parenthesis.");
+	    else if ( ch == '+' || ch == '-' || ch == '*' || ch == '/' ) throw new CalcSyntaxFailException("Misplaced operator: " + ch);
+	    else throw new CalcSyntaxFailException("Unexpected character \"" + ch + "\" encountered.");
     } 
 	
 	private String removeWhiteSpace(String in) { //create a new String excluding ' ' and tabs
 		StringBuffer buffer = new StringBuffer();
 		for (int ii = 0; ii < in.length(); ii++) {
-			if (in.charAt(ii) != ' ' && in.charAt(ii) != '\t') {
-				buffer.append(in.charAt(ii));
-			}
+			if (in.charAt(ii) != ' ' && in.charAt(ii) != '\t') buffer.append(in.charAt(ii));
 		}
 		return buffer.toString();
 	}
@@ -295,17 +285,20 @@ public class CalcExpression
 			syntaxTree = levelZeroTree(expression);
 			output = syntaxTree.value();
 		}
-		catch (NullPointerException e) {
-			System.out.println("Error! No value generated from Expression.");
-		}
-		catch (CalcSyntaxFailException e) {
-			System.out.println("Error! " + e.getMessage());
-		}
+		catch (NullPointerException e) 
+			{System.out.println("Error! No value generated from Expression.");}
+		catch (CalcSyntaxFailException e) 
+			{System.out.println("Error! " + e.getMessage());}
 		return output;
 	}
 	
-	public double eval(double input) {
+	public double eval(String input) {
 		evaluateValue = input;
+		return value();
+	}
+	
+	public double eval(double input) {
+		evaluateValue = "" + input;
 		return value();
 	}
 }

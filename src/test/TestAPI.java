@@ -5,7 +5,7 @@ import javacalculus.*;
 public class TestAPI {
 	public static void main(String[] args) 
 	{
-		CalcExpression exp = new CalcExpression("e^(pi*log(x)) - pi");
-		System.out.println(exp.eval(2));
+		CalcExpression exp = new CalcExpression("((-x)*4)^(-x)");
+		System.out.println(exp.eval("-0.25"));
 	}
 }
