@@ -10,7 +10,7 @@ package javacalculus;
 public class CalcVariable 
 {
 	private String variableName;
-	private double value;
+	private double value = Double.NaN;
 	
 	public CalcVariable(String name) 
 	{
@@ -23,5 +23,9 @@ public class CalcVariable
 	
 	public void setValue(double in) {
 		value = in;
+	}
+	
+	public String getName() {
+		return variableName;
 	}
 }
