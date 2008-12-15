@@ -4,7 +4,7 @@ import javacalculus.*;
 
 public class TestAPI {
 	public static void main(String[] args) {
-		CalcExpression exp = new CalcExpression("-5*2+2*(-2)+4/4*2+2");
+		CalcExpression exp = new CalcExpression("11+10*143");
 		System.out.println(exp.value());
 	}
 }

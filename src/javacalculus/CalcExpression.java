@@ -3,9 +3,7 @@
  */
 package javacalculus;
 
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.PriorityQueue;
 
 /**
  * @author Duyun Chen
@@ -61,6 +59,9 @@ public class CalcExpression
 				case '/':
 					System.out.println("Dividing...");
 					return left.value() / right.value();
+				case '^':
+					System.out.println("Exponentiating...");
+					return Math.pow(left.value(), right.value());
 				default:
 					System.out.println("WTF?...");
 					return 0;
@@ -82,6 +83,7 @@ public class CalcExpression
 	private class UnaryOperatorNode extends ExpressionNode {
 		private ExpressionNode exp;
 		public UnaryOperatorNode(ExpressionNode in) {
+			System.out.println("Unary Node Created");
 			exp = in;
 		}
 		public double value() {
@@ -119,7 +121,7 @@ public class CalcExpression
 	        // return an expression tree representing the expression.
 	    boolean negative;  // True if there is a leading minus sign.
 	    negative = false;
-	    if (in.peek() == '-') {
+	    if (in.peek() != null && in.peek() == '-') {
 	       in.getChar();
 	       negative = true;
 	    }
@@ -160,16 +162,38 @@ public class CalcExpression
 		return tree;
 	}
 	
-    private ExpressionNode levelTwoTree(ExpressionString in) throws CalcSyntaxFailException {
+	private ExpressionNode levelTwoTree(ExpressionString in) throws CalcSyntaxFailException {
+		ExpressionNode tree = levelThreeTree(in);
+		
+		if (in.peek() == null) return tree;
+		
+		while (in.peek() == '^') {
+		               // Read the next factor, and combine it with the
+		               // previous factors into a bigger expression tree.
+		    char op = in.getChar();
+		    ExpressionNode nextLevelTree = levelThreeTree(in);
+		    tree = new BinaryOperatorNode(op, tree, nextLevelTree);
+		    if (in.peek() == null) break;
+		}
+		
+		return tree;
+	}
+	
+    private ExpressionNode levelThreeTree(ExpressionString in) throws CalcSyntaxFailException {
         // Read a factor from the current line of input and
         // return an expression tree representing the factor.
-	    char ch = in.peek();
-	    if (Character.isDigit(ch)) {
+    	char ch = in.peek();
+    	StringBuffer num = new StringBuffer();
+	    while (in.peek() != null && Character.isDigit(ch = in.peek())) {
 	           // The factor is a number.  Return a ConstNode.
-	       double num = Double.parseDouble(Character.toString(in.getChar()));
+	       num.append(in.getChar());
 	       //System.out.println(num);
-	       return new ConstantNode(num);
 	    }
+	    if (num.length() > 0) {
+	    	double number = Double.parseDouble(num.toString());
+	    	return new ConstantNode(number);
+	    }
+	    
 	    else if (ch == '(') {
 	          // The factor is an expression in parentheses.
 	       in.getChar();  // Read the "("
