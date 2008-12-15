@@ -9,25 +9,53 @@ public class ExpressionTree
 {
 	private Node head;
 	
+	/**
+	 * Creates an expression tree out of a String.  The string is whitespace independent.
+	 * Includes support for all normal functions, as well as user defined variables and functions.
+	 * @param expression The String which defines the function
+	 */
 	public ExpressionTree (String expression) 
-	{	head=makeTree(expression);	}
-	
-	public ExpressionTree (ArrayList<String> expression)
+	{	
+		head=makeTree(expression.replaceAll(" ",""));	
+	}
+		
+/**
+ * Creates an expression tree of the arraylist.  This is whitespace independent.
+ * The ArrayList is simply concatenated and treated as a string.
+ * Includes support for all normal functions, as well as user defined variables and functions.
+ * @param expressions The ArrayList of Strings that define the function
+ */
+	public ExpressionTree (ArrayList<String> expressions)
 	{	
 		StringBuffer buffer = new StringBuffer();
-		for (String element: expression)
+		for (String element: expressions)
 			buffer.append(element);
-		head=makeTree(buffer.toString());
+		head=makeTree(buffer.toString().replaceAll(" ",""));	
 	}
 	
-	public ExpressionTree (String[] expression)
+	/**
+	 * Creates an instance of an expression tree out of a String array.  The string is whitespace independent.
+	 * Includes support for all normal functions, as well as user defined variables and functions.
+	 * The array is simply concatenated and dealt with in the normal manner.
+	 * @param expressions The array of strings from which to linearly construct the expression.
+	 */
+	public ExpressionTree (String[] expressions)
 	{	
 		StringBuffer buffer = new StringBuffer();
-		for (String element: expression)
+		for (String element: expressions)
 			buffer.append(element);
-		head=makeTree(buffer.toString());
+		head=makeTree(buffer.toString().replaceAll(" ",""));
+		
+		
 	}
 	
+	/**
+	 * Used to parse out complete terms separated by + or - operators.  In accordance with order of operations,
+	 * this finds the + or - operator which is at the highest level of the equation (not nested) and is the
+	 * furthest to the right of the equation
+	 * @param expression The String to be separated
+	 * @return The location of the operator which will be the head of a addition or subtraction tree.  -1 if not found.
+	 */
 	private int getLevelOneIndex(String expression)
 	{
 		//System.out.println("+/- dealer received: "+expression);
@@ -56,6 +84,13 @@ public class ExpressionTree
 		return -1;
 	}
 	
+	/**
+	 * Used to parse out complete terms separated by *, /, or % operators.  In accordance with order of operations,
+	 * this finds the *, /, or %operator which is at the highest level of the equation (not nested) and is the
+	 * furthest to the right of the equation.  This assumes that a + or - operator has already been looked for at this level.
+	 * @param expression The String to be separated
+	 * @return The location of the operator which will be the head of the next expression tree tree.  -1 if not found.
+	 */
 	private int getLevelTwoIndex(String expression)
 	{
 //System.out.println("*// dealer received: "+expression);
@@ -78,6 +113,13 @@ public class ExpressionTree
 		return -1;
 	}
 	
+	/**
+	 * Used to parse out complete terms separated by the exponentiation operators.  In accordance with order of operations,
+	 * this finds the ^ operator which is at the highest level of the equation (not nested) and is the
+	 * furthest to the right of the equation.  This assumes that +,-, *, /, and % operators has already been looked for at this level.
+	 * @param expression The String to be separated
+	 * @return The location of the operator which will be the head of the exponentiation tree.  -1 if not found.
+	 */
 	private int getLevelThreeIndex(String expression)
 	{
 //System.out.println("^ dealer received: "+expression);
@@ -101,6 +143,15 @@ public class ExpressionTree
 		return -1;
 	}
 	
+	/**
+	 * Used to parse out function terms separated by the exponentiation operators.  This assumes that the symbolic operators
+	 * +,-, *, /, %, and ^ operators has already been looked for at this level.  Does not check for predefined types.  Assumes that 
+	 * text followed by a parentheses is a function.  Functions are analyzed at evaluation time.  Also checks for the '-' used as negation.
+	 * The negation operation can either be applied to a parenthetical expression "-(x)" or another function/variable -x.  The way it
+	 * is used in the given expression affects the return.
+	 * @param expression The String to be separated
+	 * @return -1 if expression is constant/variable.  -2 if '-' used as negation without ().  Else, length of function name.  
+	 */
 	private int getLevelFourIndex(String expression)
 	{
 		//System.out.println("Function dealer received: "+expression);
@@ -112,6 +163,13 @@ public class ExpressionTree
 				function.append(cur);
 			if(cur=='(')
 				break;
+			if(cur=='-')
+				if(expression.charAt(i+1)!='(')
+					return -2;
+				else if(function.length()==1)
+					return 1;
+				else 
+					return -1;
 		}
 		//System.out.println("Function word length: "+function.length());
 		if(function.length()==0||function.length()==expression.length())
@@ -120,6 +178,12 @@ public class ExpressionTree
 			return function.length();
 	}
 	
+	/**
+	 * Decides whether an expression has an extra pair of outside parentheses.
+	 * This notifies the main expression handler to change "(x+y)" to "x+y"
+	 * @param expression The expression to be analyzed.
+	 * @return True if there is an extraneous pair; false if not.
+	 */
 	private boolean stripPars(String expression)
 	{
 		if(expression.charAt(0)!='(')
@@ -142,6 +206,10 @@ public class ExpressionTree
 	private Node makeTree(String expression)
 	{
 		System.out.println("String received: "+expression);
+		try
+		{	formatChecks(expression);	}
+		catch(EquationFormatException e)
+		{	System.out.println(e.getMessage());	}
 		Node myTop=null;
 		int headIndex=getLevelOneIndex(expression);
 		//System.out.println("Index returned"+headIndex);
@@ -165,13 +233,17 @@ public class ExpressionTree
 				else
 				{
 					headIndex=getLevelFourIndex(expression);
-					if(headIndex!=-1)
-						myTop=new Node(expression.substring(0,headIndex),makeTree(expression.substring(headIndex+1,expression.length()-1)),null);
-					else
-					{
-						//System.out.println("Assigning this expression: "+expression);
+					if(headIndex==-1)//System.out.println("Assigning this expression: "+expression);
 						myTop=new Node(expression,null,null);
+					else if(headIndex==-2)
+					{
+						myTop=new Node(expression.substring(0,1),
+								makeTree(expression.substring(1,expression.length())),null);
 					}
+					else	
+						myTop=new Node(expression.substring(0,headIndex),
+								makeTree(expression.substring(headIndex+1,expression.length()-1)),null);
+					
 						
 				}
 			}
@@ -186,7 +258,7 @@ public class ExpressionTree
 	public double eval(Variable[] args)
 	{	return head.eval(args);	}
 	
-	public double eval(String[] args)
+	public double eval(String[] args)throws EquationFormatException
 	{
 		Variable[] vars=new Variable[args.length];
 		for(int i=0;i<args.length;i++)
@@ -195,8 +267,14 @@ public class ExpressionTree
 			for (int j=1;j<current.length()-1;j++)
 			{
 				if(current.charAt(j)=='=')
+				{
 					vars[i]=new Variable(current.substring(0,j),current.substring(j+1,current.length()));
+					break;
+				}
 			}
+			if(vars[i]==null||vars[i].getValue()==null||vars[i].getName()==null)
+				throw new EquationFormatException("No '=' specified in one of your arguments");
+			
 		}
 		return eval(vars);
 	}
@@ -216,13 +294,66 @@ public class ExpressionTree
 				thisStartIndex=i+1;
 			}	
 		}
+		//accounts for last term which will not be followed by a comma
 		terms.add(args.substring(thisStartIndex,args.length()));		
 		String[] array=new String[terms.size()];
-		return eval(terms.toArray(array));
+		try
+		{	return eval(terms.toArray(array));	}
+		catch(EquationFormatException e)
+		{	System.out.println(e.getMessage());	}
+		return 0;
 	}
 	
-	
+	private void formatChecks(String expression)throws EquationFormatException
+	{
+			if(expression.length()==0)
+				throw new EquationFormatException("This is a blank or useless expression string.");
+			if (!parenParity(expression))
+				throw new EquationFormatException("Parentheses are not correctly placed.");
+			if (!operatorParity(expression))
+				throw new EquationFormatException("Operators are not correctly placed.");
+	}
 
+	private boolean parenParity(String expression)
+	{
+		int parCounter=0;
+		for (int i=0;i<expression.length();i++)
+		{
+			if (expression.charAt(i)=='(')
+				parCounter++;
+			if (expression.charAt(i)==')')
+				parCounter--;
+			if (parCounter<0)
+				return false;
+		}
+		if (parCounter!=0)
+			return false;
+		return true;
+	}
+
+	private boolean operatorParity(String expression)
+	{
+		char cur;
+		boolean prev=false;
+		for(int i=0;i<expression.length();i++)
+		{
+			cur=expression.charAt(i);
+			if(cur=='-')
+				prev=true;
+			else if(cur=='*'||cur=='/'||cur=='%'||cur=='^'||cur=='+')
+			{
+				if(prev)
+					return false;
+				prev=true;				
+			}	
+			else
+			{
+				prev=false;
+			}
+			
+		}
+		return true;
+	}
 private class Node
 {
 	private String myValue;
@@ -247,25 +378,29 @@ private class Node
 	
 	public void setRight(Node r)
 	{	right=r;	}
+	
 	public double eval(Variable[] args)
 	{
-		System.out.println(args.length);
-	//	System.out.println(toString());
-		if (left==null&&right==null) //if a constant or variable
+			//System.out.println(args.length);
+			//	System.out.println(toString());
+		//if a constant or variable
+		if (left==null&&right==null) 
 		{
 			//if there are substitutions to be made
 			if (args.length!=0)
 			{
 				for(Variable a: args)
 				{
-					System.out.println(a);
+					//System.out.println(a);
 					if(a.getName().equalsIgnoreCase(myValue))
 					{
+						System.out.println(a);
 						try
 						{	return Double.parseDouble(a.getValue());	}
 						catch(NumberFormatException e)
-						{	System.out.println("Subbing the expression: "+a.getValue()+" for "+a.getName()+".");		}
-						return (new ExpressionTree(a.getValue()).eval(args));
+						{	}
+						//System.out.println("Subbing the expression: "+a.getValue()+" for "+a.getName()+".");
+						return (new ExpressionTree(a.getValue()).eval(args));	
 					}
 				}
 			}
@@ -277,13 +412,11 @@ private class Node
 				try
 				{	return Double.parseDouble(myValue);	}
 				catch (NumberFormatException e)
-				{
-					
-				}
-				
+				{}
 		}
 		
-		else if (left!=null&&right!=null) //binary operators
+		//binary operators
+		else if (left!=null&&right!=null) 
 			{
 			if (myValue.charAt(0)=='+')
 				return left.eval(args)+right.eval(args);
@@ -292,63 +425,65 @@ private class Node
 			if (myValue.charAt(0)=='*')
 				return left.eval(args)*right.eval(args);
 			if (myValue.charAt(0)=='/')
-				return left.eval()/right.eval();
+				return left.eval(args)/right.eval(args);
 			if (myValue.charAt(0)=='^')
-				return Math.pow(left.eval(),right.eval());
+				return Math.pow(left.eval(args),right.eval(args));
 			if (myValue.charAt(0)=='%')
-				return left.eval()%right.eval();
+				return left.eval(args)%right.eval(args);
 			}
-		else //unary operators
+		//unary operators
+		else 
 		{
 			if (myValue.charAt(0)=='-')
-				return -(left.eval());
+				return -(left.eval(args));
 			if (myValue.equalsIgnoreCase("abs"))
-				return (Math.abs(left.eval()));
+				return (Math.abs(left.eval(args)));
 			if (myValue.equalsIgnoreCase("sqrt"))
-				return (Math.sqrt(left.eval()));
+				return (Math.sqrt(left.eval(args)));
+			if (myValue.equalsIgnoreCase("ln"))
+				return (Math.log(left.eval(args)));
+			if (myValue.equalsIgnoreCase("log"))
+				return (Math.log10(left.eval(args)));
 			
 			//trigs, including inverses, hyperbolics
 			if (myValue.equalsIgnoreCase("tan"))
-				return (Math.tan(left.eval()));
+				return (Math.tan(left.eval(args)));
 			if (myValue.equalsIgnoreCase("sin"))
-				return (Math.sin(left.eval()));
+				return (Math.sin(left.eval(args)));
 			if (myValue.equalsIgnoreCase("cos"))
-				return (Math.cos(left.eval()));
+				return (Math.cos(left.eval(args)));
 			if (myValue.equalsIgnoreCase("cot"))
-				return (1/Math.tan(left.eval()));
+				return (1/Math.tan(left.eval(args)));
 			if (myValue.equalsIgnoreCase("sec"))
-				return (1/Math.cos(left.eval()));
+				return (1/Math.cos(left.eval(args)));
 			if (myValue.equalsIgnoreCase("csc"))
-				return (1/Math.sin(left.eval()));
+				return (1/Math.sin(left.eval(args)));
 			if (myValue.equalsIgnoreCase("arctan"))
-				return (Math.atan(left.eval()));
+				return (Math.atan(left.eval(args)));
 			if (myValue.equalsIgnoreCase("atan"))
-				return (Math.atan(left.eval()));
+				return (Math.atan(left.eval(args)));
 			if (myValue.equalsIgnoreCase("arcsin"))
-				return (Math.asin(left.eval()));
+				return (Math.asin(left.eval(args)));
 			if (myValue.equalsIgnoreCase("asin"))
-				return (Math.asin(left.eval()));
+				return (Math.asin(left.eval(args)));
 			if (myValue.equalsIgnoreCase("tan"))
-				return (Math.tan(left.eval()));
+				return (Math.tan(left.eval(args)));
 			if (myValue.equalsIgnoreCase("arccos"))
-				return (Math.acos(left.eval()));
+				return (Math.acos(left.eval(args)));
 			if (myValue.equalsIgnoreCase("acos"))
-				return (Math.acos(left.eval()));
+				return (Math.acos(left.eval(args)));
 			if (myValue.equalsIgnoreCase("tanh"))
-				return (Math.tanh(left.eval()));
+				return (Math.tanh(left.eval(args)));
 			if (myValue.equalsIgnoreCase("cosh"))
-				return (Math.cosh(left.eval()));
+				return (Math.cosh(left.eval(args)));
 			if (myValue.equalsIgnoreCase("sinh"))
-				return (Math.sinh(left.eval()));
+				return (Math.sinh(left.eval(args)));
 		}
 		return -1D;
 	}
-	private double eval()
-	{	return eval(new Variable[0]);	}
-
+	
 public String toString()
-{
-	return ("Value: "+myValue+", left: "+left+", right: "+right);
-}
+{	return ("Value: "+myValue+", left: "+left+", right: "+right);	}
+
 }
 }
