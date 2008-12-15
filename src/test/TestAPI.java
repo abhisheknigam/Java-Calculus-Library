@@ -4,7 +4,7 @@ import javacalculus.*;
 
 public class TestAPI {
 	public static void main(String[] args) {
-		CalcExpression exp = new CalcExpression("x+x*x-x+x/x/x/x/x");
-		System.out.println(exp.getFunction().evaluate(0.01));
+		CalcExpression exp = new CalcExpression("1+1");
+		System.out.println(exp.value());
 	}
 }
