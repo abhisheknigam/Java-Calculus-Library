@@ -82,12 +82,22 @@ public class CalcExpression
 	
 	private class UnaryOperatorNode extends ExpressionNode {
 		private ExpressionNode exp;
-		public UnaryOperatorNode(ExpressionNode in) {
+		private String operation;
+		public UnaryOperatorNode(String op, ExpressionNode in) {
 			System.out.println("Unary Node Created");
 			exp = in;
+			operation = op;
 		}
-		public double value() {
-			return -exp.value();
+		
+		public double value() { //hellz yeah! Nested ternary operators ftw!
+			double out = exp.value();
+			out = 	(operation.equals("-")? -out:
+					(operation.equals("sin")? Math.sin(out):
+					(operation.equals("cos")? Math.cos(out):
+					(operation.equals("tan")? Math.tan(out):
+					(operation.equals("log")? Math.log(out):
+						out)))));
+			return out;
 		}
 	}
 	
@@ -128,7 +138,7 @@ public class CalcExpression
 	    ExpressionNode exp;   // The expression tree for the expression.
 	    exp = levelOneTree(in);  // Start with the first term.
 	    if (negative)
-	    	exp = new UnaryOperatorNode(exp);
+	    	exp = new UnaryOperatorNode("-", exp);
 
 	    if (in.peek() == null) return exp;
 	    
@@ -168,8 +178,8 @@ public class CalcExpression
 		if (in.peek() == null) return tree;
 		
 		while (in.peek() == '^') {
-		               // Read the next factor, and combine it with the
-		               // previous factors into a bigger expression tree.
+		               // Read the next precedence level, and combine it with the
+		               // previous expression into a bigger expression tree.
 		    char op = in.getChar();
 		    ExpressionNode nextLevelTree = levelThreeTree(in);
 		    tree = new BinaryOperatorNode(op, tree, nextLevelTree);
@@ -179,13 +189,26 @@ public class CalcExpression
 		return tree;
 	}
 	
-    private ExpressionNode levelThreeTree(ExpressionString in) throws CalcSyntaxFailException {
-        // Read a factor from the current line of input and
-        // return an expression tree representing the factor.
+	private ExpressionNode levelThreeTree(ExpressionString in) throws CalcSyntaxFailException {
+        // Read a level three expression (functions) from the current line of input and
+        // return an expression tree representing the level three expression.
+    	StringBuffer word = new StringBuffer();
+	    while (in.peek() != null && Character.isLetter(in.peek())) {
+	       word.append(in.getChar());
+	    }
+	    if (word.length() > 0) {
+	    	return new UnaryOperatorNode(word.toString(), levelFourTree(in));
+	    }
+	    return levelFourTree(in);
+	}
+	
+    private ExpressionNode levelFourTree(ExpressionString in) throws CalcSyntaxFailException {
+        // Read a level four expression (parenthesis) from the current line of input and
+        // return an expression tree representing the expression.
     	char ch = in.peek();
     	StringBuffer num = new StringBuffer();
-	    while (in.peek() != null && Character.isDigit(ch = in.peek())) {
-	           // The factor is a number.  Return a ConstNode.
+	    while (in.peek() != null && Character.isDigit(ch = in.peek()) || in.peek() == '.') {
+	           // The factor is a number.  Return a ConstantNode.
 	       num.append(in.getChar());
 	       //System.out.println(num);
 	    }
@@ -195,14 +218,15 @@ public class CalcExpression
 	    }
 	    
 	    else if (ch == '(') {
-	          // The factor is an expression in parentheses.
+	          // The is an expression in parentheses.
 	       in.getChar();  // Read the "("
-	       ExpressionNode exp = levelZeroTree(in);
+	       ExpressionNode exp = levelZeroTree(in); //construct anything between parenthesis from level zero
 	       if (in.peek() != ')')
 	          throw new CalcSyntaxFailException("Missing right parenthesis.");
 	       in.getChar();  // Read the ")"
 	       return exp;
 	    }
+	    
 	    else if ( ch == '\n' )
 	       throw new CalcSyntaxFailException("End-of-line encountered in the middle of an expression.");
 	    else if ( ch == ')' )
