@@ -16,6 +16,7 @@ public enum CalcOperation {
 	CalcOperation(String n) {
 		name = n;
 	}
+	
 	public String getName()
 	{return name;}
 }
