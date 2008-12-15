@@ -59,6 +59,9 @@ public class CalcExpression
 				case '/':
 					System.out.println("Dividing...");
 					return left.value() / right.value();
+				case '%':
+					System.out.println("Modulusing...");
+					return left.value() % right.value();
 				case '^':
 					System.out.println("Exponentiating...");
 					return Math.pow(left.value(), right.value());
@@ -91,16 +94,16 @@ public class CalcExpression
 		
 		public double value() { //hellz yeah! Nested ternary operators ftw!
 			double out = exp.value();
-			out = 	(operation.equals("-")? -out:
-					(operation.equals("sin")? Math.sin(out):
-					(operation.equals("cos")? Math.cos(out):
-					(operation.equals("tan")? Math.tan(out):
-					(operation.equals("log")? Math.log(out):
-					(operation.equals("exp")? Math.exp(out):
-					(operation.equals("asin")? Math.asin(out):
-					(operation.equals("acos")? Math.acos(out):
-					(operation.equals("atan")? Math.atan(out):
-					(operation.equals("abs")? Math.abs(out):
+			out = 	(operation.equalsIgnoreCase("-")? -out:
+					(operation.equalsIgnoreCase("sin")? Math.sin(out):
+					(operation.equalsIgnoreCase("cos")? Math.cos(out):
+					(operation.equalsIgnoreCase("tan")? Math.tan(out):
+					(operation.equalsIgnoreCase("log")? Math.log(out):
+					(operation.equalsIgnoreCase("exp")? Math.exp(out):
+					(operation.equalsIgnoreCase("asin")? Math.asin(out):
+					(operation.equalsIgnoreCase("acos")? Math.acos(out):
+					(operation.equalsIgnoreCase("atan")? Math.atan(out):
+					(operation.equalsIgnoreCase("abs")? Math.abs(out):
 						out))))))))));
 			return out;
 		}
@@ -165,7 +168,7 @@ public class CalcExpression
 		
 		if (in.peek() == null) return tree;
 		
-		while (in.peek() == '*' || in.peek() == '/') {
+		while (in.peek() == '*' || in.peek() == '/' || in.peek() == '%') {
 		               // Read the next factor, and combine it with the
 		               // previous factors into a bigger expression tree.
 		    char op = in.getChar();
@@ -201,10 +204,10 @@ public class CalcExpression
 	    while (in.peek() != null && Character.isLetter(in.peek())) {
 	       word.append(in.getChar());
 	    }
-	    if (word.toString().equals("pi")) {
+	    if (word.toString().equalsIgnoreCase("pi")) {
 	    	return new ConstantNode(Math.PI);
 	    }
-	    else if (word.toString().equals("e")) {
+	    else if (word.toString().equalsIgnoreCase("e")) {
 	    	return new ConstantNode(Math.E);
 	    }
 	    else if (word.length() > 0) {
