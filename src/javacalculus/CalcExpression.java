@@ -92,6 +92,10 @@ public class CalcExpression
 			operation = op;
 		}
 		
+		public String getOperation() {
+			return operation;
+		}
+		
 		public double value() { //hellz yeah! Nested ternary operators ftw!
 			double out = exp.value();
 			out = 	(operation.equalsIgnoreCase("-")? -out:
@@ -104,7 +108,7 @@ public class CalcExpression
 					(operation.equalsIgnoreCase("acos")? Math.acos(out):
 					(operation.equalsIgnoreCase("atan")? Math.atan(out):
 					(operation.equalsIgnoreCase("abs")? Math.abs(out):
-						out))))))))));
+						Double.NaN))))))))));
 			return out;
 		}
 	}
@@ -130,7 +134,7 @@ public class CalcExpression
 			syntaxTree = levelZeroTree(expression);
 		}
 		catch (CalcSyntaxFailException e) {
-			System.out.println(e.getMessage());
+			System.out.println("Error! " + e.getMessage());
 		}
 	}
 	
@@ -204,14 +208,18 @@ public class CalcExpression
 	    while (in.peek() != null && Character.isLetter(in.peek())) {
 	       word.append(in.getChar());
 	    }
-	    if (word.toString().equalsIgnoreCase("pi")) {
+	    if (word.toString().equalsIgnoreCase("pi")) {	//first handle pi const
 	    	return new ConstantNode(Math.PI);
 	    }
-	    else if (word.toString().equalsIgnoreCase("e")) {
+	    else if (word.toString().equalsIgnoreCase("e")) {	//e const
 	    	return new ConstantNode(Math.E);
 	    }
-	    else if (word.length() > 0) {
-	    	return new UnaryOperatorNode(word.toString(), levelFourTree(in));
+	    else if (word.length() > 0) { //otherwise, must be unary function
+	    	UnaryOperatorNode node = new UnaryOperatorNode(word.toString(), levelFourTree(in));
+	    	if (Double.isNaN(node.value())) { //if node is NaN, it means the function is not in the list
+	    		throw new CalcSyntaxFailException("Function not supported: " + node.getOperation());
+	    	}
+	    	return node;
 	    }
 	    return levelFourTree(in);
 	}
@@ -233,25 +241,25 @@ public class CalcExpression
 	    
 	    else if (ch == '(') {
 	          // The is an expression in parentheses.
-	       in.getChar();  // Read the "("
-	       ExpressionNode exp = levelZeroTree(in); //construct anything between parenthesis from level zero
-	       if (in.peek() != ')')
-	          throw new CalcSyntaxFailException("Missing right parenthesis.");
-	       in.getChar();  // Read the ")"
-	       return exp;
+	    	in.getChar();  // Read the "("
+	    	ExpressionNode exp = levelZeroTree(in); //construct anything between parenthesis from level zero
+	    	if (in.peek() != ')')
+	    		throw new CalcSyntaxFailException("Missing right parenthesis.");
+	    	in.getChar();  // Read the ")"
+	    	return exp;
 	    }
 	    
 	    else if ( ch == '\n' )
-	       throw new CalcSyntaxFailException("End-of-line encountered in the middle of an expression.");
+	    	throw new CalcSyntaxFailException("End-of-line encountered in the middle of an expression.");
 	    else if ( ch == ')' )
-	       throw new CalcSyntaxFailException("Extra right parenthesis.");
+	    	throw new CalcSyntaxFailException("Extra right parenthesis.");
 	    else if ( ch == '+' || ch == '-' || ch == '*' || ch == '/' )
-	       throw new CalcSyntaxFailException("Misplaced operator.");
+	    	throw new CalcSyntaxFailException("Misplaced operator: " + ch);
 	    else
-	       throw new CalcSyntaxFailException("Unexpected character \"" + ch + "\" encountered.");
+	    	throw new CalcSyntaxFailException("Unexpected character \"" + ch + "\" encountered.");
     } 
 	
-	private String removeWhiteSpace(String in) {
+	private String removeWhiteSpace(String in) { //create a new String excluding ' ' and tabs
 		StringBuffer buffer = new StringBuffer();
 		for (int ii = 0; ii < in.length(); ii++) {
 			if (in.charAt(ii) != ' ' && in.charAt(ii) != '\t') {
@@ -262,5 +270,14 @@ public class CalcExpression
 	}
 	
 	public double value()
-	{return syntaxTree.value();}
+	{
+		double output = Double.NaN;
+		try {
+			output = syntaxTree.value();
+		}
+		catch (NullPointerException e) {
+			System.out.println("Error! No value generated from Expression.");
+		}
+		return output;
+	}
 }
