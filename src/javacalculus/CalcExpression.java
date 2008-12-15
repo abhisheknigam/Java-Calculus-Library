@@ -127,28 +127,36 @@ public class CalcExpression
 	    exp = levelOneTree(in);  // Start with the first term.
 	    if (negative)
 	    	exp = new UnaryOperatorNode(exp);
-	    if (in.size() == 0)
-	    	return exp;
-	    while (in.peek() == '+' || in.peek() == '-') {
-	             //Read the next term and combine it with the
-	             //previous terms into a bigger expression tree.
-	        char op = in.getChar();
-	        ExpressionNode nextLevel = levelOneTree(in);
-	        exp = new BinaryOperatorNode(op, exp, nextLevel);
-	    }
+
+	    if (in.peek() == null) return exp;
+	    
+		while (in.peek() == '+' || in.peek() == '-') {
+		             //Read the next term and combine it with the
+		             //previous terms into a bigger expression tree.
+			char op = in.getChar();
+		    ExpressionNode nextLevel = levelOneTree(in);
+		    exp = new BinaryOperatorNode(op, exp, nextLevel);
+		    
+		    if (in.peek() == null) return exp;
+		}
+
 	    return exp;
 	}
 	
 	private ExpressionNode levelOneTree(ExpressionString in) throws CalcSyntaxFailException {
 		ExpressionNode tree = levelTwoTree(in);
-		if (in.size() == 0) return tree;
-		while (in.peek() == '*' || in.peek() == '/' ) {
-               // Read the next factor, and combine it with the
-               // previous factors into a bigger expression tree.
-          char op = in.getChar();
-          ExpressionNode nextLevelTree = levelTwoTree(in);
-          tree = new BinaryOperatorNode(op, tree, nextLevelTree);
+		
+		if (in.peek() == null) return tree;
+		
+		while (in.peek() == '*' || in.peek() == '/') {
+		               // Read the next factor, and combine it with the
+		               // previous factors into a bigger expression tree.
+		    char op = in.getChar();
+		    ExpressionNode nextLevelTree = levelTwoTree(in);
+		    tree = new BinaryOperatorNode(op, tree, nextLevelTree);
+		    if (in.peek() == null) break;
 		}
+		
 		return tree;
 	}
 	
