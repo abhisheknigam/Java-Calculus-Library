@@ -16,7 +16,7 @@ public class ExpressionTree
 		StringBuffer buffer = new StringBuffer();
 		for (String element: expression)
 			buffer.append(element);
-		makeMyArray(buffer.toString());
+		makeMyTree(buffer.toString());
 	}
 	
 	public ExpressionTree (String[] expression)
@@ -24,22 +24,22 @@ public class ExpressionTree
 		StringBuffer buffer = new StringBuffer();
 		for (String element: expression)
 			buffer.append(element);
-		makeMyArray(buffer.toString());
+		makeMyTree(buffer.toString());
 	}
 	
-	private Node makeMyArray(String expression)
+	private Node makeMyTree(String expression)
 	{
-		StringBuffer fname=new StringBuffer();
+	
 		Node current=head;
-		
 		for (int i=0; i<expression.length(); i++)
 		{
 			char a=expression.charAt(i);
+			char prev=expression.charAt(i-1);
 			//Farms out parentheses recursively
 			if(a=='(')
 			{
 				int leftCounter=0;
-				for (int j=i;j<expression.length();j++)
+				for (int j=i+1;j<expression.length();j++)
 				{
 					char b=expression.charAt(j);
 					if(b=='(')
@@ -47,40 +47,46 @@ public class ExpressionTree
 					else if (b==')')
 					{
 						if (leftCounter==0)
-							current=makeMyArray(expression.substring(i+1,j-1));
+						{
+							current=makeMyTree(expression.substring(i+1,j-1));
+							break;
+						}
 						else
 							leftCounter--;
 					}
 				}
 			}
+			//makes the bottom double
+			if(Character.isDigit(a)||a=='.')
+			{
+				StringBuffer number=new StringBuffer();
+				number.append(a);
+				for (int j=i+1;j<expression.length();j++)
+				{
+					char b=expression.charAt(j);
+					if(Character.isDigit(b)||b=='.')
+						number.append(b);
+					else
+					{
+						current=new Node(number.toString(),current,null,null);
+						break;
+					}
+				}
+			}
 			
-//			if (a!='+'&&a!='-'&&a!='*'&&a!='/'&&a!='%'&&a!='^'&&a!='('&&a!=')')
-//				fname.append(a);
-//			else
-//			{
-//				current=new Node(fname.toString(),current,null,null);				
-//			}
+			
+			if (a=='+'||a=='*'||a=='/'||a=='%'||(a=='-'&&(prev=='+'||prev=='*'||prev=='/'||prev=='%')))
+			{
+				current=new Node(""+a,current,makeMyTree(expression.substring(0,i-1)),
+						makeMyTree(expression.substring(i+1,expression.length()-1)));
+			}
+			
 			
 		}
 		return null;
 		
 	}
 	
-	private void makeMyTree(String expression)
-	{
-		for (int i=0; i<expression.length(); i++)
-		{
-			
-		}
-		
-	}
-
-	private boolean addNode(Node toAdd)
-	{
-		return false;
-	}
-
-
 
 private class Node
 {
@@ -105,6 +111,9 @@ private class Node
 	
 	public Node getParent()
 	{	return parent;	}
+	
+	public void setParent(Node p)
+	{	parent=p;	}
 	
 	public void setLeft(Node l)
 	{	left=l;	}
