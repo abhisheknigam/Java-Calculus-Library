@@ -190,13 +190,16 @@ public class CalcExpression
 	}
 	
 	private ExpressionNode levelThreeTree(ExpressionString in) throws CalcSyntaxFailException {
-        // Read a level three expression (functions) from the current line of input and
+        // Read a level three expression (unary functions) from the current line of input and
         // return an expression tree representing the level three expression.
     	StringBuffer word = new StringBuffer();
 	    while (in.peek() != null && Character.isLetter(in.peek())) {
 	       word.append(in.getChar());
 	    }
-	    if (word.length() > 0) {
+	    if (word.toString().equals("pi")) {
+	    	return new ConstantNode(Math.PI);
+	    }
+	    else if (word.length() > 0) {
 	    	return new UnaryOperatorNode(word.toString(), levelFourTree(in));
 	    }
 	    return levelFourTree(in);
