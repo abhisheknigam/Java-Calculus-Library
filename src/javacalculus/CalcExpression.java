@@ -96,7 +96,12 @@ public class CalcExpression
 					(operation.equals("cos")? Math.cos(out):
 					(operation.equals("tan")? Math.tan(out):
 					(operation.equals("log")? Math.log(out):
-						out)))));
+					(operation.equals("exp")? Math.exp(out):
+					(operation.equals("asin")? Math.asin(out):
+					(operation.equals("acos")? Math.acos(out):
+					(operation.equals("atan")? Math.atan(out):
+					(operation.equals("abs")? Math.abs(out):
+						out))))))))));
 			return out;
 		}
 	}
@@ -198,6 +203,9 @@ public class CalcExpression
 	    }
 	    if (word.toString().equals("pi")) {
 	    	return new ConstantNode(Math.PI);
+	    }
+	    else if (word.toString().equals("e")) {
+	    	return new ConstantNode(Math.E);
 	    }
 	    else if (word.length() > 0) {
 	    	return new UnaryOperatorNode(word.toString(), levelFourTree(in));
