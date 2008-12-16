@@ -412,7 +412,8 @@ private class Node
 				try
 				{	return ""+Double.parseDouble(myValue);	}
 				catch (NumberFormatException e)
-				{}
+				{		return myValue;			}
+				
 		}
 		
 		//binary operators
