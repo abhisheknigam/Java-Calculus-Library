@@ -164,7 +164,7 @@ public class ExpressionTree
 		for (int i=0; i<expression.length(); i++)
 		{
 			char cur=expression.charAt(i);
-			if (cur!='('&&cur!=')'&&!Character.isDigit(cur))
+			if (cur!='('&&cur!=')'&&cur!='.'&&!Character.isDigit(cur))
 				function.append(cur);
 			if(cur=='(')
 				break;
@@ -237,6 +237,7 @@ public class ExpressionTree
 					else
 					{
 						headIndex=getLevelFourIndex(expression);
+						//System.out.println("Head received: "+headIndex);
 						if(headIndex==-1)//System.out.println("Assigning this expression: "+expression);
 							myTop=new Node(expression,null,null);
 						else if(headIndex==-2)
@@ -459,7 +460,7 @@ private class Node
 		//unary operators
 		else 
 		{
-			System.out.println("Unary operator");
+			//System.out.println("Unary operator");
 			if (myValue.charAt(0)=='-')
 			{
 				try	{	return ""+(-Double.parseDouble(left.eval(args)));	}

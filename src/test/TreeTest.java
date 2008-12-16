@@ -8,7 +8,10 @@ public class TreeTest
 	public static void main(String[] args) 
 	{
 		ExpressionTree test=null;
-		test = new ExpressionTree("y+2^3");	
-		System.out.println(test.eval("x=2"));
+		test = new ExpressionTree("-((y)^(5.0))+8.0");	
+		String out=test.eval();
+		System.out.println(out);
+		ExpressionTree test2=new ExpressionTree(out);
+		System.out.println(""+test2.eval());
 	}
 }
