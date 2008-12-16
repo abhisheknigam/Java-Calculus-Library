@@ -83,7 +83,14 @@ public class ExpressionTree
 	
 		return -1;
 	}
-	
+
+	private int getUnNegatorIndex(String expression)
+	{
+			//System.out.println("- dealer received: "+expression);
+		if(expression.charAt(0)=='-')
+			return 1;
+		return -1;
+	}
 	/**
 	 * Used to parse out complete terms separated by *, /, or % operators.  In accordance with order of operations,
 	 * this finds the *, /, or %operator which is at the highest level of the equation (not nested) and is the
@@ -106,10 +113,8 @@ public class ExpressionTree
 			if(cur=='(')
 					parCounter++;	
 			if (cur==')')
-				parCounter--;
-				
+				parCounter--;	
 		}
-		
 		return -1;
 	}
 	
@@ -163,13 +168,6 @@ public class ExpressionTree
 				function.append(cur);
 			if(cur=='(')
 				break;
-			if(cur=='-')
-				if(expression.charAt(i+1)!='(')
-					return -2;
-				else if(function.length()==1)
-					return 1;
-				else 
-					return -1;
 		}
 		//System.out.println("Function word length: "+function.length());
 		if(function.length()==0||function.length()==expression.length())
@@ -211,10 +209,10 @@ public class ExpressionTree
 		catch(EquationFormatException e)
 		{	System.out.println(e.getMessage());	}
 		Node myTop=null;
-		int headIndex=getLevelOneIndex(expression);
-		//System.out.println("Index returned"+headIndex);
 		if(stripPars(expression))
 			return makeTree(expression.substring(1,expression.length()-1));
+		int headIndex=getLevelOneIndex(expression);
+		//System.out.println("Index returned"+headIndex);
 		if(headIndex!=-1)
 			myTop=new Node(""+expression.charAt(headIndex),makeTree(expression.substring(0,headIndex)),
 				makeTree(expression.substring(headIndex+1,expression.length())));
@@ -223,28 +221,33 @@ public class ExpressionTree
 			headIndex=getLevelTwoIndex(expression);
 			if(headIndex!=-1)
 				myTop=new Node(""+expression.charAt(headIndex),makeTree(expression.substring(0,headIndex)),
-					makeTree(expression.substring(headIndex+1,expression.length())));
+						makeTree(expression.substring(headIndex+1,expression.length())));
 			else
 			{
-				headIndex=getLevelThreeIndex(expression);
+				headIndex=getUnNegatorIndex(expression);
+				System.out.println("neg head ind: "+headIndex);
 				if(headIndex!=-1)
-					myTop=new Node(""+expression.charAt(headIndex),makeTree(expression.substring(0,headIndex)),
-						makeTree(expression.substring(headIndex+1,expression.length())));
+					myTop=new Node(""+'-',makeTree(expression.substring(1,expression.length())),null);
 				else
 				{
-					headIndex=getLevelFourIndex(expression);
-					if(headIndex==-1)//System.out.println("Assigning this expression: "+expression);
-						myTop=new Node(expression,null,null);
-					else if(headIndex==-2)
+					headIndex=getLevelThreeIndex(expression);
+					if(headIndex!=-1)
+						myTop=new Node(""+expression.charAt(headIndex),makeTree(expression.substring(0,headIndex)),
+							makeTree(expression.substring(headIndex+1,expression.length())));
+					else
 					{
-						myTop=new Node(expression.substring(0,1),
-								makeTree(expression.substring(1,expression.length())),null);
+						headIndex=getLevelFourIndex(expression);
+						if(headIndex==-1)//System.out.println("Assigning this expression: "+expression);
+							myTop=new Node(expression,null,null);
+						else if(headIndex==-2)
+						{
+							myTop=new Node(expression.substring(0,1),
+									makeTree(expression.substring(1,expression.length())),null);
+						}
+						else	
+							myTop=new Node(expression.substring(0,headIndex),
+									makeTree(expression.substring(headIndex+1,expression.length()-1)),null);
 					}
-					else	
-						myTop=new Node(expression.substring(0,headIndex),
-								makeTree(expression.substring(headIndex+1,expression.length()-1)),null);
-					
-						
 				}
 			}
 		}
@@ -347,10 +350,7 @@ public class ExpressionTree
 				prev=true;				
 			}	
 			else
-			{
-				prev=false;
-			}
-			
+				prev=false;		
 		}
 		return true;
 	}
@@ -434,6 +434,7 @@ private class Node
 		//unary operators
 		else 
 		{
+			System.out.println("Unary operator");
 			if (myValue.charAt(0)=='-')
 				return -(left.eval(args));
 			if (myValue.equalsIgnoreCase("abs"))
@@ -482,7 +483,7 @@ private class Node
 		return -1D;
 	}
 	
-public String toString()
+	public String toString()
 {	return ("Value: "+myValue+", left: "+left+", right: "+right);	}
 
 }

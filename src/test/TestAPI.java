@@ -6,6 +6,6 @@ public class TestAPI {
 	public static void main(String[] args) 
 	{
 		CalcExpression exp = new CalcExpression("((-x)*4)^(-x)");
-		System.out.println(exp.eval("-0.25"));
+		//System.out.println(exp.eval("-0.25"));
 	}
 }
