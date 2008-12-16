@@ -225,7 +225,7 @@ public class ExpressionTree
 			else
 			{
 				headIndex=getUnNegatorIndex(expression);
-				System.out.println("neg head ind: "+headIndex);
+				//System.out.println("neg head ind: "+headIndex);
 				if(headIndex!=-1)
 					myTop=new Node(""+'-',makeTree(expression.substring(1,expression.length())),null);
 				else
@@ -255,13 +255,13 @@ public class ExpressionTree
 		return myTop;
 	}
 	
-	public double eval()
+	public String eval()
 	{	return eval(new Variable[0]);	}
 		
-	public double eval(Variable[] args)
+	public String eval(Variable[] args)
 	{	return head.eval(args);	}
 	
-	public double eval(String[] args)throws EquationFormatException
+	public String eval(String[] args)throws EquationFormatException
 	{
 		Variable[] vars=new Variable[args.length];
 		for(int i=0;i<args.length;i++)
@@ -282,7 +282,7 @@ public class ExpressionTree
 		return eval(vars);
 	}
 	
-	public double eval(String args)
+	public String eval(String args)
 	{
 		ArrayList<String> terms=new ArrayList<String>();
 		int thisStartIndex=0;
@@ -304,7 +304,7 @@ public class ExpressionTree
 		{	return eval(terms.toArray(array));	}
 		catch(EquationFormatException e)
 		{	System.out.println(e.getMessage());	}
-		return 0;
+		return "";
 	}
 	
 	private void formatChecks(String expression)throws EquationFormatException
@@ -379,10 +379,10 @@ private class Node
 	public void setRight(Node r)
 	{	right=r;	}
 	
-	public double eval(Variable[] args)
+	public String eval(Variable[] args)
 	{
 			//System.out.println(args.length);
-			//	System.out.println(toString());
+			//System.out.println(toString());
 		//if a constant or variable
 		if (left==null&&right==null) 
 		{
@@ -395,22 +395,22 @@ private class Node
 					if(a.getName().equalsIgnoreCase(myValue))
 					{
 						System.out.println(a);
-						try
-						{	return Double.parseDouble(a.getValue());	}
-						catch(NumberFormatException e)
-						{	}
+//						try
+//						{	return Double.parseDouble(a.getValue());	}
+//						catch(NumberFormatException e)
+//						{	}
 						//System.out.println("Subbing the expression: "+a.getValue()+" for "+a.getName()+".");
 						return (new ExpressionTree(a.getValue()).eval(args));	
 					}
 				}
 			}
 			if (myValue.equalsIgnoreCase("PI"))
-				return Math.PI;
+				return ""+Math.PI;
 			else if (myValue.equalsIgnoreCase("e"))
-				return Math.E;
+				return ""+Math.E;
 			else
 				try
-				{	return Double.parseDouble(myValue);	}
+				{	return ""+Double.parseDouble(myValue);	}
 				catch (NumberFormatException e)
 				{}
 		}
@@ -419,68 +419,158 @@ private class Node
 		else if (left!=null&&right!=null) 
 			{
 			if (myValue.charAt(0)=='+')
-				return left.eval(args)+right.eval(args);
+			{
+				try	{		return ""+(Double.parseDouble(left.eval(args))+Double.parseDouble(right.eval(args)));	}
+				catch(NumberFormatException e)
+				{		return left.eval(args)+"+"+right.eval(args);	}
+			}			
 			if (myValue.charAt(0)=='-')
-					return left.eval(args)-right.eval(args);
+			{
+				try	{		return ""+(Double.parseDouble(left.eval(args))-Double.parseDouble(right.eval(args)));	}
+				catch(NumberFormatException e)
+				{		return left.eval(args)+"-"+right.eval(args);	}
+			}	
 			if (myValue.charAt(0)=='*')
-				return left.eval(args)*right.eval(args);
+			{
+				try	{		return ""+(Double.parseDouble(left.eval(args))*Double.parseDouble(right.eval(args)));	}
+				catch(NumberFormatException e)
+				{		return left.eval(args)+"*"+right.eval(args);	}
+			}	
 			if (myValue.charAt(0)=='/')
-				return left.eval(args)/right.eval(args);
+			{
+				try	{		return ""+(Double.parseDouble(left.eval(args))/Double.parseDouble(right.eval(args)));	}
+				catch(NumberFormatException e)
+				{		return left.eval(args)+"/"+right.eval(args);	}
+			}	
 			if (myValue.charAt(0)=='^')
-				return Math.pow(left.eval(args),right.eval(args));
-			if (myValue.charAt(0)=='%')
-				return left.eval(args)%right.eval(args);
+			{
+				try	{		return ""+(Math.pow(Double.parseDouble(left.eval(args)),Double.parseDouble(right.eval(args))));	}
+				catch(NumberFormatException e)
+				{		return "("+left.eval(args)+")^("+right.eval(args)+")";		}
 			}
+			if (myValue.charAt(0)=='%')
+			{
+				try	{		return ""+(Double.parseDouble(left.eval(args))%Double.parseDouble(right.eval(args)));	}
+				catch(NumberFormatException e)
+				{		return left.eval(args)+"%"+right.eval(args);	}
+			}	
+		}
 		//unary operators
 		else 
 		{
 			System.out.println("Unary operator");
 			if (myValue.charAt(0)=='-')
-				return -(left.eval(args));
+			{
+				try	{	return ""+(-Double.parseDouble(left.eval(args)));	}
+				catch(NumberFormatException e)
+				{		return "-("+left.eval(args)+")";	}
+			}
 			if (myValue.equalsIgnoreCase("abs"))
-				return (Math.abs(left.eval(args)));
+			{
+				try	{		return ""+(Math.abs(Double.parseDouble(left.eval(args))));	}
+				catch(NumberFormatException e)
+				{		return "abs("+left.eval(args)+")";		}
+			}
 			if (myValue.equalsIgnoreCase("sqrt"))
-				return (Math.sqrt(left.eval(args)));
+			{
+				try	{		return ""+(Math.sqrt(Double.parseDouble(left.eval(args))));	}
+				catch(NumberFormatException e)
+				{		return "sqrt("+left.eval(args)+")";		}
+			}
 			if (myValue.equalsIgnoreCase("ln"))
-				return (Math.log(left.eval(args)));
+			{
+				try	{		return ""+(Math.log(Double.parseDouble(left.eval(args))));	}
+				catch(NumberFormatException e)
+				{		return "ln("+left.eval(args)+")";		}
+			}
 			if (myValue.equalsIgnoreCase("log"))
-				return (Math.log10(left.eval(args)));
+			{
+				try	{		return ""+(Math.log10(Double.parseDouble(left.eval(args))));	}
+				catch(NumberFormatException e)
+				{		return "log("+left.eval(args)+")";		}
+			}
 			
 			//trigs, including inverses, hyperbolics
 			if (myValue.equalsIgnoreCase("tan"))
-				return (Math.tan(left.eval(args)));
+			{
+				try	{		return ""+(Math.tan(Double.parseDouble(left.eval(args))));	}
+				catch(NumberFormatException e)
+				{		return "tan("+left.eval(args)+")";		}
+			}
 			if (myValue.equalsIgnoreCase("sin"))
-				return (Math.sin(left.eval(args)));
+			{
+				try	{		return ""+(Math.sin(Double.parseDouble(left.eval(args))));	}
+				catch(NumberFormatException e)
+				{		return "sin("+left.eval(args)+")";		}
+			}
 			if (myValue.equalsIgnoreCase("cos"))
-				return (Math.cos(left.eval(args)));
-			if (myValue.equalsIgnoreCase("cot"))
-				return (1/Math.tan(left.eval(args)));
-			if (myValue.equalsIgnoreCase("sec"))
-				return (1/Math.cos(left.eval(args)));
-			if (myValue.equalsIgnoreCase("csc"))
-				return (1/Math.sin(left.eval(args)));
+			{
+				try	{		return ""+(Math.cos(Double.parseDouble(left.eval(args))));	}
+				catch(NumberFormatException e)
+				{		return "cos("+left.eval(args)+")";		}
+			}
+//			if (myValue.equalsIgnoreCase("cot"))
+//				return (1/Math.tan(left.eval(args)));
+//			if (myValue.equalsIgnoreCase("sec"))
+//				return (1/Math.cos(left.eval(args)));
+//			if (myValue.equalsIgnoreCase("csc"))
+//				return (1/Math.sin(left.eval(args)));
 			if (myValue.equalsIgnoreCase("arctan"))
-				return (Math.atan(left.eval(args)));
+			{
+				try	{		return ""+(Math.atan(Double.parseDouble(left.eval(args))));	}
+				catch(NumberFormatException e)
+				{		return "atan("+left.eval(args)+")";		}
+			}
 			if (myValue.equalsIgnoreCase("atan"))
-				return (Math.atan(left.eval(args)));
+			{
+				try	{		return ""+(Math.atan(Double.parseDouble(left.eval(args))));	}
+				catch(NumberFormatException e)
+				{		return "atan("+left.eval(args)+")";		}
+			}
 			if (myValue.equalsIgnoreCase("arcsin"))
-				return (Math.asin(left.eval(args)));
+			{
+				try	{		return ""+(Math.asin(Double.parseDouble(left.eval(args))));	}
+				catch(NumberFormatException e)
+				{		return "asin("+left.eval(args)+")";		}
+			}
 			if (myValue.equalsIgnoreCase("asin"))
-				return (Math.asin(left.eval(args)));
-			if (myValue.equalsIgnoreCase("tan"))
-				return (Math.tan(left.eval(args)));
+			{
+				try	{		return ""+(Math.asin(Double.parseDouble(left.eval(args))));	}
+				catch(NumberFormatException e)
+				{		return "asin("+left.eval(args)+")";		}
+			}
 			if (myValue.equalsIgnoreCase("arccos"))
-				return (Math.acos(left.eval(args)));
+			{
+				try	{		return ""+(Math.acos(Double.parseDouble(left.eval(args))));	}
+				catch(NumberFormatException e)
+				{		return "acos("+left.eval(args)+")";		}
+			}
 			if (myValue.equalsIgnoreCase("acos"))
-				return (Math.acos(left.eval(args)));
+			{
+				try	{		return ""+(Math.acos(Double.parseDouble(left.eval(args))));	}
+				catch(NumberFormatException e)
+				{		return "acos("+left.eval(args)+")";		}
+			}
 			if (myValue.equalsIgnoreCase("tanh"))
-				return (Math.tanh(left.eval(args)));
+			{
+				try	{		return ""+(Math.tanh(Double.parseDouble(left.eval(args))));	}
+				catch(NumberFormatException e)
+				{		return "tanh("+left.eval(args)+")";		}
+			}
 			if (myValue.equalsIgnoreCase("cosh"))
-				return (Math.cosh(left.eval(args)));
+			{
+				try	{		return ""+(Math.cosh(Double.parseDouble(left.eval(args))));	}
+				catch(NumberFormatException e)
+				{		return "cosh("+left.eval(args)+")";		}
+			}
 			if (myValue.equalsIgnoreCase("sinh"))
-				return (Math.sinh(left.eval(args)));
+			{
+				try	{		return ""+(Math.sinh(Double.parseDouble(left.eval(args))));	}
+				catch(NumberFormatException e)
+				{		return "sinh("+left.eval(args)+")";		}
+			}
 		}
-		return -1D;
+		return "Error String";
 	}
 	
 	public String toString()
