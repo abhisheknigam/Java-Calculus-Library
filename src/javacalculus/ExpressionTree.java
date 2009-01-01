@@ -46,7 +46,158 @@ public class ExpressionTree
 		
 		
 	}
-	
+
+	/**
+	 * Makes a tree out of the given expression.  Most of the functionality
+	 * of the ExpressionTree class is contained in this method.
+	 * @param expression The String to generate the tree from
+	 * @return The head Node of the expression tree
+	 */
+	private Node makeTree(String expression)
+	{
+		System.out.println("String received: "+expression);
+		try
+		{	formatChecks(expression);	}
+		catch(ExpressionFormatException e)
+		{	System.out.println(e.getMessage());	}
+		Node myTop=null;
+		if(stripPars(expression))
+			return makeTree(expression.substring(1,expression.length()-1));
+		int headIndex=getLevelOneIndex(expression);
+		//System.out.println("Index returned"+headIndex);
+		if(headIndex!=-1)
+			myTop=new Node(""+expression.charAt(headIndex),makeTree(expression.substring(0,headIndex)),
+				makeTree(expression.substring(headIndex+1,expression.length())));
+		else
+		{
+			headIndex=getLevelTwoIndex(expression);
+			if(headIndex!=-1)
+				myTop=new Node(""+expression.charAt(headIndex),makeTree(expression.substring(0,headIndex)),
+						makeTree(expression.substring(headIndex+1,expression.length())));
+			else
+			{
+				headIndex=getUnNegatorIndex(expression);
+				//System.out.println("neg head ind: "+headIndex);
+				if(headIndex!=-1)
+					myTop=new Node(""+'-',makeTree(expression.substring(1,expression.length())),null);
+				else
+				{
+					headIndex=getLevelThreeIndex(expression);
+					if(headIndex!=-1)
+						myTop=new Node(""+expression.charAt(headIndex),makeTree(expression.substring(0,headIndex)),
+							makeTree(expression.substring(headIndex+1,expression.length())));
+					else
+					{
+						headIndex=getLevelFourIndex(expression);
+						//System.out.println("Head received: "+headIndex);
+						if(headIndex==-1)//System.out.println("Assigning this expression: "+expression);
+							myTop=new Node(expression,null,null);
+						else if(headIndex==-2)
+						{
+							myTop=new Node(expression.substring(0,1),
+									makeTree(expression.substring(1,expression.length())),null);
+						}
+						else	
+							myTop=new Node(expression.substring(0,headIndex),
+									makeTree(expression.substring(headIndex+1,expression.length()-1)),null);
+					}
+				}
+			}
+		}
+		
+		return myTop;
+	}
+
+	/**
+	 * Decides whether an expression has an extra pair of outside parentheses.
+	 * This notifies the main expression handler to change "(x+y)" to "x+y"
+	 * @param expression The expression to be analyzed.
+	 * @return True if there is an extraneous pair; false if not.
+	 */
+	private boolean stripPars(String expression)
+	{
+		if(expression.charAt(0)!='(')
+			return false;
+		if(expression.charAt(expression.length()-1)!=')')
+			return false;
+		int parCount=0;
+		for (int i=1;i<expression.length()-1;i++)
+		{
+			if (expression.charAt(i)=='(')
+				parCount++;
+			if(expression.charAt(i)==')')
+				parCount--;
+			if(parCount<0)
+				return false;
+		}
+		return true;
+	}
+	/**
+	 *Should be called every time an expression is passed to ensure that it does 
+	 * not violate any formatting errors.
+	 * @param expression The expression to be checked.
+	 * @throws ExpressionFormatException If any of the checker messages raise flags.  Information is contained in the exception's message
+	 */
+	private void formatChecks(String expression)throws ExpressionFormatException
+	{
+			if(expression.length()==0)
+				throw new ExpressionFormatException("This is a blank or useless expression string.");
+			if (!parenParity(expression))
+				throw new ExpressionFormatException("Parentheses are not correctly placed.");
+			if (!operatorParity(expression))
+				throw new ExpressionFormatException("Operators are not correctly placed.");
+	}
+	/**
+	 * Checks whether parentheses in a given expression are properly paired.
+	 * Checks if #left=#right as well as making sure that not too many close parentheses
+	 * ')' appear before a sufficient number of open parentheses '('
+	 * @param expression The expression in String format to be checked
+	 * @return False if issue is found, true otherwise
+	 */
+	private boolean parenParity(String expression)
+	{
+		int parCounter=0;
+		for (int i=0;i<expression.length();i++)
+		{
+			if (expression.charAt(i)=='(')
+				parCounter++;
+			if (expression.charAt(i)==')')
+				parCounter--;
+			if (parCounter<0)
+				return false;
+		}
+		if (parCounter!=0)
+			return false;
+		return true;
+	}
+/**
+ * Checks whether operators in a given expression are correctly placed.
+ * Checks two operators such as +,-,*,/,%,^ appear in a row; takes into account 
+ * use of '-' as overloaded negator
+ * ')' appear before a sufficient number of open parentheses '('
+ * @param expression The expression in String format to be checked
+ * @return False if issue is found, true otherwise
+ */
+	private boolean operatorParity(String expression)
+	{
+		char cur;
+		boolean prev=false;
+		for(int i=0;i<expression.length();i++)
+		{
+			cur=expression.charAt(i);
+			if(cur=='-')
+				prev=true;
+			else if(cur=='*'||cur=='/'||cur=='%'||cur=='^'||cur=='+')
+			{
+				if(prev)
+					return false;
+				prev=true;				
+			}	
+			else
+				prev=false;		
+		}
+		return true;
+	}
 	/**
 	 * Used to parse out complete terms separated by + or - operators.  In accordance with order of operations,
 	 * this finds the + or - operator which is at the highest level of the equation (not nested) and is the
@@ -180,87 +331,227 @@ public class ExpressionTree
 	}
 	
 	/**
-	 * Makes a tree out of the given expression.  Most of the functionality
-	 * of the ExpressionTree class is contained in this method.
-	 * @param expression The String to generate the tree from
-	 * @return The head Node of the expression tree
-	 */
-	private Node makeTree(String expression)
-	{
-		System.out.println("String received: "+expression);
-		try
-		{	formatChecks(expression);	}
-		catch(EquationFormatException e)
-		{	System.out.println(e.getMessage());	}
-		Node myTop=null;
-		if(stripPars(expression))
-			return makeTree(expression.substring(1,expression.length()-1));
-		int headIndex=getLevelOneIndex(expression);
-		//System.out.println("Index returned"+headIndex);
-		if(headIndex!=-1)
-			myTop=new Node(""+expression.charAt(headIndex),makeTree(expression.substring(0,headIndex)),
-				makeTree(expression.substring(headIndex+1,expression.length())));
-		else
-		{
-			headIndex=getLevelTwoIndex(expression);
-			if(headIndex!=-1)
-				myTop=new Node(""+expression.charAt(headIndex),makeTree(expression.substring(0,headIndex)),
-						makeTree(expression.substring(headIndex+1,expression.length())));
-			else
-			{
-				headIndex=getUnNegatorIndex(expression);
-				//System.out.println("neg head ind: "+headIndex);
-				if(headIndex!=-1)
-					myTop=new Node(""+'-',makeTree(expression.substring(1,expression.length())),null);
-				else
-				{
-					headIndex=getLevelThreeIndex(expression);
-					if(headIndex!=-1)
-						myTop=new Node(""+expression.charAt(headIndex),makeTree(expression.substring(0,headIndex)),
-							makeTree(expression.substring(headIndex+1,expression.length())));
-					else
-					{
-						headIndex=getLevelFourIndex(expression);
-						//System.out.println("Head received: "+headIndex);
-						if(headIndex==-1)//System.out.println("Assigning this expression: "+expression);
-							myTop=new Node(expression,null,null);
-						else if(headIndex==-2)
-						{
-							myTop=new Node(expression.substring(0,1),
-									makeTree(expression.substring(1,expression.length())),null);
-						}
-						else	
-							myTop=new Node(expression.substring(0,headIndex),
-									makeTree(expression.substring(headIndex+1,expression.length()-1)),null);
-					}
-				}
-			}
-		}
-		
-		return myTop;
-	}
-	/**
 	 * Evaluates an expressionTree.  
 	 * @return The String representation of the solution to this equation
 	 */
 	public String eval()
 	{	return eval(new Variable[0]);	}
 	/**
-	 * Evaluates an expressionTree with given variable substitutions.
-	 * You can substitute constants or other expressions for variables.
-	 * @param args The array of Variables to substitute in
+	 * Evaluates an expressionTree.  
+	 * @param args The array of Variables representing the arguments.
 	 * @return The String representation of the solution to this equation
 	 */
 	public String eval(Variable[] args)
-	{	return head.eval(args);	}
+	{	return eval(args,head);	}
 	/**
 	 * Evaluates an expressionTree with given variable substitutions.
 	 * You can substitute constants or other expressions for variables.
-	 * @param args The array of Strings in format "x=c"
+	 * @param args The array of Variables to substitute in
+	 * @param root The Node representing the head of the expressionTree being evaluated
+	 * @return The String representation of the solution to this equation
+	 */
+	private String eval(Variable[] args, Node root)
+{	
+		//System.out.println(args.length);
+		//System.out.println(toString());
+	//if a constant or variable
+	if (root.getLeft()==null&&root.getRight()==null) 
+	{
+		//if there are substitutions to be made
+		if (args.length!=0)
+		{
+			for(Variable a: args)
+			{
+				//System.out.println(a);
+				if(a.getName().equalsIgnoreCase(root.getValue()))
+				{
+					System.out.println(a);
+//						try
+//						{	return Double.parseDouble(a.getValue());	}
+//						catch(NumberFormatException e)
+//						{	}
+					//System.out.println("Subbing the expression: "+a.getValue()+" for "+a.getName()+".");
+					return (new ExpressionTree(a.getValue()).eval(args));	
+				}
+			}
+		}
+		if (root.getValue().equalsIgnoreCase("PI"))
+			return ""+Math.PI;
+		else if (root.getValue().equalsIgnoreCase("e"))
+			return ""+Math.E;
+		else
+			try
+			{	return ""+Double.parseDouble(root.getValue());	}
+			catch (NumberFormatException e)
+			{		return root.getValue();			}
+			
+	}
+	
+	//binary operators
+	else if (root.getLeft()!=null&&root.getRight()!=null) 
+		{
+		if (root.getValue().charAt(0)=='+')
+		{
+			try	{		return ""+(Double.parseDouble(eval(args,root.getLeft()))+Double.parseDouble(eval(args,root.getRight())));	}
+			catch(NumberFormatException e)
+			{		return eval(args,root.getLeft())+"+"+eval(args,root.getRight());	}
+		}			
+		if (root.getValue().charAt(0)=='-')
+		{
+			try	{		return ""+(Double.parseDouble(eval(args,root.getLeft()))-Double.parseDouble(eval(args,root.getRight())));	}
+			catch(NumberFormatException e)
+			{		return eval(args,root.getLeft())+"-"+eval(args,root.getRight());	}
+		}	
+		if (root.getValue().charAt(0)=='*')
+		{
+			try	{		return ""+(Double.parseDouble(eval(args,root.getLeft()))*Double.parseDouble(eval(args,root.getRight())));	}
+			catch(NumberFormatException e)
+			{		return eval(args,root.getLeft())+"*"+eval(args,root.getRight());	}
+		}	
+		if (root.getValue().charAt(0)=='/')
+		{
+			try	{		return ""+(Double.parseDouble(eval(args,root.getLeft()))/Double.parseDouble(eval(args,root.getRight())));	}
+			catch(NumberFormatException e)
+			{		return eval(args,root.getLeft())+"/"+eval(args,root.getRight());	}
+		}	
+		if (root.getValue().charAt(0)=='^')
+		{
+			try	{		return ""+(Math.pow(Double.parseDouble(eval(args,root.getLeft())),Double.parseDouble(eval(args,root.getRight()))));	}
+			catch(NumberFormatException e)
+			{		return "("+eval(args,root.getLeft())+")^("+eval(args,root.getRight())+")";		}
+		}
+		if (root.getValue().charAt(0)=='%')
+		{
+			try	{		return ""+(Double.parseDouble(eval(args,root.getLeft()))%Double.parseDouble(eval(args,root.getRight())));	}
+			catch(NumberFormatException e)
+			{		return eval(args,root.getLeft())+"%"+eval(args,root.getRight());	}
+		}	
+	}
+	//unary operators
+	else 
+	{
+		//System.out.println("Unary operator");
+		if (root.getValue().charAt(0)=='-')
+		{
+			try	{	return ""+(-Double.parseDouble(eval(args,root.getLeft())));	}
+			catch(NumberFormatException e)
+			{		return "-("+eval(args,root.getLeft())+")";	}
+		}
+		if (root.getValue().equalsIgnoreCase("abs"))
+		{
+			try	{		return ""+(Math.abs(Double.parseDouble(eval(args,root.getLeft()))));	}
+			catch(NumberFormatException e)
+			{		return "abs("+eval(args,root.getLeft())+")";		}
+		}
+		if (root.getValue().equalsIgnoreCase("sqrt"))
+		{
+			try	{		return ""+(Math.sqrt(Double.parseDouble(eval(args,root.getLeft()))));	}
+			catch(NumberFormatException e)
+			{		return "sqrt("+eval(args,root.getLeft())+")";		}
+		}
+		if (root.getValue().equalsIgnoreCase("ln"))
+		{
+			try	{		return ""+(Math.log(Double.parseDouble(eval(args,root.getLeft()))));	}
+			catch(NumberFormatException e)
+			{		return "ln("+eval(args,root.getLeft())+")";		}
+		}
+		if (root.getValue().equalsIgnoreCase("log"))
+		{
+			try	{		return ""+(Math.log10(Double.parseDouble(eval(args,root.getLeft()))));	}
+			catch(NumberFormatException e)
+			{		return "log("+eval(args,root.getLeft())+")";		}
+		}
+		
+		//trigs, including inverses, hyperbolics
+		if (root.getValue().equalsIgnoreCase("tan"))
+		{
+			try	{		return ""+(Math.tan(Double.parseDouble(eval(args,root.getLeft()))));	}
+			catch(NumberFormatException e)
+			{		return "tan("+eval(args,root.getLeft())+")";		}
+		}
+		if (root.getValue().equalsIgnoreCase("sin"))
+		{
+			try	{		return ""+(Math.sin(Double.parseDouble(eval(args,root.getLeft()))));	}
+			catch(NumberFormatException e)
+			{		return "sin("+eval(args,root.getLeft())+")";		}
+		}
+		if (root.getValue().equalsIgnoreCase("cos"))
+		{
+			try	{		return ""+(Math.cos(Double.parseDouble(eval(args,root.getLeft()))));	}
+			catch(NumberFormatException e)
+			{		return "cos("+eval(args,root.getLeft())+")";		}
+		}
+//			if (root.getValue().equalsIgnoreCase("cot"))
+//				return (1/Math.tan(eval(args,root.getLeft())));
+//			if (root.getValue().equalsIgnoreCase("sec"))
+//				return (1/Math.cos(eval(args,root.getLeft())));
+//			if (root.getValue().equalsIgnoreCase("csc"))
+//				return (1/Math.sin(eval(args,root.getLeft())));
+		if (root.getValue().equalsIgnoreCase("arctan"))
+		{
+			try	{		return ""+(Math.atan(Double.parseDouble(eval(args,root.getLeft()))));	}
+			catch(NumberFormatException e)
+			{		return "atan("+eval(args,root.getLeft())+")";		}
+		}
+		if (root.getValue().equalsIgnoreCase("atan"))
+		{
+			try	{		return ""+(Math.atan(Double.parseDouble(eval(args,root.getLeft()))));	}
+			catch(NumberFormatException e)
+			{		return "atan("+eval(args,root.getLeft())+")";		}
+		}
+		if (root.getValue().equalsIgnoreCase("arcsin"))
+		{
+			try	{		return ""+(Math.asin(Double.parseDouble(eval(args,root.getLeft()))));	}
+			catch(NumberFormatException e)
+			{		return "asin("+eval(args,root.getLeft())+")";		}
+		}
+		if (root.getValue().equalsIgnoreCase("asin"))
+		{
+			try	{		return ""+(Math.asin(Double.parseDouble(eval(args,root.getLeft()))));	}
+			catch(NumberFormatException e)
+			{		return "asin("+eval(args,root.getLeft())+")";		}
+		}
+		if (root.getValue().equalsIgnoreCase("arccos"))
+		{
+			try	{		return ""+(Math.acos(Double.parseDouble(eval(args,root.getLeft()))));	}
+			catch(NumberFormatException e)
+			{		return "acos("+eval(args,root.getLeft())+")";		}
+		}
+		if (root.getValue().equalsIgnoreCase("acos"))
+		{
+			try	{		return ""+(Math.acos(Double.parseDouble(eval(args,root.getLeft()))));	}
+			catch(NumberFormatException e)
+			{		return "acos("+eval(args,root.getLeft())+")";		}
+		}
+		if (root.getValue().equalsIgnoreCase("tanh"))
+		{
+			try	{		return ""+(Math.tanh(Double.parseDouble(eval(args,root.getLeft()))));	}
+			catch(NumberFormatException e)
+			{		return "tanh("+eval(args,root.getLeft())+")";		}
+		}
+		if (root.getValue().equalsIgnoreCase("cosh"))
+		{
+			try	{		return ""+(Math.cosh(Double.parseDouble(eval(args,root.getLeft()))));	}
+			catch(NumberFormatException e)
+			{		return "cosh("+eval(args,root.getLeft())+")";		}
+		}
+		if (root.getValue().equalsIgnoreCase("sinh"))
+		{
+			try	{		return ""+(Math.sinh(Double.parseDouble(eval(args,root.getLeft()))));	}
+			catch(NumberFormatException e)
+			{		return "sinh("+eval(args,root.getLeft())+")";		}
+		}
+	}
+	return "Error String";
+}
+	/**
+	 * Evaluates an expressionTree with given variable substitutions.
+	 * You can substitute constants or other expressions for variables.
+	 * @param args The array of Strings in format "x=a","y=b"...
 	 * @throws An exception if the arguments are incorrectly formatted
 	 * @return The String representation of the solution to this equation
 	 */
-	public String eval(String[] args)throws EquationFormatException
+	public String eval(String[] args)
 	{
 		Variable[] vars=new Variable[args.length];
 		for(int i=0;i<args.length;i++)
@@ -275,18 +566,20 @@ public class ExpressionTree
 				}
 			}
 			if(vars[i]==null||vars[i].getValue()==null||vars[i].getName()==null)
-				throw new EquationFormatException("No '=' specified in one of your arguments.");
+			{
+				System.out.println("No '=' specified in one of your arguments.");
+				return eval();
+			}
 		}
 		return eval(vars);
 	}
 	/**
 	 * Evaluates an expressionTree with given variable substitutions.
 	 * You can substitute constants or other expressions for variables.
-	 * @param args The Strings in format "x=c,y=b,...."
-	 * @throws An exception if the arguments are incorrectly formatted
+	 * @param args The String in format "x=a,y=b,...."
 	 * @return The String representation of the solution to this equation
 	 */
-	public String eval(String args) throws EquationFormatException
+	public String eval(String args)
 	{
 		ArrayList<String> terms=new ArrayList<String>();
 		int thisStartIndex=0;
@@ -304,104 +597,9 @@ public class ExpressionTree
 		//accounts for last term which will not be followed by a comma
 		terms.add(args.substring(thisStartIndex,args.length()));		
 		String[] array=new String[terms.size()];
-		try
-		{	return eval(terms.toArray(array));	}
-		catch(EquationFormatException e)
-		{	System.out.println(e.getMessage());	}
-		return "";
+		return eval(terms.toArray(array));
 	}
-	/**
-	 * Decides whether an expression has an extra pair of outside parentheses.
-	 * This notifies the main expression handler to change "(x+y)" to "x+y"
-	 * @param expression The expression to be analyzed.
-	 * @return True if there is an extraneous pair; false if not.
-	 */
-	private boolean stripPars(String expression)
-	{
-		if(expression.charAt(0)!='(')
-			return false;
-		if(expression.charAt(expression.length()-1)!=')')
-			return false;
-		int parCount=0;
-		for (int i=1;i<expression.length()-1;i++)
-		{
-			if (expression.charAt(i)=='(')
-				parCount++;
-			if(expression.charAt(i)==')')
-				parCount--;
-			if(parCount<0)
-				return false;
-		}
-		return true;
-	}
-	/**
-	 *Should be called every time an expression is passed to ensure that it does 
-	 * not violate any formatting errors.
-	 * @param expression The expression to be checked.
-	 * @throws EquationFormatException If any of the checker messages raise flags.  Information is contained in the exception's message
-	 */
-	private void formatChecks(String expression)throws EquationFormatException
-	{
-			if(expression.length()==0)
-				throw new EquationFormatException("This is a blank or useless expression string.");
-			if (!parenParity(expression))
-				throw new EquationFormatException("Parentheses are not correctly placed.");
-			if (!operatorParity(expression))
-				throw new EquationFormatException("Operators are not correctly placed.");
-	}
-
-	/**
-	 * Checks whether parentheses in a given expression are properly paired.
-	 * Checks if #left=#right as well as making sure that not too many close parentheses
-	 * ')' appear before a sufficient number of open parentheses '('
-	 * @param expression The expression in String format to be checked
-	 * @return False if issue is found, true otherwise
-	 */
-	private boolean parenParity(String expression)
-	{
-		int parCounter=0;
-		for (int i=0;i<expression.length();i++)
-		{
-			if (expression.charAt(i)=='(')
-				parCounter++;
-			if (expression.charAt(i)==')')
-				parCounter--;
-			if (parCounter<0)
-				return false;
-		}
-		if (parCounter!=0)
-			return false;
-		return true;
-	}
-/**
- * Checks whether operators in a given expression are correctly placed.
- * Checks two operators such as +,-,*,/,%,^ appear in a row; takes into account 
- * use of '-' as overloaded negator
- * ')' appear before a sufficient number of open parentheses '('
- * @param expression The expression in String format to be checked
- * @return False if issue is found, true otherwise
- */
-	private boolean operatorParity(String expression)
-	{
-		char cur;
-		boolean prev=false;
-		for(int i=0;i<expression.length();i++)
-		{
-			cur=expression.charAt(i);
-			if(cur=='-')
-				prev=true;
-			else if(cur=='*'||cur=='/'||cur=='%'||cur=='^'||cur=='+')
-			{
-				if(prev)
-					return false;
-				prev=true;				
-			}	
-			else
-				prev=false;		
-		}
-		return true;
-	}
-
+	
 	private class Node
 	{
 		private String myValue;
@@ -432,6 +630,8 @@ public class ExpressionTree
 		 */
 		public Node getRight()
 		{	return right;	}
+		public String getValue()
+		{	return myValue;		}
 	/**
 	 * Sets the left child of this node.
 	 * @param l The node to make this one's left child.
@@ -444,207 +644,6 @@ public class ExpressionTree
 		 */
 		public void setRight(Node r)
 		{	right=r;	}
-		
-		/**
-		 * Evaluates this node based on its value applied to the evaluation of its two children.
-		 * This method contains all the logic for deconstructing a tree.
-		 * @param args The array of type Variable which represent the substitutions to be made.
-		 * @return The String representing the evaluation of this node
-		 */
-		public String eval(Variable[] args)
-		{
-				//System.out.println(args.length);
-				//System.out.println(toString());
-			//if a constant or variable
-			if (left==null&&right==null) 
-			{
-				//if there are substitutions to be made
-				if (args.length!=0)
-				{
-					for(Variable a: args)
-					{
-						//System.out.println(a);
-						if(a.getName().equalsIgnoreCase(myValue))
-						{
-							System.out.println(a);
-	//						try
-	//						{	return Double.parseDouble(a.getValue());	}
-	//						catch(NumberFormatException e)
-	//						{	}
-							//System.out.println("Subbing the expression: "+a.getValue()+" for "+a.getName()+".");
-							return (new ExpressionTree(a.getValue()).eval(args));	
-						}
-					}
-				}
-				if (myValue.equalsIgnoreCase("PI"))
-					return ""+Math.PI;
-				else if (myValue.equalsIgnoreCase("e"))
-					return ""+Math.E;
-				else
-					try
-					{	return ""+Double.parseDouble(myValue);	}
-					catch (NumberFormatException e)
-					{		return myValue;			}
-					
-			}
-			
-			//binary operators
-			else if (left!=null&&right!=null) 
-				{
-				if (myValue.charAt(0)=='+')
-				{
-					try	{		return ""+(Double.parseDouble(left.eval(args))+Double.parseDouble(right.eval(args)));	}
-					catch(NumberFormatException e)
-					{		return left.eval(args)+"+"+right.eval(args);	}
-				}			
-				if (myValue.charAt(0)=='-')
-				{
-					try	{		return ""+(Double.parseDouble(left.eval(args))-Double.parseDouble(right.eval(args)));	}
-					catch(NumberFormatException e)
-					{		return left.eval(args)+"-"+right.eval(args);	}
-				}	
-				if (myValue.charAt(0)=='*')
-				{
-					try	{		return ""+(Double.parseDouble(left.eval(args))*Double.parseDouble(right.eval(args)));	}
-					catch(NumberFormatException e)
-					{		return left.eval(args)+"*"+right.eval(args);	}
-				}	
-				if (myValue.charAt(0)=='/')
-				{
-					try	{		return ""+(Double.parseDouble(left.eval(args))/Double.parseDouble(right.eval(args)));	}
-					catch(NumberFormatException e)
-					{		return left.eval(args)+"/"+right.eval(args);	}
-				}	
-				if (myValue.charAt(0)=='^')
-				{
-					try	{		return ""+(Math.pow(Double.parseDouble(left.eval(args)),Double.parseDouble(right.eval(args))));	}
-					catch(NumberFormatException e)
-					{		return "("+left.eval(args)+")^("+right.eval(args)+")";		}
-				}
-				if (myValue.charAt(0)=='%')
-				{
-					try	{		return ""+(Double.parseDouble(left.eval(args))%Double.parseDouble(right.eval(args)));	}
-					catch(NumberFormatException e)
-					{		return left.eval(args)+"%"+right.eval(args);	}
-				}	
-			}
-			//unary operators
-			else 
-			{
-				//System.out.println("Unary operator");
-				if (myValue.charAt(0)=='-')
-				{
-					try	{	return ""+(-Double.parseDouble(left.eval(args)));	}
-					catch(NumberFormatException e)
-					{		return "-("+left.eval(args)+")";	}
-				}
-				if (myValue.equalsIgnoreCase("abs"))
-				{
-					try	{		return ""+(Math.abs(Double.parseDouble(left.eval(args))));	}
-					catch(NumberFormatException e)
-					{		return "abs("+left.eval(args)+")";		}
-				}
-				if (myValue.equalsIgnoreCase("sqrt"))
-				{
-					try	{		return ""+(Math.sqrt(Double.parseDouble(left.eval(args))));	}
-					catch(NumberFormatException e)
-					{		return "sqrt("+left.eval(args)+")";		}
-				}
-				if (myValue.equalsIgnoreCase("ln"))
-				{
-					try	{		return ""+(Math.log(Double.parseDouble(left.eval(args))));	}
-					catch(NumberFormatException e)
-					{		return "ln("+left.eval(args)+")";		}
-				}
-				if (myValue.equalsIgnoreCase("log"))
-				{
-					try	{		return ""+(Math.log10(Double.parseDouble(left.eval(args))));	}
-					catch(NumberFormatException e)
-					{		return "log("+left.eval(args)+")";		}
-				}
-				
-				//trigs, including inverses, hyperbolics
-				if (myValue.equalsIgnoreCase("tan"))
-				{
-					try	{		return ""+(Math.tan(Double.parseDouble(left.eval(args))));	}
-					catch(NumberFormatException e)
-					{		return "tan("+left.eval(args)+")";		}
-				}
-				if (myValue.equalsIgnoreCase("sin"))
-				{
-					try	{		return ""+(Math.sin(Double.parseDouble(left.eval(args))));	}
-					catch(NumberFormatException e)
-					{		return "sin("+left.eval(args)+")";		}
-				}
-				if (myValue.equalsIgnoreCase("cos"))
-				{
-					try	{		return ""+(Math.cos(Double.parseDouble(left.eval(args))));	}
-					catch(NumberFormatException e)
-					{		return "cos("+left.eval(args)+")";		}
-				}
-	//			if (myValue.equalsIgnoreCase("cot"))
-	//				return (1/Math.tan(left.eval(args)));
-	//			if (myValue.equalsIgnoreCase("sec"))
-	//				return (1/Math.cos(left.eval(args)));
-	//			if (myValue.equalsIgnoreCase("csc"))
-	//				return (1/Math.sin(left.eval(args)));
-				if (myValue.equalsIgnoreCase("arctan"))
-				{
-					try	{		return ""+(Math.atan(Double.parseDouble(left.eval(args))));	}
-					catch(NumberFormatException e)
-					{		return "atan("+left.eval(args)+")";		}
-				}
-				if (myValue.equalsIgnoreCase("atan"))
-				{
-					try	{		return ""+(Math.atan(Double.parseDouble(left.eval(args))));	}
-					catch(NumberFormatException e)
-					{		return "atan("+left.eval(args)+")";		}
-				}
-				if (myValue.equalsIgnoreCase("arcsin"))
-				{
-					try	{		return ""+(Math.asin(Double.parseDouble(left.eval(args))));	}
-					catch(NumberFormatException e)
-					{		return "asin("+left.eval(args)+")";		}
-				}
-				if (myValue.equalsIgnoreCase("asin"))
-				{
-					try	{		return ""+(Math.asin(Double.parseDouble(left.eval(args))));	}
-					catch(NumberFormatException e)
-					{		return "asin("+left.eval(args)+")";		}
-				}
-				if (myValue.equalsIgnoreCase("arccos"))
-				{
-					try	{		return ""+(Math.acos(Double.parseDouble(left.eval(args))));	}
-					catch(NumberFormatException e)
-					{		return "acos("+left.eval(args)+")";		}
-				}
-				if (myValue.equalsIgnoreCase("acos"))
-				{
-					try	{		return ""+(Math.acos(Double.parseDouble(left.eval(args))));	}
-					catch(NumberFormatException e)
-					{		return "acos("+left.eval(args)+")";		}
-				}
-				if (myValue.equalsIgnoreCase("tanh"))
-				{
-					try	{		return ""+(Math.tanh(Double.parseDouble(left.eval(args))));	}
-					catch(NumberFormatException e)
-					{		return "tanh("+left.eval(args)+")";		}
-				}
-				if (myValue.equalsIgnoreCase("cosh"))
-				{
-					try	{		return ""+(Math.cosh(Double.parseDouble(left.eval(args))));	}
-					catch(NumberFormatException e)
-					{		return "cosh("+left.eval(args)+")";		}
-				}
-				if (myValue.equalsIgnoreCase("sinh"))
-				{
-					try	{		return ""+(Math.sinh(Double.parseDouble(left.eval(args))));	}
-					catch(NumberFormatException e)
-					{		return "sinh("+left.eval(args)+")";		}
-				}
-			}
-			return "Error String";
-		}
 		
 		public String toString()
 		{	return ("Value: "+myValue+", left: "+left+", right: "+right);	}
