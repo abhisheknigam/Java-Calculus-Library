@@ -297,9 +297,7 @@ public class ExpressionTree
 					parCounter++;	
 			if (cur==')')
 				parCounter--;
-				
 		}		
-		
 		return -1;
 	}
 	/**
