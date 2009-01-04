@@ -4,10 +4,10 @@
 package javacalculus;
 
 /**
- * @author Seth
+ * @author Seth Shannin
  *
  */
-public abstract class Expression 
+public final class Expression 
 {
 
 	public static String add(String exp1, String exp2)
@@ -88,14 +88,19 @@ public abstract class Expression
 	
 	public static String eval(String expression)
 	{
-		if(stripPars(expression))
-			return eval(expression.substring(1,expression.length()-1));
 		
-		//check if number
+		while(ExpressionTools.extraParPair(expression))
+			  expression=expression.substring(1,expression.length()-1);
+		
+		//check if number and if so return
 		try
 		{	return ""+(Double.parseDouble(expression));	}
 		catch(NumberFormatException e)
 		{}
+		if(expression.equalsIgnoreCase("Pi"))
+			return ""+Math.PI;
+		if(expression.equalsIgnoreCase("e"))
+			return ""+Math.E;
 		
 		//check for +,-
 		int parCounter=0;
@@ -140,7 +145,7 @@ public abstract class Expression
 		}
 	
 		//Check for unary negating operator
-		//By processes, it must be the first character at this point 
+		//By the previous processes, it must be the first character at this point 
 		if(expression.charAt(0)=='-')
 			return Expression.negate(expression.substring(1,expression.length()));
 		
@@ -160,12 +165,103 @@ public abstract class Expression
 				parCounter--;
 		}		
 		
+		//check for functions
+		//first part identifies function name
+		StringBuffer function=new StringBuffer();
+		for (int i=0; i<expression.length(); i++)
+		{
+			cur=expression.charAt(i);
+			if (cur!='(')
+				function.append(cur);
+			if(cur=='(')
+				break;
+		}
+		String fName=function.toString();
+		//System.out.println("Function word length: "+function.length());
 		
-		return null;
+		//Checks if the function name matches any unary function and if so, evaluates it
+		for (UnFunction f: UnFunction.values())
+		{
+			if (fName.equalsIgnoreCase(f.toString()))
+				return f.eval(expression.substring(fName.length()+1,expression.length()-1));
+		}
+		
+//		if(function.length()==0||function.length()==expression.length())
+//			return -1;
+//		else
+//			return function.length();
+		
+		return expression;
 	}
 	
-	private enum Function {
-		  tan   
+	private enum UnFunction 
+	{
+		//unary functions, last 20 or so are trig
+		
+	ln   
+		  { String eval(String expression) 
+		  	{ 
+			  String first=Expression.eval(expression);
+				try	
+				{		return ""+(Math.log(Double.parseDouble(first)));	}
+				catch(NumberFormatException e)
+				{	return "ln("+expression+")";	}	
+			} 
+		  },
+	log   
+		  { String eval(String expression) 
+		  	{ 
+			  String first=Expression.eval(expression);
+				try	
+				{		return ""+(Math.log10(Double.parseDouble(first)));	}
+				catch(NumberFormatException e)
+				{	return "log("+expression+")";	}	
+			} 
+		  },
+	sqrt   
+		  { String eval(String expression) 
+		  	{ 
+			  String first=Expression.eval(expression);
+				try	
+				{		return ""+(Math.sqrt(Double.parseDouble(first)));	}
+				catch(NumberFormatException e)
+				{	return "sqrt("+expression+")";	}	
+			} 
+		  },
+	abs   
+		  { String eval(String expression) 
+		  	{ 
+			  String first=Expression.eval(expression);
+				try	
+				{		return ""+(Math.abs(Double.parseDouble(first)));	}
+				catch(NumberFormatException e)
+				{	return "abs("+expression+")";	}	
+			} 
+		  },
+	sin   
+		  { String eval(String expression) 
+		  	{ 
+			  String first=Expression.eval(expression);
+				try	
+				{		return ""+(Math.sin(Double.parseDouble(first)));	}
+				catch(NumberFormatException e)
+				{	return "sin("+expression+")";	}	
+			} 
+		  },
+		  
+	cos   
+		  { String eval(String expression) 
+		  	{ 
+			  String first=Expression.eval(expression);
+			  System.out.println("Cos of: "+first);
+			  System.out.println("Parsed: "+(Math.cos(Double.parseDouble(first))));
+				try	
+				{		return ""+(Math.cos(Double.parseDouble(first)));	}
+				catch(NumberFormatException e)
+				{	return "cos("+expression+")";	}	
+			} 
+		  },
+	tan   
 		  { String eval(String expression) 
 		  	{ 
 			  String first=Expression.eval(expression);
@@ -175,49 +271,135 @@ public abstract class Expression
 				{	return "tan("+expression+")";	}	
 			} 
 		  },
-		  sin   
+	csc   
 		  { String eval(String expression) 
 		  	{ 
 			  String first=Expression.eval(expression);
 				try	
-				{		return ""+(Math.tan(Double.parseDouble(first)));	}
+				{		return ""+(1/Math.sin(Double.parseDouble(first)));	}
 				catch(NumberFormatException e)
-				{	return "tan("+expression+")";	}	
+				{	return "csc("+expression+")";	}	
+			} 
+		  },
+	sec   
+		  { String eval(String expression) 
+		  	{ 
+			  String first=Expression.eval(expression);
+				try	
+				{		return ""+(1/Math.cos(Double.parseDouble(first)));	}
+				catch(NumberFormatException e)
+				{	return "cos("+expression+")";	}	
+			} 
+		  },
+	cot   
+		  { String eval(String expression) 
+		  	{ 
+			  String first=Expression.eval(expression);
+				try	
+				{		return ""+(1/Math.tan(Double.parseDouble(first)));	}
+				catch(NumberFormatException e)
+				{	return "cot("+expression+")";	}	
+			} 
+		  },
+    atan   
+		  { String eval(String expression) 
+		  	{ 
+			  String first=Expression.eval(expression);
+				try	
+				{		return ""+(Math.atan(Double.parseDouble(first)));	}
+				catch(NumberFormatException e)
+				{	return "atan("+expression+")";	}	
+			} 
+		  },
+	acos   
+		  { String eval(String expression) 
+		  	{ 
+			  String first=Expression.eval(expression);
+				try	
+				{		return ""+(Math.acos(Double.parseDouble(first)));	}
+				catch(NumberFormatException e)
+				{	return "acos("+expression+")";	}	
+			} 
+		  },	  
+	asin   
+		  { String eval(String expression) 
+		  	{ 
+			  String first=Expression.eval(expression);
+				try	
+				{		return ""+(Math.asin(Double.parseDouble(first)));	}
+				catch(NumberFormatException e)
+				{	return "asin("+expression+")";	}	
+			} 
+		  },
+	sinh   
+		  { String eval(String expression) 
+		  	{ 
+			  String first=Expression.eval(expression);
+				try	
+				{		return ""+(Math.sinh(Double.parseDouble(first)));	}
+				catch(NumberFormatException e)
+				{	return "sinh("+expression+")";	}	
+			} 
+		  },
+	cosh   
+		  { String eval(String expression) 
+		  	{ 
+			  String first=Expression.eval(expression);
+				try	
+				{		return ""+(Math.cosh(Double.parseDouble(first)));	}
+				catch(NumberFormatException e)
+				{	return "cosh("+expression+")";	}	
+			} 
+		  },
+	tanh   
+		  { String eval(String expression) 
+		  	{ 
+			  String first=Expression.eval(expression);
+				try	
+				{		return ""+(Math.tanh(Double.parseDouble(first)));	}
+				catch(NumberFormatException e)
+				{	return "tanh("+expression+")";	}	
 			} 
 		  };
-//		  MINUS  
-//		  		{ double eval(double x, double y) { return x - y; } },
-//		  TIMES  { double eval(double x, double y) { return x * y; } },
-//		  DIVIDE { double eval(double x, double y) { return x / y; } };
-
-		  // Do arithmetic op represented by this constant
+		 		  
 		  abstract String eval(String expression);
-		}
-
-	
-	/**
-	 * Decides whether an expression has an extra pair of outside parentheses.
-	 * This notifies the main expression handler to change "(x+y)" to "x+y"
-	 * @param expression The expression to be analyzed.
-	 * @return True if there is an extraneous pair; false if not.
-	 */
-	private static boolean stripPars(String expression)
-	{
-		if(expression.charAt(0)!='(')
-			return false;
-		if(expression.charAt(expression.length()-1)!=')')
-			return false;
-		int parCount=0;
-		for (int i=1;i<expression.length()-1;i++)
-		{
-			if (expression.charAt(i)=='(')
-				parCount++;
-			if(expression.charAt(i)==')')
-				parCount--;
-			if(parCount<0)
-				return false;
-		}
-		return true;
 	}
 	
+	private enum BinFunction 
+	{
+	nthRoot   
+		  { String eval(String expression) 
+		  	{ 
+			//first make sure no extra () pairs around arguments, like (5,3) instead of 5,3
+			  while(ExpressionTools.extraParPair(expression))
+				  expression=expression.substring(1,expression.length()-1);
+			  int sepPoint=getTermSep(expression);
+			  String root=Expression.eval(expression.substring(0,sepPoint));
+			  String radicand=Expression.eval(expression.substring(sepPoint+1,expression.length()));
+			  try	
+				{		return ""+(Math.pow(Double.parseDouble(radicand),1/Double.parseDouble(root)));	}
+			  catch(NumberFormatException e)
+				{	return "("+radicand+"^(1/"+root+"))";	}	
+			} 
+		  };
+		  abstract String eval(String expression);
+		  
+		  private static int getTermSep(String expression)
+		  {			  
+			  int parCounter=0;
+			  char cur;
+			  for (int i=0; i<expression.length();i++)
+			  {
+				cur=expression.charAt(i);
+				if(cur=='(')
+						parCounter++;	
+				if (cur==')')
+					parCounter--; 
+				if(cur==','&&parCounter==0)
+					return i;
+			  }
+			  return 0;
+		  }
+	}
+
 }

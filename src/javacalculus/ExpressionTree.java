@@ -148,8 +148,9 @@ public class ExpressionTree
 			if (!operatorParity(expression))
 				throw new ExpressionFormatException("Operators are not correctly placed.");
 	}
+	
 	/**
-	 * Checks whether parentheses in a given expression are properly paired.
+	 * Checks whether parentheses in a given expression are properly placed.
 	 * Checks if #left=#right as well as making sure that not too many close parentheses
 	 * ')' appear before a sufficient number of open parentheses '('
 	 * @param expression The expression in String format to be checked
@@ -175,7 +176,6 @@ public class ExpressionTree
  * Checks whether operators in a given expression are correctly placed.
  * Checks two operators such as +,-,*,/,%,^ appear in a row; takes into account 
  * use of '-' as overloaded negator
- * ')' appear before a sufficient number of open parentheses '('
  * @param expression The expression in String format to be checked
  * @return False if issue is found, true otherwise
  */

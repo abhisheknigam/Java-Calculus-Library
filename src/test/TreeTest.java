@@ -5,6 +5,7 @@ import javacalculus.ExpressionTree;
 
 public class TreeTest 
 {
+	//don't use this 
 	public static void main(String[] args) 
 	{
 		ExpressionTree test=null;
