@@ -11,7 +11,7 @@ import javacalculus.*;
 public class ExpressionTest {
 	public static void main (String args[])
 	{
-		String e=Expression.eval("ln(2+3^-cos(1)+5.21-389/tan(Pi-1))");
+		String e=Expression.eval("1+x+2");
 		System.out.println(e);		
 	}
 

@@ -27,13 +27,7 @@ public abstract class CalcNParamFunctionEvaluator extends Calc2ParamFunctionEval
 			
 			while (index < input.size()) {
 				part = super.evaluateBinary(current, input.get(index));
-				if (part != null) {
-					try {
-						part = part.evaluate();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
+
 				if (part == null) {
 					for (int ii = index + 1; ii < input.size(); ii++) {
 						part = super.evaluateBinary(current, input.get(ii));
@@ -57,7 +51,6 @@ public abstract class CalcNParamFunctionEvaluator extends Calc2ParamFunctionEval
 						}
 						index++;
 					}
-					
 				}
 				else {
 					evaluated = true;
@@ -71,14 +64,14 @@ public abstract class CalcNParamFunctionEvaluator extends Calc2ParamFunctionEval
 			}
 			
 			if (evaluated) {
-				if (symbol.hasProperty(CalcSymbol.ASSOCIATIVE)) {
-					result = result.associativeSimplify();
-				}
+				//if (symbol.hasProperty(CalcSymbol.ASSOCIATIVE)) {
+				//	result = result.associativeSimplify();
+				//}
 				if ((result.size() == 1) && symbol.hasProperty(CalcSymbol.UNIPARAM_IDENTITY)) {
 	                   return result.get(0);
 				}
+				return result;
 			}
-			else return result;
 		}
 		return null;
 	}

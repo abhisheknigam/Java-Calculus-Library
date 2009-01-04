@@ -24,6 +24,9 @@ public class CalcADD extends CalcNParamFunctionEvaluator implements CalcOperator
 		else if (input1.equals(input2)) {
 			return CALC.MULTIPLY.createFunction(CALC.TWO, input1);
 		}
+		//else if (input1 instanceof CalcSymbol || input2 instanceof CalcSymbol) {
+		//	return CALC.ADD.createFunction(input1, input2); //if either input is a symbol, can't evaluate..return original
+		//}
 		//end optimization cases
 		//simplifiable cases
 		else if (input1.getHeader().equals(CALC.MULTIPLY) &&
