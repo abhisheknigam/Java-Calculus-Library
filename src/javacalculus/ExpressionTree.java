@@ -18,6 +18,7 @@ public class ExpressionTree
 	{	
 		head=makeTree(expression.replaceAll(" ",""));	
 	}
+	
 /**
  * Creates an expression tree of the arraylist.  This is whitespace independent.
  * The ArrayList is simply concatenated and treated as a string.

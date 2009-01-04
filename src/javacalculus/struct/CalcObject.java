@@ -1,0 +1,81 @@
+/**
+ * 
+ */
+package javacalculus.struct;
+
+/**
+ * The root interface for the expression hierarchy data structure. All 
+ * expression entities must implement this to be evaluable.
+ * @author Duyun Chen <A HREF="mailto:duchen@seas.upenn.edu">[duchen@seas.upenn.edu]</A>,
+ * Seth Shannin <A HREF="mailto:sshannin@seas.upenn.edu">[sshannin@seas.upenn.edu]</A>
+ *  
+ *
+ */
+
+public interface CalcObject extends Comparable<CalcObject> {
+	/**
+	 * Constants that identify a hierarchy (used as part of Comparable)
+	 */
+	public final static int DOUBLE 		= 0x01;
+	public final static int INTEGER 	= 0x02;
+	public final static int FRACTION 	= 0x04;
+	public final static int SYMBOL	 	= 0x08;
+	public final static int FUNCTION 	= 0x10;
+
+	/**
+	 * Evaluate the object if possible. If not, throw general exception
+	 * @return evaluation result as another CalcObject
+	 * @throws Exception
+	 */
+	public CalcObject evaluate() throws Exception;
+	
+	/**
+	 * Convert the object into a stringbuffer
+	 * @return the stringbuffer
+	 */
+	public StringBuffer toStringBuffer();
+	
+	/**
+	 * Convert the object into a string. Overrides the toString method in java.lang.Object
+	 * @return the string
+	 */
+	public String toString();
+	
+	/**
+	 * 
+	 * @param obj
+	 * @return whether this CalcObject is equal to obj. Overrides java.lang.Object.equals(Object obj
+	 * 
+	 */
+	public boolean equals(Object obj);
+	
+	@Override
+	public int compareTo(CalcObject obj);
+	
+	/**
+	 * 
+	 * @return true if the object represents a numeric. False otherwise.
+	 */
+	public boolean isNumber();
+	
+	/**
+	 * 
+	 * @return the header symbol of this object (the object's "name")
+	 */
+	public CalcSymbol getHeader();
+	
+	/**
+	 * 
+	 * @return the object's hierarchy constant. Used in compareTo(CalcObject obj)
+	 * @see Comparable 
+	 */
+	public int getHierarchy();
+	
+	/**
+	 * 
+	 * @return the precedence of the object (used at evaluation time)
+	 * The higher the return value, the higher the precedence. There is no
+	 * set range on these values. A simple [<,>,==] check will be used.
+	 */
+	public int getPrecedence();
+}
