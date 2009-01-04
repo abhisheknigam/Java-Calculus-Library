@@ -37,8 +37,8 @@ public class CalcSIN extends Calc1ParamFunctionEvaluator {
 			if (param.isInteger()) { //SIN(c*PI) = 0
 				return CALC.ZERO;
 			}
-			System.out.println(param.mod(CALC.D_HALF));
-			System.out.println(param.mod(CALC.D_HALF).isInteger());
+			//System.out.println(param.mod(CALC.D_HALF));
+			//System.out.println(param.mod(CALC.D_HALF).isInteger());
 			if (param.mod(CALC.D_HALF).equals(CALC.D_ZERO)) { //SIN(c*PI/2)
 				if (param.mod(CALC.D_THREE_HALF).equals(CALC.D_ZERO)) {
 					return CALC.NEG_ONE;
@@ -61,7 +61,6 @@ public class CalcSIN extends Calc1ParamFunctionEvaluator {
 
 	@Override
 	protected CalcObject evaluateFunction(CalcFunction input) {
-		// TODO Auto-generated method stub
 		return CALC.SIN.createFunction(input);
 	}
 
@@ -72,7 +71,7 @@ public class CalcSIN extends Calc1ParamFunctionEvaluator {
 
 	@Override
 	protected CalcObject evaluateSymbol(CalcSymbol input) {
-		// TODO Auto-generated method stub
+		//cannot evaluate symbols, so just return the original function
 		return CALC.SIN.createFunction(input);
 	}
 
