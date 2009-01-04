@@ -183,8 +183,8 @@ public class CalcInteger implements CalcObject {
 	@Override
 	public int getPrecedence() {
 		if (value.compareTo(BigInteger.ZERO) < 0) {
-			return 100;
+			//return 100;
 		}
-		else return 9999999;
+		return 9999999;
 	}
 }

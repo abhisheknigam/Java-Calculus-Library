@@ -125,7 +125,7 @@ public class CalcMULTIPLY extends CalcNParamFunctionEvaluator implements CalcOpe
 				continue;
 			}
 			if (temp.equals(CALC.NEG_ONE)) {
-				buffer.append('-');	//unary negative
+				buffer.append('-');	//-1*x = -x
 			}
 			else {
 				if (temp.getPrecedence() < precedence) {
