@@ -98,6 +98,10 @@ public class CalcInteger implements CalcObject {
 		return new CalcInteger(value.pow(n));
 	}
 	
+	public CalcInteger mod(CalcInteger input) {
+		return new CalcInteger(value.mod(input.bigIntegerValue()));
+	}
+	
 	/**
 	 * 
 	 * @param n

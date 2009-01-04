@@ -60,7 +60,7 @@ public class CalcDouble implements CalcObject {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof CalcDouble) {
-			return value == ((CalcDouble)obj).bigDecimalValue();
+			return value.doubleValue() == (((CalcDouble)obj).doubleValue());
 		}
 		return false;
 	}
@@ -76,16 +76,28 @@ public class CalcDouble implements CalcObject {
 		return CALC.DOUBLE;
 	}
 
-	public CalcObject add(CalcDouble input) {
+	public CalcDouble add(CalcDouble input) {
 		return new CalcDouble(value.add(input.bigDecimalValue()));
 	}
 
-	public CalcObject multiply(CalcDouble input) {
+	public CalcDouble multiply(CalcDouble input) {
 		return new CalcDouble(value.multiply(input.bigDecimalValue()));
 	}
 	
-	public CalcObject power(CalcDouble input) {
+	public CalcDouble divide(CalcDouble input) {
+		return new CalcDouble(value.divide(input.bigDecimalValue()));
+	}
+	
+	public CalcDouble power(CalcDouble input) {
 		return new CalcDouble(Math.pow(doubleValue(), input.doubleValue()));
+	}
+	
+	public CalcDouble mod(CalcDouble input) {
+		return new CalcDouble(value.remainder(input.bigDecimalValue()));
+	}
+	
+	public boolean isInteger() {
+		return (mod(CALC.D_ONE).equals(CALC.D_ZERO));
 	}
 
 	@Override

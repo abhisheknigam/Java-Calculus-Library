@@ -21,7 +21,31 @@ public class CalcSIN extends Calc1ParamFunctionEvaluator {
 	
 	@Override
 	protected CalcObject evaluateObject(CalcObject input) {
-		// TODO Auto-generated method stub
+		CalcDouble PI = null;
+		try {
+			PI = (CalcDouble)CALC.PI.evaluate();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (input.equals(PI)) {
+			return CALC.ZERO;
+		}
+		if (input instanceof CalcDouble) {
+			CalcDouble param = (CalcDouble)input;
+			param = param.divide(PI); //retrieve coefficient of pi
+			if (param.isInteger()) { //SIN(c*PI) = 0
+				return CALC.ZERO;
+			}
+			System.out.println(param.mod(CALC.D_HALF));
+			System.out.println(param.mod(CALC.D_HALF).isInteger());
+			if (param.mod(CALC.D_HALF).equals(CALC.D_ZERO)) { //SIN(c*PI/2)
+				if (param.mod(CALC.D_THREE_HALF).equals(CALC.D_ZERO)) {
+					return CALC.NEG_ONE;
+				} //SIN(c*3*PI/2) = -1, c does not divide 3 or 2
+				else return CALC.ONE; //SIN(c*PI/2) = 1, c does not divide 2
+			}
+		}
 		return null;
 	}
 	
@@ -32,7 +56,6 @@ public class CalcSIN extends Calc1ParamFunctionEvaluator {
 
 	@Override
 	protected CalcObject evaluateFraction(CalcFraction input) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

@@ -61,6 +61,7 @@ public final class CALC {
 	 */
 	private static final byte[] IntegerZero = {0}; 
 	public static final CalcInteger ZERO = new CalcInteger(IntegerZero);
+	public static final CalcDouble D_ZERO = new CalcDouble(ZERO);
 	private static final byte[] IntegerOne = {1}; 
 	public static final CalcInteger ONE = new CalcInteger(IntegerOne);
 	public static final CalcDouble D_ONE = new CalcDouble(ONE);
@@ -71,6 +72,8 @@ public final class CALC {
 	public static final CalcInteger TWO = new CalcInteger(IntegerTwo);
 	public static final CalcFraction HALF = new CalcFraction(ONE, TWO);
 	public static final CalcFraction NEG_HALF = new CalcFraction(NEG_ONE, TWO);
+	public static final CalcDouble D_HALF = new CalcDouble("0.5");
+	public static final CalcDouble D_THREE_HALF = new CalcDouble("1.5");
 	
 	/**
 	 * Header definitions for certain structs
