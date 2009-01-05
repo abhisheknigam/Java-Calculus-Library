@@ -424,7 +424,7 @@ public final class Expression
 		}
 		//check for +,-
 		char cur;
-		int pMIndex=ExpressionTools.getNextPlusMinusIndex(expression);
+		int pMIndex=ExpressionTools.getPlusMinInd(expression);
 		if(pMIndex!=-1)
 		{
 			cur=expression.charAt(pMIndex);

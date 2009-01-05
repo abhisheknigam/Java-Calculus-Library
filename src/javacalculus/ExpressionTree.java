@@ -230,7 +230,6 @@ public class ExpressionTree
 			if (cur==')')
 				parCounter--;
 		}		
-	
 		return -1;
 	}
 		/**

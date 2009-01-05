@@ -193,59 +193,14 @@ public final class ExpressionTools
 		return expression;
 	}
 	
-	public static String simplify(String expression)
-	{
-		//first remove double -'s
-		expression=removeExtraOp(expression);
-		
-		//first break across +/-
-		ArrayList<PMTerm> terms=new ArrayList<PMTerm>();
-		int last=expression.length();
-		int ind=getNextPlusMinusIndex(expression);
-		while(ind!=-1)
-		{
-			terms.add(new PMTerm(Expression.eval(expression.substring(ind+1,last)),""+expression.charAt(ind)));
-			last = ind;
-			ind=getNextPlusMinusIndex(expression.substring(0,ind));
-		}
-		char cur=expression.charAt(0);
-		String leftOver=expression.substring(0,last);
-		if(cur=='+')
-			terms.add(new PMTerm(Expression.eval(leftOver.substring(1,leftOver.length())),"+"));
-		else if (cur=='-')
-			terms.add(new PMTerm(Expression.eval(leftOver.substring(1,leftOver.length())),"-"));
-		else
-			terms.add(new PMTerm(Expression.eval(leftOver.substring(0,leftOver.length())),"+"));
-		
-		boolean done=false;
-		while(!done)
-		{
-			done=true;
-			for(int i=terms.size()-1;i>0;i--)
-			{
-				for (int j=terms.size()-2;j>=0;j--)
-				{
-					if(isNumber(terms.get(i).getVal())&&isNumber(terms.get(j).getVal()))
-					{
-						terms.set(i,new PMTerm(Expression.eval(""+terms.get(j)+terms.get(i)),"+"));
-						terms.remove(j);
-						done=false;
-					}
-					
-					break;
-				}
-				if(!done)
-					break;
-			}
-		}
-		StringBuffer buffer=new StringBuffer();
-		for(int i=terms.size()-1;i>=0;i--)
-			buffer.append(terms.get(i)+"");
-		return removeExtraOp(""+buffer);
-	}
-	
-	
-	public static int getNextPlusMinusIndex(String expression)
+	/**
+	 * Used to parse out complete terms separated by + or - operators. 
+	 * Finds the + or - operator which is at the highest level of the equation (not nested) 
+	 * and is the furthest to the right of the equation.  Accounts for "-" as negation
+	 * @param expression The String to be separated
+	 * @return The index of the +/- sign.  -1 if none found.
+	 */
+	public static int getPlusMinInd(String expression)
 	{
 		int parCounter=0;
 		char prev;
@@ -254,7 +209,6 @@ public final class ExpressionTools
 		{
 			cur=expression.charAt(i);
 			prev=expression.charAt(i-1);
-		
 			if(parCounter==0)
 			{
 				if (cur=='+'||(cur=='-'&&prev!='+'&&prev!='*'&&prev!='/'&&prev!='%'&&prev!='^'&&prev!='-'))
@@ -264,42 +218,130 @@ public final class ExpressionTools
 					parCounter++;	
 			if (cur==')')
 				parCounter--;
-		}
+		}		
 		return -1;
 	}
-
+	
+	public static String simplify(String expression)
+	{
+		//first remove double -'s
+		expression=removeExtraOp(expression);
+		
+		//break across +/-
+		ArrayList<PMTerm> terms=new ArrayList<PMTerm>();
+		int last=expression.length();
+		int ind=getPlusMinInd(expression);
+		while(ind!=-1)
+		{
+			terms.add(new PMTerm(Expression.eval(expression.substring(ind+1,last)),expression.charAt(ind)=='-'?false:true));
+			last = ind;
+			ind=getPlusMinInd(expression.substring(0,ind));
+		}
+		char cur=expression.charAt(0);
+		String leftOver=expression.substring(0,last);
+		if (cur=='-')
+			terms.add(new PMTerm(Expression.eval(leftOver.substring(1,leftOver.length())),false));
+		else
+			terms.add(new PMTerm(Expression.eval(leftOver.substring(0,leftOver.length())),true));
+		
+		//combine # terms
+		boolean done=false;
+		while(!done)
+		{
+			done=true;
+			System.out.println("loop1");
+			for(int i=terms.size()-1;i>0;i--)
+			{
+				System.out.println("i: "+terms.get(i));
+				for (int j=terms.size()-2;j>=0;j--)
+				{
+					if(isNumber(terms.get(i).getVal())&&isNumber(terms.get(j).getVal()))
+					{
+						System.out.println(terms.get(i)+","+terms.get(j));
+						terms.set(i,new PMTerm(Expression.add(""+terms.get(j),""+terms.get(i))));
+						terms.remove(j);
+						done=false;
+						break;
+					}
+				}
+				if(!done)
+					break;
+			}
+		}
+		
+		//combining like var terms
+		//probably should end up with prev.
+		//need to find */ terms and check if contain same vars/functions
+		done=false;
+		while(!done)
+		{
+			done=true;
+			System.out.println("loop1");
+			for(int i=terms.size()-1;i>0;i--)
+			{
+				System.out.println("i: "+terms.get(i));
+				for (int j=terms.size()-2;j>=0;j--)
+				{
+					if(isNumber(terms.get(i).getVal())&&isNumber(terms.get(j).getVal()))
+					{
+						System.out.println(terms.get(i)+","+terms.get(j));
+						terms.set(i,new PMTerm(Expression.add(""+terms.get(j),""+terms.get(i))));
+						terms.remove(j);
+						done=false;
+						break;
+					}
+				}
+				if(!done)
+					break;
+			}
+		}
+		
+		StringBuffer buffer=new StringBuffer();
+		buffer.append(terms.get(terms.size()-1));
+		for(int i=terms.size()-2;i>=0;i--)
+		{
+			PMTerm temp=terms.get(i);
+			buffer.append(temp.pos()?"+"+temp:temp);
+		}
+		return ""+buffer;
+	}
+	
 	
 	private static class PMTerm
 	{
-		String termValue;
-		String termOp;
-		public PMTerm(String termValue, String termOp)
+		private String termValue;
+		private boolean positive;
+		
+		public PMTerm(String termValue, boolean positive)
 		{
 			this.termValue=termValue;
-			this.termOp=termOp;
+			this.positive=positive;
 		}
 		public PMTerm(String term)
 		{
-			term=removeExtraOp(term);
 			if(term.charAt(0)=='-')
 			{
 				termValue=term.substring(1,term.length());
-				termOp="-";
+				positive=false;
 			}
 			else
 			{
 				termValue=term;
-				termOp="+";
+				positive=true;
 			}
 			
 		}
 		
 		public String getVal()
 		{	return termValue;	}
-		public String getOp()
-		{	return termOp;	}
+	/**
+	 * Checks whether a pm term is positive or negative
+	 * @return false if negative, true otherwise
+	 */
+		public boolean pos()
+		{	return positive;	}
 		
 		public String toString()
-		{	return termOp+termValue;	}
+		{	return positive?termValue:"-"+(termValue);	}
 	}
 }

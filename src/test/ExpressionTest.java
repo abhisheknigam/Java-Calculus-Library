@@ -19,6 +19,7 @@ public class ExpressionTest {
 			String h=ExpressionTools.simplify("2+4+x+5+6*3-7");
 			//System.out.println(e);
 			//System.out.println(f);	
+			//System.out.println(g);
 			System.out.println(h);
 		}
 }
