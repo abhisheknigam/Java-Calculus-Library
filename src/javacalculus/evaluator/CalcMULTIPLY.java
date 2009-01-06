@@ -1,5 +1,6 @@
 package javacalculus.evaluator;
 
+import test.TestAPI;
 import javacalculus.struct.*;
 import javacalculus.core.*;
 
@@ -104,30 +105,48 @@ public class CalcMULTIPLY extends CalcNParamFunctionEvaluator implements CalcOpe
 		int precedence = getPrecedence();
 		char operatorChar = '*';
 		StringBuffer buffer = new StringBuffer();
-		CalcObject temp;
+		CalcObject temp = null;
+		boolean unaryNegative = false;
 		
 		for (int ii = 0; ii < function.size(); ii++) {
 			temp = function.get(ii);
 			//a*1/x -> a/x
-			if (temp instanceof CalcFunction && 	//handle '/' cases
+			/*if (temp instanceof CalcFunction && 	//handle '/' cases
 					temp.getHeader().equals(CALC.POWER) &&
 					((CalcFunction)temp).get(1).compareTo(CALC.ZERO) < 0) {
 				CalcObject temp2 = ((CalcFunction)temp).get(0);
-				buffer.deleteCharAt(buffer.length() - 1);
+				CalcObject temp3 = ((CalcFunction)temp).get(1);
+				if (temp3.isNumber()) {
+					if (temp3 instanceof CalcInteger) {
+						((CalcInteger)temp3).negate();
+					}
+					if (temp3 instanceof CalcDouble) {
+						((CalcDouble)temp3).negate();
+					}
+				}
+				if (buffer.charAt(buffer.length() - 1) == '*') {
+					buffer.deleteCharAt(buffer.length() - 1);
+				}
+				if (unaryNegative) {
+					buffer.append('1'); //fixes -1/x case (no more -/x crap)
+				}
 				buffer.append('/');
 				if (temp2 instanceof CalcFunction) {
 					buffer.append('(');	//embedded function -> parenthesis required
 				}
-				buffer.append(((CalcFunction)temp).get(0));
+				buffer.append(temp);
 				if (temp2 instanceof CalcFunction) {
 					buffer.append(')');
 				}				
 				continue;
-			}
+			}*/
 			if (temp.equals(CALC.NEG_ONE)) {
 				buffer.append('-');	//-1*x = -x
+				unaryNegative = true;
 			}
 			else {
+				unaryNegative = false;
+				
 				if (temp.getPrecedence() < precedence) {
 					buffer.append('('); //handle parenthesis
 				}

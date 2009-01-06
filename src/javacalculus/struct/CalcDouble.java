@@ -13,6 +13,8 @@ import javacalculus.core.CALC;
  */
 public class CalcDouble implements CalcObject {
 	private BigDecimal value;
+	private boolean isPositiveInfinity = false;
+	private boolean isNegativeInfinity = false;
 	
 	public CalcDouble() {
 		value = new BigDecimal(0.0d);
@@ -23,7 +25,18 @@ public class CalcDouble implements CalcObject {
 	}
 	
 	public CalcDouble(double doubleIn) {
-		value = new BigDecimal(doubleIn, CALC.mathcontext);
+		if (doubleIn != Double.POSITIVE_INFINITY && doubleIn != Double.NEGATIVE_INFINITY) {
+			value = new BigDecimal(doubleIn, CALC.mathcontext);
+		}	
+		else { //mathcontext does not apply for infinitesimal values
+			value = null;
+			if (doubleIn == Double.POSITIVE_INFINITY) {
+				isPositiveInfinity = true;
+			}
+			if (doubleIn == Double.NEGATIVE_INFINITY) {
+				isNegativeInfinity = true;
+			}
+		}
 	}
 	
 	public CalcDouble(String stringIn) {
@@ -35,7 +48,13 @@ public class CalcDouble implements CalcObject {
 	}
 	
 	public double doubleValue() {
-		return value.doubleValue();
+		if (isPositiveInfinity) {
+			return Double.POSITIVE_INFINITY;
+		}
+		else if (isNegativeInfinity) {
+			return Double.NEGATIVE_INFINITY;
+		}
+		else return value.doubleValue();
 	}
 	
 	public BigDecimal bigDecimalValue() {
@@ -49,17 +68,35 @@ public class CalcDouble implements CalcObject {
 	
 	@Override
 	public StringBuffer toStringBuffer() {
-		return new StringBuffer(value.toString());
+		if (isPositiveInfinity) {
+			return new StringBuffer("INFINITY");
+		}
+		else if (isNegativeInfinity) {
+			return new StringBuffer("-INFINITY");
+		}
+		else return new StringBuffer(value.toString());
 	}
 	
 	@Override
 	public String toString() {
-		return value.toString();
+		if (isPositiveInfinity) {
+			return "INFINITY";
+		}
+		else if (isNegativeInfinity) {
+			return "-INFINITY";
+		}
+		else return value.toString();
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof CalcDouble) {
+			if (isPositiveInfinity) {
+				return ((CalcDouble)obj).isPositiveInfinity();
+			}
+			if (isNegativeInfinity) {
+				return ((CalcDouble)obj).isNegativeInfinity();
+			}
 			return value.doubleValue() == (((CalcDouble)obj).doubleValue());
 		}
 		return false;
@@ -69,6 +106,14 @@ public class CalcDouble implements CalcObject {
 	public boolean isNumber() {
 		// TODO Auto-generated method stub
 		return true;
+	}
+	
+	public boolean isPositiveInfinity() {
+		return isPositiveInfinity;
+	}
+	
+	public boolean isNegativeInfinity() {
+		return isNegativeInfinity;
 	}
 
 	@Override
@@ -94,6 +139,18 @@ public class CalcDouble implements CalcObject {
 	
 	public CalcDouble mod(CalcDouble input) {
 		return new CalcDouble(value.remainder(input.bigDecimalValue()));
+	}
+	
+	public void negate() {
+		if (isPositiveInfinity) {
+			isPositiveInfinity = false;
+			isNegativeInfinity = true;
+		}
+		else if (isNegativeInfinity) {
+			isNegativeInfinity = false;
+			isPositiveInfinity = true;
+		}
+		else value = value.negate();
 	}
 	
 	public boolean isInteger() {

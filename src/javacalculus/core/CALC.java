@@ -48,6 +48,8 @@ public final class CALC {
 			CalcSymbol.NO_PROPERTY);
 	public static final CalcSymbol COS = new CalcSymbol("COS");
 	public static final CalcSymbol TAN = new CalcSymbol("TAN");
+	public static final CalcSymbol LN = new CalcSymbol("LN", new CalcLN(), 
+			CalcSymbol.NO_PROPERTY);
 	public static final CalcSymbol DIFF = new CalcSymbol("DIFF", new CalcDIFF(),
 			CalcSymbol.NO_PROPERTY);
 	//TODO implement INT (integration). This is gonna a hell of a lot harder.
@@ -74,6 +76,8 @@ public final class CALC {
 	public static final CalcFraction NEG_HALF = new CalcFraction(NEG_ONE, TWO);
 	public static final CalcDouble D_HALF = new CalcDouble("0.5");
 	public static final CalcDouble D_THREE_HALF = new CalcDouble("1.5");
+	public static final CalcDouble INFINITY = new CalcDouble(Double.POSITIVE_INFINITY);
+	public static final CalcDouble NEG_INFINITY = new CalcDouble(Double.NEGATIVE_INFINITY);
 	
 	/**
 	 * Header definitions for certain structs
@@ -214,6 +218,7 @@ public final class CALC {
 	 */
 	public static CalcFunctionEvaluator getEvaluator(CalcSymbol symbol) {
 		if (symbol.equals(SIN)) return new CalcSIN();
+		if (symbol.equals(LN)) return new CalcLN();		
 		if (symbol.equals(DIFF)) return new CalcDIFF();
 		if (symbol.equals(DEFINE)) return new CalcDEFINE();
 		if (symbol.equals(PI)) return PI.getEvaluator();

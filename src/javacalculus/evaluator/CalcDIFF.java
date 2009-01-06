@@ -95,6 +95,23 @@ public class CalcDIFF implements CalcFunctionEvaluator {
 							CALC.POWER.createFunction(firstObj, CALC.ADD.createFunction(secondObj, CALC.NEG_ONE)),
 							differentiate(firstObj, var));
 				}
+				if (secondObj instanceof CalcFunction || secondObj instanceof CalcSymbol) {
+					return CALC.MULTIPLY.createFunction(
+							CALC.POWER.createFunction(firstObj, secondObj),
+							CALC.ADD.createFunction(	//(d/dx)(u^v) = (u^v)*(v*u'/u + v'*LN(u)) kind of obscure ....
+									CALC.MULTIPLY.createFunction(secondObj, 
+											differentiate(firstObj, var),
+											CALC.POWER.createFunction(firstObj, CALC.NEG_ONE)),
+									CALC.MULTIPLY.createFunction(
+											CALC.LN.createFunction(firstObj),
+											differentiate(secondObj, var))
+									)
+							);
+				}
+			}
+			else if (firstObj.isNumber()) {	// (d/dx) c^u = c^u * ln(c) * (d/dx)u
+				return CALC.MULTIPLY.createFunction(
+						obj, CALC.LN.createFunction(firstObj), differentiate(secondObj, var));
 			}
 		}
 		if (obj.getHeader().equals(CALC.SIN)) {	//	(d/dx) sin(f(x)) = cos(f(x)) * (d/dx)f(x)

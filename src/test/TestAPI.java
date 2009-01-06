@@ -11,7 +11,6 @@ public class TestAPI {
 		CalculusEngine c = new CalculusEngine();
 		
 		//set # of floating points for double type results
-		c.setPrecision(10);
 		
 		/**
 		 * testing some simple math expressions...
@@ -63,7 +62,7 @@ public class TestAPI {
 		}*/
 	}
 	
-	private static void print(String s) {
+	public static void print(String s) {
 		System.out.println(s);
 	}
 
