@@ -24,4 +24,10 @@ public interface CalcPlotter {
 	 * @return the function string
 	 */
 	public String getFunction();
+	
+	/**
+	 * Returns the independent variable in the function
+	 * @return independent variable as a String
+	 */
+	public String getIndependentVariable();
 }

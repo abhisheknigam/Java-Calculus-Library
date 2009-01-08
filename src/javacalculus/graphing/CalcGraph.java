@@ -5,7 +5,11 @@ package javacalculus.graphing;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.util.ArrayList;
 
@@ -42,7 +46,7 @@ public class CalcGraph extends JComponent implements Runnable {
 	max_x = 10,
 	min_y = -10,
 	max_y = 10,
-	resolution = 0.01;
+	resolution = 0.003;	//distance between each x-value sample
 
 	private int 	width = DEFAULT_WIDTH,
 					height = DEFAULT_HEIGHT;
@@ -50,6 +54,9 @@ public class CalcGraph extends JComponent implements Runnable {
 	private Color axis_color = Color.BLACK;
 	private Color function_color = Color.BLUE;
 	private Color background_color = Color.WHITE;
+	private Color text_color = Color.RED;
+	
+	private Font labelFont = new Font("Dialog", Font.BOLD, 10);
 	
 	//private BufferedImage graph = new BufferedImage(DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_IMAGETYPE);
 	private CalcPlotter plotter;
@@ -117,17 +124,26 @@ public class CalcGraph extends JComponent implements Runnable {
 	
 	@Override
 	public void paintComponent(Graphics g) {
-		//fill background color
-		g.setColor(background_color);
-		g.fillRect(0, 0, width, height);
+		Graphics2D g2d = (Graphics2D)g;
 		
-		drawAxis(g);
+		//Antialiasing! Hellz yeah
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+		
+		//fill background color
+		g2d.setColor(background_color);
+		g2d.fillRect(0, 0, width, height);
+		
+		paintAxis(g2d);
+		paintLabels(g2d);
 		
 		Point currentPoint = points.get(0);
 
-		g.setColor(function_color);
+		g2d.setColor(function_color);
 		for (Point p : points) {
-			g.drawLine((int)currentPoint.getX(), (int)currentPoint.getY(), (int)p.getX(), (int)p.getY());
+			if ((int)p.getY() >= 0 && (int)p.getY() <= height)
+			g2d.drawLine((int)currentPoint.getX(), (int)currentPoint.getY(), (int)p.getX(), (int)p.getY());
+			
 			currentPoint = p;
 		}
 	}
@@ -137,7 +153,7 @@ public class CalcGraph extends JComponent implements Runnable {
 	 * Will make more elaborate (labels) later.
 	 * @param g
 	 */
-	private void drawAxis(Graphics g) {
+	private void paintAxis(Graphics g) {
 		g.setColor(axis_color);
 		
 		//determine location of the origin using same scaling math used in transformPoints
@@ -148,6 +164,49 @@ public class CalcGraph extends JComponent implements Runnable {
 		g.drawLine(0, originY, width, originY);
 		//draw y axis
 		g.drawLine(originX, 0, originX, height);
+	}
+	
+	private void paintLabels(Graphics g) {
+		int padding = 5;
+		
+		g.setColor(text_color);
+		g.setFont(labelFont);
+		
+		FontMetrics metrics = g.getFontMetrics(labelFont);
+		
+		//determine location of the origin using same scaling math used in transformPoints
+		int originX = (int)(width * (-min_x)/(max_x - min_x));
+		int originY = (int)(height * (max_y)/(max_y - min_y));
+		
+		//draw x axis label
+		String variable = plotter.getIndependentVariable();
+		int variableWidth = (int)metrics.getStringBounds(variable, g).getWidth();
+		int variableHeight = (int)metrics.getStringBounds(variable, g).getHeight();
+		g.drawString(variable, width - variableWidth - padding, originY + variableHeight);
+		
+		//draw y axis label
+		String function = "f(" + plotter.getIndependentVariable() + ")=" + plotter.getFunction();
+		//int functionWidth = (int)metrics.getStringBounds(function, g).getWidth();
+		int functionHeight = (int)metrics.getStringBounds(function, g).getHeight();
+		g.drawString(function, originX + padding, functionHeight);
+		
+		//draw boundary values
+		String xmin = Double.toString(min_x);
+		String xmax = Double.toString(max_x);
+		String ymin = Double.toString(min_y);
+		String ymax = Double.toString(max_y);
+		
+		g.drawString(xmin, padding, originY - padding);
+		
+		int xmaxWidth = (int)metrics.getStringBounds(xmax, g).getWidth();
+		g.drawString(xmax, width - xmaxWidth - padding, originY - padding);
+		
+		int ymaxWidth = (int)metrics.getStringBounds(ymax, g).getWidth();
+		int ymaxHeight = (int)metrics.getStringBounds(ymax, g).getHeight();
+		g.drawString(ymax, originX - ymaxWidth - padding, padding + ymaxHeight);
+		
+		int yminWidth = (int)metrics.getStringBounds(ymin, g).getWidth();
+		g.drawString(ymin, originX - yminWidth - padding, height - padding);
 	}
 	
 	/**

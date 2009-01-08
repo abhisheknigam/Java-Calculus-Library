@@ -37,7 +37,11 @@ public class CalcPLOT implements CalcFunctionEvaluator, CalcPlotter {
 				throw new CalcWrongParametersException("PLOT -> input function is not a single variable function of " + input.get(1).toString());
 			}
 			else {
-				function = (CalcFunction)input.get(0);
+				if (input.get(0) instanceof CalcSymbol) { //case f(x)=x
+					function = new CalcFunction(CALC.ADD, input.get(0));
+				}
+				else function = (CalcFunction)input.get(0);
+				
 				function.addVariable((CalcSymbol)input.get(1));
 				showGraph();
 				return input;
@@ -85,6 +89,11 @@ public class CalcPLOT implements CalcFunctionEvaluator, CalcPlotter {
 		else { //else return ... not a number
 			return Double.NaN;
 		}
+	}
+
+	@Override
+	public String getIndependentVariable() {
+		return function.getVariable(0).toString();
 	}
 }
 
