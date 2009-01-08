@@ -5,6 +5,7 @@ package javacalculus.struct;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 
 import javacalculus.core.CALC;
 
@@ -23,7 +24,7 @@ import javacalculus.core.CALC;
  *
  */
 
-public class CalcFunction implements CalcObject {
+public class CalcFunction implements CalcObject, Iterable<CalcObject> {
 	
 	/**
 	 * Property constants
@@ -182,6 +183,14 @@ public class CalcFunction implements CalcObject {
 	
 	public void sort() {
 		Collections.sort(parameters);
+	}
+	
+	/**
+	 * Set the header for the function
+	 * @param newHeader
+	 */
+	public void setHeader(CalcSymbol newHeader) {
+		functionHeader = newHeader;
 	}
 	
 	/**
@@ -383,5 +392,10 @@ public class CalcFunction implements CalcObject {
 	@Override
 	public int getPrecedence() {
 		return functionHeader.getPrecedence();
+	}
+
+	@Override
+	public Iterator<CalcObject> iterator() {
+		return parameters.iterator();
 	}
 }

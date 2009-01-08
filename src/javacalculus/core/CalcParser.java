@@ -14,7 +14,7 @@ import javacalculus.exception.*;
  *  
  *
  */
-final class CalcParser {
+public final class CalcParser {
 	
 	/**
 	 * These static constants define what values the token can take
@@ -381,12 +381,10 @@ final class CalcParser {
 		CalcSymbol symbol;
 		
 		if (CALC.isUpperCase(identifier.toString())) { //if the symbol is all upper case, it must be a built in function
-			symbol = new CalcSymbol(identifier);
-			CalcFunctionEvaluator evaluator = CALC.getEvaluator(symbol);
-			if (evaluator != null) {
-				symbol.setEvaluator(CALC.getEvaluator(symbol));
-			}
-			else throw new CalcUnsupportedException(symbol.getName());
+			CalcSymbol temp;
+			if ((temp = CALC.getSymbol(identifier.toString())) != null)
+				symbol = temp;
+			else throw new CalcUnsupportedException(identifier.toString());
 		}
 		else {
 			symbol = new CalcSymbol(identifier);

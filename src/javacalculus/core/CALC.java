@@ -57,6 +57,8 @@ public final class CALC {
 			CalcSymbol.OPERATOR | CalcSymbol.FAST_EVAL);
 	public static final CalcSymbol SUB = new CalcSymbol("SUB", new CalcSUB(),
 			CalcSymbol.FAST_EVAL);
+	public static final CalcSymbol PLOT = new CalcSymbol("PLOT", new CalcPLOT(),
+			CalcSymbol.FAST_EVAL);
 	
 	/**
 	 * Useful numerical constants
@@ -189,6 +191,14 @@ public final class CALC {
 		
 		if (returnVal == null) return null;
 		
+		//If the evaluation object is PLOT, no need to continue.
+		//most likely the graph is already rendered at this point (after
+		//first evaluation). Failure to include this line results in multiple
+		//graphs rendered from multiple evaluations... waste of CPU cycles.
+		if (returnVal.getHeader().equals(CALC.PLOT)) {
+			return returnVal;
+		}
+		
 		CalcObject temp = null;
 		
 		try {
@@ -213,19 +223,20 @@ public final class CALC {
 	
 	/**
 	 * 
-	 * @param symbol
+	 * @param identifier
 	 * @return a function evaluator capable of evaluating the properties of symbol
 	 */
-	public static CalcFunctionEvaluator getEvaluator(CalcSymbol symbol) {
-		if (symbol.equals(SIN)) return new CalcSIN();
-		if (symbol.equals(LN)) return new CalcLN();		
-		if (symbol.equals(DIFF)) return new CalcDIFF();
-		if (symbol.equals(DEFINE)) return new CalcDEFINE();
-		if (symbol.equals(PI)) return PI.getEvaluator();
-		if (symbol.equals(E)) return E.getEvaluator();
+	public static CalcSymbol getSymbol(String identifier) {
+		if (identifier.equals("SIN")) return SIN;
+		if (identifier.equals("LN")) return LN;		
+		if (identifier.equals("DIFF")) return DIFF;
+		if (identifier.equals("DEFINE")) return DEFINE;
+		if (identifier.equals("PLOT")) return PLOT;
+		if (identifier.equals("PI")) return PI;
+		if (identifier.equals("E")) return E;
 		return null;
 	}
-	
+    
 	public static void setMathContext(int precision) {
 		mathcontext = new MathContext(precision);
 	}

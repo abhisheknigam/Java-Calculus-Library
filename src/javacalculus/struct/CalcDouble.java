@@ -15,6 +15,7 @@ public class CalcDouble implements CalcObject {
 	private BigDecimal value;
 	private boolean isPositiveInfinity = false;
 	private boolean isNegativeInfinity = false;
+	private boolean isNaN = false;
 	
 	public CalcDouble() {
 		value = new BigDecimal(0.0d);
@@ -25,7 +26,7 @@ public class CalcDouble implements CalcObject {
 	}
 	
 	public CalcDouble(double doubleIn) {
-		if (doubleIn != Double.POSITIVE_INFINITY && doubleIn != Double.NEGATIVE_INFINITY) {
+		if (!Double.isNaN(doubleIn) && !Double.isInfinite(doubleIn)) {
 			value = new BigDecimal(doubleIn, CALC.mathcontext);
 		}	
 		else { //mathcontext does not apply for infinitesimal values
@@ -35,6 +36,9 @@ public class CalcDouble implements CalcObject {
 			}
 			if (doubleIn == Double.NEGATIVE_INFINITY) {
 				isNegativeInfinity = true;
+			}
+			if (Double.isNaN(doubleIn)) {
+				isNaN = true;
 			}
 		}
 	}
@@ -53,6 +57,9 @@ public class CalcDouble implements CalcObject {
 		}
 		else if (isNegativeInfinity) {
 			return Double.NEGATIVE_INFINITY;
+		}
+		else if (isNaN) {
+			return Double.NaN;
 		}
 		else return value.doubleValue();
 	}
@@ -74,6 +81,9 @@ public class CalcDouble implements CalcObject {
 		else if (isNegativeInfinity) {
 			return new StringBuffer("-INFINITY");
 		}
+		else if (isNaN) {
+			return new StringBuffer("NaN");
+		}
 		else return new StringBuffer(value.toString());
 	}
 	
@@ -84,6 +94,9 @@ public class CalcDouble implements CalcObject {
 		}
 		else if (isNegativeInfinity) {
 			return "-INFINITY";
+		}
+		else if (isNaN) {
+			return "NaN";
 		}
 		else return value.toString();
 	}
@@ -96,6 +109,9 @@ public class CalcDouble implements CalcObject {
 			}
 			if (isNegativeInfinity) {
 				return ((CalcDouble)obj).isNegativeInfinity();
+			}
+			if (isNaN) {
+				return ((CalcDouble)obj).isNaN();
 			}
 			return value.doubleValue() == (((CalcDouble)obj).doubleValue());
 		}
@@ -115,6 +131,10 @@ public class CalcDouble implements CalcObject {
 	public boolean isNegativeInfinity() {
 		return isNegativeInfinity;
 	}
+	
+	public boolean isNaN() {
+		return isNaN;
+	}
 
 	@Override
 	public CalcSymbol getHeader() {
@@ -130,10 +150,11 @@ public class CalcDouble implements CalcObject {
 	}
 	
 	public CalcDouble divide(CalcDouble input) {
-		return new CalcDouble(value.divide(input.bigDecimalValue()));
+		return new CalcDouble(value.divide(input.bigDecimalValue(), CALC.mathcontext));
 	}
 	
 	public CalcDouble power(CalcDouble input) {
+		if (isNaN || input.isNaN()) return new CalcDouble(Double.NaN);
 		return new CalcDouble(Math.pow(doubleValue(), input.doubleValue()));
 	}
 	
@@ -150,10 +171,14 @@ public class CalcDouble implements CalcObject {
 			isNegativeInfinity = false;
 			isPositiveInfinity = true;
 		}
+		else if (isNaN) {
+			return;
+		}
 		else value = value.negate();
 	}
 	
 	public boolean isInteger() {
+		if (isNaN || isPositiveInfinity || isNegativeInfinity) return false;
 		return (mod(CALC.D_ONE).equals(CALC.D_ZERO));
 	}
 
@@ -165,7 +190,7 @@ public class CalcDouble implements CalcObject {
 		else if (getHierarchy() < obj.getHierarchy()) {
 			return -1;
 		}
-		return 0;
+		else return value.compareTo(((CalcDouble)obj).bigDecimalValue());
 	}
 
 	@Override

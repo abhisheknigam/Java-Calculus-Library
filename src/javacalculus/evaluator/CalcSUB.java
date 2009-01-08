@@ -3,8 +3,10 @@
  */
 package javacalculus.evaluator;
 
+import test.TestAPI;
 import javacalculus.core.CALC;
 import javacalculus.exception.CalcWrongParametersException;
+import javacalculus.struct.CalcDouble;
 import javacalculus.struct.CalcFunction;
 import javacalculus.struct.CalcObject;
 import javacalculus.struct.CalcSymbol;
@@ -44,7 +46,7 @@ public class CalcSUB implements CalcFunctionEvaluator {
 		else return functionDefinition;	
 	}
 	
-	private CalcObject traverseAndSubstitute(CalcFunction definition, CalcFunction substitutions) {
+	public CalcObject traverseAndSubstitute(CalcFunction definition, CalcFunction substitutions) {
 		CalcFunction returnVal = new CalcFunction(definition.getHeader());
 		
 		for (int ii = 0; ii < definition.size(); ii++) {
@@ -67,4 +69,17 @@ public class CalcSUB implements CalcFunctionEvaluator {
 		return returnVal;
 	}
 
+	public static CalcFunction numericSubstitute(CalcFunction input, CalcSymbol variable, CalcDouble number) {
+		CalcFunction result = new CalcFunction(input.getHeader());
+		for (CalcObject obj : input) {
+			if (obj.equals(variable)) {
+				result.add(number);
+			}
+			else if (obj instanceof CalcFunction) {
+				result.add(numericSubstitute((CalcFunction)obj, variable, number));
+			}
+			else result.add(obj);
+		}
+		return result;
+	}
 }

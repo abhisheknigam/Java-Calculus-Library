@@ -102,14 +102,12 @@ public class CalcADD extends CalcNParamFunctionEvaluator implements CalcOperator
 	@Override
 	protected CalcObject evaluateFunction(CalcFunction input1,
 			CalcFunction input2) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	protected CalcObject evaluateFunctionAndInteger(CalcFunction input1,
 			CalcInteger input2) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

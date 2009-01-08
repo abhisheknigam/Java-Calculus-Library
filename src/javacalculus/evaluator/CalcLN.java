@@ -47,11 +47,13 @@ public class CalcLN extends Calc1ParamFunctionEvaluator {
 
 	@Override
 	protected CalcObject evaluateFraction(CalcFraction input) {
+		//TODO decide whether ln(x/y) should evaluate to ln(x)-ln(y)
 		return CALC.LN.createFunction(input);
 	}
 
 	@Override
 	protected CalcObject evaluateFunction(CalcFunction input) {
+		//TODO make this more flexible?
 		return CALC.LN.createFunction(input);
 	}
 
