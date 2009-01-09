@@ -124,6 +124,10 @@ public class CalcDouble implements CalcObject {
 		return true;
 	}
 	
+	public boolean isEven() {
+		return mod(CALC.D_TWO).equals(CALC.D_ZERO);
+	}
+	
 	public boolean isPositiveInfinity() {
 		return isPositiveInfinity;
 	}
@@ -162,6 +166,10 @@ public class CalcDouble implements CalcObject {
 	
 	public CalcDouble mod(CalcDouble input) {
 		return new CalcDouble(value.remainder(input.bigDecimalValue()));
+	}
+	
+	public boolean isDivisibleBy(CalcDouble input) {
+		return mod(input).equals(CALC.D_ZERO);
 	}
 	
 	public void negate() {

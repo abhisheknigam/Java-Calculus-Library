@@ -3,6 +3,8 @@ package javacalculus.evaluator;
 import test.TestAPI;
 import javacalculus.struct.*;
 import javacalculus.core.*;
+import javacalculus.evaluator.extend.CalcNParamFunctionEvaluator;
+import javacalculus.evaluator.extend.CalcOperatorEvaluator;
 
 /**
  * Evaluator that handles multiplication of expressions. Handles basic simplification.

@@ -4,6 +4,7 @@
 package javacalculus.evaluator;
 
 import javacalculus.core.CALC;
+import javacalculus.evaluator.extend.CalcFunctionEvaluator;
 import javacalculus.exception.CalcWrongParametersException;
 import javacalculus.graphing.CalcGraph;
 import javacalculus.graphing.CalcPlotter;

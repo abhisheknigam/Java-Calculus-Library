@@ -96,7 +96,7 @@ public class CalcGraph extends JComponent implements Runnable, MouseListener, Mo
 		frame.pack();
 		centerWindow();
 		frame.setAlwaysOnTop(true);
-		frame.requestFocus();
+		requestFocus();
 	}
 	
 	/**

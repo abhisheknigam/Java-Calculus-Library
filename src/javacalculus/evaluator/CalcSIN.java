@@ -4,6 +4,7 @@
 package javacalculus.evaluator;
 
 import javacalculus.core.CALC;
+import javacalculus.evaluator.extend.Calc1ParamFunctionEvaluator;
 import javacalculus.struct.CalcDouble;
 import javacalculus.struct.CalcFraction;
 import javacalculus.struct.CalcFunction;

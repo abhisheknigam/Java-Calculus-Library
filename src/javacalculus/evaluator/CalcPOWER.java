@@ -2,6 +2,8 @@ package javacalculus.evaluator;
 
 import javacalculus.struct.*;
 import javacalculus.core.*;
+import javacalculus.evaluator.extend.Calc2ParamFunctionEvaluator;
+import javacalculus.evaluator.extend.CalcOperatorEvaluator;
 import javacalculus.exception.*;
 
 /**

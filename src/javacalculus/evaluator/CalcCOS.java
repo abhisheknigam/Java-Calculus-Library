@@ -18,56 +18,60 @@ import javacalculus.struct.CalcSymbol;
  *  
  *
  */
-public class CalcLN extends Calc1ParamFunctionEvaluator {
+public class CalcCOS extends Calc1ParamFunctionEvaluator {
 	
 	@Override
 	protected CalcObject evaluateObject(CalcObject input) {
-		CalcDouble E = null;
+		CalcDouble PI = null;
 		try {
-			E = (CalcDouble)CALC.E.evaluate();
+			PI = (CalcDouble)CALC.PI.evaluate();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-		if (input.equals(E)) {
-			return CALC.ONE;
+		if (input.equals(PI)) {	//COS(PI) = -1
+			return CALC.NEG_ONE;
 		}
-		if (input.equals(CALC.ONE)) {
-			return CALC.ZERO;
-		}
-		if (input.equals(CALC.ZERO)) {
-			return CALC.NEG_INFINITY;
+		if (input instanceof CalcDouble) {
+			CalcDouble param = (CalcDouble)input;
+			param = param.divide(PI); //retrieve coefficient of pi
+			if (param.isInteger() && param.isEven()) { //COS((2k)*PI) = 1
+				return CALC.ONE;
+			}
+			else if (param.isInteger() && !param.isEven()) {	//COS((2k+1)*PI) = -1
+				return CALC.NEG_ONE;
+			}
+			if (param.mod(CALC.D_HALF).equals(CALC.D_ZERO)) { //COS(c*PI/2) = 0
+				return CALC.ZERO;
+			}
 		}
 		return null;
 	}
 	
 	@Override
 	protected CalcObject evaluateDouble(CalcDouble input) {
-		return new CalcDouble(Math.log(input.doubleValue()));
+		return new CalcDouble(Math.cos(input.doubleValue()));
 	}
 
 	@Override
 	protected CalcObject evaluateFraction(CalcFraction input) {
-		//TODO decide whether ln(x/y) should evaluate to ln(x)-ln(y)
-		return CALC.LN.createFunction(input);
+		return null;
 	}
 
 	@Override
 	protected CalcObject evaluateFunction(CalcFunction input) {
-		//TODO make this more flexible?
-		return CALC.LN.createFunction(input);
+		return CALC.COS.createFunction(input);
 	}
 
 	@Override
 	protected CalcObject evaluateInteger(CalcInteger input) {
-		return new CalcDouble(Math.log(input.bigIntegerValue().intValue()));
+		return new CalcDouble(Math.cos(input.bigIntegerValue().intValue()));
 	}
 
-	
 	@Override
 	protected CalcObject evaluateSymbol(CalcSymbol input) {
 		//cannot evaluate symbols, so just return the original function
-		return CALC.LN.createFunction(input);
+		return CALC.COS.createFunction(input);
 	}
 
 }

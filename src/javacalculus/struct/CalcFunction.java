@@ -17,7 +17,7 @@ import javacalculus.core.CALC;
  * header CalcSymbol, which also contains a specific functionEvaluator that
  * evaluates this function.
  * @see CalcSymbol
- * @see javacalculus.evaluator.CalcFunctionEvaluator
+ * @see javacalculus.evaluator.extend.CalcFunctionEvaluator
  * @author Duyun Chen <A HREF="mailto:duchen@seas.upenn.edu">[duchen@seas.upenn.edu]</A>,
  * Seth Shannin <A HREF="mailto:sshannin@seas.upenn.edu">[sshannin@seas.upenn.edu]</A>
  *  

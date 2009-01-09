@@ -1,7 +1,7 @@
 /**
  * 
  */
-package javacalculus.evaluator;
+package javacalculus.evaluator.extend;
 
 import javacalculus.struct.CalcFunction;
 import javacalculus.struct.CalcObject;

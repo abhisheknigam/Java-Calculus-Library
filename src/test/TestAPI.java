@@ -21,19 +21,19 @@ public class TestAPI {
 		
 		//print(c.execute("1+2*x+4*x-5*SIN(7*PI/2)"));
 		
-		print(c.execute("PLOT(x^2,x)"));
+		//print(c.execute("PLOT(x^2,x)"));
 		
 		/**
 		 * Uncomment the following chunk to allow inputting
 		 * and executing math expressions at runtime
 		 */
-		/*Scanner input = new Scanner(System.in);
+		Scanner input = new Scanner(System.in);
 		while (true) {
 			System.out.println("Math Shitz? ");
 			String command = input.next();
 			if (command.equalsIgnoreCase("quit")) break;
 			System.out.println(c.execute(command));
-		}*/
+		}
 		
 		
 		/**

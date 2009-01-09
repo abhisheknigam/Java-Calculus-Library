@@ -5,6 +5,7 @@ package javacalculus.evaluator;
 
 import test.TestAPI;
 import javacalculus.core.CALC;
+import javacalculus.evaluator.extend.CalcFunctionEvaluator;
 import javacalculus.exception.CalcWrongParametersException;
 import javacalculus.struct.CalcDouble;
 import javacalculus.struct.CalcFunction;

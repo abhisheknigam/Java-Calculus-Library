@@ -1,6 +1,8 @@
 package javacalculus.evaluator;
 
 import javacalculus.core.CALC;
+import javacalculus.evaluator.extend.CalcNParamFunctionEvaluator;
+import javacalculus.evaluator.extend.CalcOperatorEvaluator;
 import javacalculus.struct.*;
 
 /**

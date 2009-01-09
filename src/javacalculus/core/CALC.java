@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import javacalculus.evaluator.*;
+import javacalculus.evaluator.extend.CalcConstantEvaluator;
 import javacalculus.struct.*;
 
 /**
@@ -46,8 +47,10 @@ public final class CALC {
 	 */
 	public static final CalcSymbol SIN = new CalcSymbol("SIN", new CalcSIN(), 
 			CalcSymbol.NO_PROPERTY);
-	public static final CalcSymbol COS = new CalcSymbol("COS");
-	public static final CalcSymbol TAN = new CalcSymbol("TAN");
+	public static final CalcSymbol COS = new CalcSymbol("COS", new CalcCOS(),
+			CalcSymbol.NO_PROPERTY);
+	public static final CalcSymbol TAN = new CalcSymbol("TAN", new CalcTAN(),
+			CalcSymbol.NO_PROPERTY);
 	public static final CalcSymbol LN = new CalcSymbol("LN", new CalcLN(), 
 			CalcSymbol.NO_PROPERTY);
 	public static final CalcSymbol DIFF = new CalcSymbol("DIFF", new CalcDIFF(),
@@ -74,8 +77,14 @@ public final class CALC {
 	public static final CalcDouble D_NEG_ONE = new CalcDouble(NEG_ONE); 
 	private static final byte[] IntegerTwo = {2}; 
 	public static final CalcInteger TWO = new CalcInteger(IntegerTwo);
+	public static final CalcDouble D_TWO = new CalcDouble(TWO);
+	private static final byte[] IntegerFour = {4}; 
+	public static final CalcInteger FOUR = new CalcInteger(IntegerFour);
+	public static final CalcDouble D_FOUR = new CalcDouble(FOUR);
 	public static final CalcFraction HALF = new CalcFraction(ONE, TWO);
 	public static final CalcFraction NEG_HALF = new CalcFraction(NEG_ONE, TWO);
+	public static final CalcDouble D_NEG_QUARTER = new CalcDouble("-0.25");
+	public static final CalcDouble D_QUARTER = new CalcDouble("0.25");
 	public static final CalcDouble D_HALF = new CalcDouble("0.5");
 	public static final CalcDouble D_THREE_HALF = new CalcDouble("1.5");
 	public static final CalcDouble INFINITY = new CalcDouble(Double.POSITIVE_INFINITY);
@@ -228,6 +237,8 @@ public final class CALC {
 	 */
 	public static CalcSymbol getSymbol(String identifier) {
 		if (identifier.equals("SIN")) return (CalcSymbol)SIN.clone();
+		else if (identifier.equals("COS")) return (CalcSymbol)COS.clone();
+		else if (identifier.equals("TAN")) return (CalcSymbol)TAN.clone();
 		else if (identifier.equals("LN")) return (CalcSymbol)LN.clone();		
 		else if (identifier.equals("DIFF")) return (CalcSymbol)DIFF.clone();
 		else if (identifier.equals("DEFINE")) return (CalcSymbol)DEFINE.clone();

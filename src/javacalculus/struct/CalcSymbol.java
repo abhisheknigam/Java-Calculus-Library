@@ -8,6 +8,10 @@ import java.util.HashMap;
 
 import javacalculus.core.CALC;
 import javacalculus.evaluator.*;
+import javacalculus.evaluator.extend.CalcConstantEvaluator;
+import javacalculus.evaluator.extend.CalcFunctionEvaluator;
+import javacalculus.evaluator.extend.CalcNullEvaluator;
+import javacalculus.evaluator.extend.CalcOperatorEvaluator;
 
 /**
  * Represents a entity in a symbolic expression (functions, variables, etc).

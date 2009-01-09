@@ -1,8 +1,8 @@
 package javacalculus.core;
 
 import javacalculus.struct.*;
-import javacalculus.evaluator.CalcFunctionEvaluator;
 import javacalculus.evaluator.CalcSUB;
+import javacalculus.evaluator.extend.CalcFunctionEvaluator;
 import javacalculus.exception.*;
 
 /**
