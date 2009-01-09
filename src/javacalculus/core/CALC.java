@@ -227,14 +227,14 @@ public final class CALC {
 	 * @return a function evaluator capable of evaluating the properties of symbol
 	 */
 	public static CalcSymbol getSymbol(String identifier) {
-		if (identifier.equals("SIN")) return SIN;
-		if (identifier.equals("LN")) return LN;		
-		if (identifier.equals("DIFF")) return DIFF;
-		if (identifier.equals("DEFINE")) return DEFINE;
-		if (identifier.equals("PLOT")) return PLOT;
-		if (identifier.equals("PI")) return PI;
-		if (identifier.equals("E")) return E;
-		return null;
+		if (identifier.equals("SIN")) return (CalcSymbol)SIN.clone();
+		else if (identifier.equals("LN")) return (CalcSymbol)LN.clone();		
+		else if (identifier.equals("DIFF")) return (CalcSymbol)DIFF.clone();
+		else if (identifier.equals("DEFINE")) return (CalcSymbol)DEFINE.clone();
+		else if (identifier.equals("PLOT")) return (CalcSymbol)PLOT.clone();
+		else if (identifier.equals("PI")) return PI;
+		else if (identifier.equals("E")) return E;
+		else return null;
 	}
     
 	public static void setMathContext(int precision) {

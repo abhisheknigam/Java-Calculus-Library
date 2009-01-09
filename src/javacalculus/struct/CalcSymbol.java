@@ -110,6 +110,10 @@ public class CalcSymbol implements CalcObject {
 		return variables.get(index);
 	}
 	
+	public void removeVariable(int index) {
+		if (variables.size() > 0) variables.remove(index);
+	}
+	
 	public int getNumberOfVariables() {
 		return variables.size();
 	}
@@ -171,6 +175,11 @@ public class CalcSymbol implements CalcObject {
 			return ((CalcSymbol)obj).getName().equals(name);
 		}
 		return false;
+	}
+	
+	@Override
+	public Object clone() {
+		return new CalcSymbol(name, evaluator, properties);
 	}
 	
 	public CalcObject evaluateFunction(CalcFunction function) {

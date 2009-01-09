@@ -46,7 +46,7 @@ public class CalcGraph extends JComponent implements Runnable {
 	max_x = 10,
 	min_y = -10,
 	max_y = 10,
-	resolution = 0.003;	//distance between each x-value sample
+	resolution = 0.002;	//distance between each x-value sample
 
 	private int 	width = DEFAULT_WIDTH,
 					height = DEFAULT_HEIGHT;
@@ -124,6 +124,7 @@ public class CalcGraph extends JComponent implements Runnable {
 	
 	@Override
 	public void paintComponent(Graphics g) {
+		//cast to Graphics2D cuz Graphics2D is so much better (more methods)
 		Graphics2D g2d = (Graphics2D)g;
 		
 		//Antialiasing! Hellz yeah
@@ -134,11 +135,12 @@ public class CalcGraph extends JComponent implements Runnable {
 		g2d.setColor(background_color);
 		g2d.fillRect(0, 0, width, height);
 		
+		//draw the axis and labels
 		paintAxis(g2d);
 		paintLabels(g2d);
 		
+		//draw the curve (a concatenation of small linear lines actually)
 		Point currentPoint = points.get(0);
-
 		g2d.setColor(function_color);
 		for (Point p : points) {
 			if ((int)p.getY() >= 0 && (int)p.getY() <= height)
@@ -167,12 +169,12 @@ public class CalcGraph extends JComponent implements Runnable {
 	}
 	
 	private void paintLabels(Graphics g) {
-		int padding = 5;
+		final int padding = 5; //the distance between the text and relevant edges
 		
 		g.setColor(text_color);
 		g.setFont(labelFont);
 		
-		FontMetrics metrics = g.getFontMetrics(labelFont);
+		FontMetrics metrics = g.getFontMetrics(labelFont); //this helps measure the font
 		
 		//determine location of the origin using same scaling math used in transformPoints
 		int originX = (int)(width * (-min_x)/(max_x - min_x));

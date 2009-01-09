@@ -84,7 +84,7 @@ public class CalcDIFF implements CalcFunctionEvaluator {
 						CALC.MULTIPLY.createFunction(secondObj, differentiate(firstObj, var)));
 			}
 		}
-		if (obj.getHeader().equals(CALC.POWER)) { //this part is probably trickiest
+		if (obj.getHeader().equals(CALC.POWER)) { //this part is probably trickiest (form u^v)
 			CalcFunction function = (CalcFunction)obj;
 			CalcObject firstObj = function.get(0);
 			CalcObject secondObj = function.get(1);
@@ -114,12 +114,17 @@ public class CalcDIFF implements CalcFunctionEvaluator {
 						obj, CALC.LN.createFunction(firstObj), differentiate(secondObj, var));
 			}
 		}
-		if (obj.getHeader().equals(CALC.SIN)) {	//	(d/dx) sin(f(x)) = cos(f(x)) * (d/dx)f(x)
+		if (obj.getHeader().equals(CALC.LN)) {	//	(d/dx) LN(f(x)) = 1/f(x) * (d/dx)f(x)
+			CalcFunction function = (CalcFunction)obj;
+			CalcObject firstObj = function.get(0);
+			return CALC.MULTIPLY.createFunction(CALC.POWER.createFunction(firstObj, CALC.NEG_ONE), differentiate(firstObj, var)); 
+		}
+		if (obj.getHeader().equals(CALC.SIN)) {	//	(d/dx) SIN(f(x)) = COS(f(x)) * (d/dx)f(x)
 			CalcFunction function = (CalcFunction)obj;
 			CalcObject firstObj = function.get(0);
 			return CALC.MULTIPLY.createFunction(CALC.COS.createFunction(firstObj), differentiate(firstObj, var)); 
 		}
-		if (obj.getHeader().equals(CALC.COS)) {	//	(d/dx) cos(f(x)) = -sin(f(x)) * (d/dx)f(x)
+		if (obj.getHeader().equals(CALC.COS)) {	//	(d/dx) COS(f(x)) = -SIN(f(x)) * (d/dx)f(x)
 			CalcFunction function = (CalcFunction)obj;
 			CalcObject firstObj = function.get(0);
 			return CALC.MULTIPLY.createFunction(CALC.NEG_ONE, CALC.SIN.createFunction(firstObj), differentiate(firstObj, var)); 

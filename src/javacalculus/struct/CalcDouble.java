@@ -146,10 +146,12 @@ public class CalcDouble implements CalcObject {
 	}
 
 	public CalcDouble multiply(CalcDouble input) {
+		if (isNaN || input.isNaN()) return new CalcDouble(Double.NaN);
 		return new CalcDouble(value.multiply(input.bigDecimalValue()));
 	}
 	
 	public CalcDouble divide(CalcDouble input) {
+		if (isNaN || input.isNaN()) return new CalcDouble(Double.NaN);
 		return new CalcDouble(value.divide(input.bigDecimalValue(), CALC.mathcontext));
 	}
 	
@@ -189,6 +191,23 @@ public class CalcDouble implements CalcObject {
 		}
 		else if (getHierarchy() < obj.getHierarchy()) {
 			return -1;
+		}
+		else if (isPositiveInfinity) {
+			if (((CalcDouble)obj).isPositiveInfinity())
+				return 0;
+			else if (((CalcDouble)obj).isNegativeInfinity())
+				return 1;
+			else return 1;
+		}
+		else if (isNegativeInfinity) {
+			if (((CalcDouble)obj).isPositiveInfinity())
+				return -1;
+			else if (((CalcDouble)obj).isNegativeInfinity())
+				return 0;
+			else return -1;
+		}
+		else if (isNaN || ((CalcDouble)obj).isNaN()) {
+			return 0;
 		}
 		else return value.compareTo(((CalcDouble)obj).bigDecimalValue());
 	}

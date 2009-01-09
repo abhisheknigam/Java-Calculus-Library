@@ -37,12 +37,19 @@ public class CalcPLOT implements CalcFunctionEvaluator, CalcPlotter {
 				throw new CalcWrongParametersException("PLOT -> input function is not a single variable function of " + input.get(1).toString());
 			}
 			else {
-				if (input.get(0) instanceof CalcSymbol) { //case f(x)=x
+				CalcObject evaled = CALC.SYM_EVAL(input.get(0));
+				
+				if (evaled == null) {
+					function = (CalcFunction)input.get(0);
+				}
+				else if (evaled instanceof CalcSymbol || evaled.isNumber()) { //case f(x)=x or f(x) = c
 					function = new CalcFunction(CALC.ADD, input.get(0));
 				}
-				else function = (CalcFunction)input.get(0);
+				else function = (CalcFunction)evaled;
 				
+				function.removeVariable(0);
 				function.addVariable((CalcSymbol)input.get(1));
+				
 				showGraph();
 				return input;
 			}
@@ -78,13 +85,18 @@ public class CalcPLOT implements CalcFunctionEvaluator, CalcPlotter {
 	public double getYValue(double x) {
 		CalcObject result = CalcSUB.numericSubstitute(function, function.getVariable(0), new CalcDouble(x));
 		//TestAPI.print(result.toString());
-		try {
-			result = result.evaluate();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		
+		result = CALC.SYM_EVAL(result);
+		
+		if (result == null) return Double.NaN;
+		
 		if (result.isNumber()) { //if is number, return it
-			return Double.parseDouble(result.toString());
+			try {
+				return Double.parseDouble(result.toString());
+			}
+			catch (NumberFormatException e) {
+				return Double.NaN;
+			}
 		}
 		else { //else return ... not a number
 			return Double.NaN;
