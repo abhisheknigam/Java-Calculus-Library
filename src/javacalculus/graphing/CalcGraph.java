@@ -11,6 +11,12 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
+import java.awt.event.InputEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 
 import javax.swing.JComponent;
@@ -28,7 +34,7 @@ import javax.swing.SwingUtilities;
  *  
  *
  */
-public class CalcGraph extends JComponent implements Runnable {
+public class CalcGraph extends JComponent implements Runnable, MouseListener, MouseMotionListener, MouseWheelListener {
 	
 	/**
 	 * 
@@ -42,11 +48,12 @@ public class CalcGraph extends JComponent implements Runnable {
 	//private static final int DEFAULT_IMAGETYPE = BufferedImage.TYPE_INT_ARGB;
 	
 	private double 
-	min_x = -10,
-	max_x = 10,
+	min_x = -10, min_x_lowest = min_x,
+	max_x = 10, max_x_highest = max_x,
 	min_y = -10,
 	max_y = 10,
-	resolution = 0.002;	//distance between each x-value sample
+	resolution = 0.01,	//distance between each x-value sample
+	zoom_factor = 1;
 
 	private int 	width = DEFAULT_WIDTH,
 					height = DEFAULT_HEIGHT;
@@ -61,6 +68,7 @@ public class CalcGraph extends JComponent implements Runnable {
 	//private BufferedImage graph = new BufferedImage(DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_IMAGETYPE);
 	private CalcPlotter plotter;
 	private ArrayList<Point> points = new ArrayList<Point>();
+	private ArrayList<Point> transformedPoints = new ArrayList<Point>();
 	
 	/**
 	 * Constructor
@@ -74,8 +82,10 @@ public class CalcGraph extends JComponent implements Runnable {
 	@Override
 	public void run() {
 		setPreferredSize(new Dimension(width, height));
+		addMouseListener(this);
+		addMouseMotionListener(this);
+		addMouseWheelListener(this);
 		populatePoints();
-		transformPoints();
 		repaint();
 		frame = new JFrame("PLOT -> " + plotter.getFunction());
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -86,6 +96,7 @@ public class CalcGraph extends JComponent implements Runnable {
 		frame.pack();
 		centerWindow();
 		frame.setAlwaysOnTop(true);
+		frame.requestFocus();
 	}
 	
 	/**
@@ -93,9 +104,11 @@ public class CalcGraph extends JComponent implements Runnable {
 	 * information. This is where the custom plotter is used.
 	 */
 	private void populatePoints() {
-		double currentX = min_x, currentY;
+		points = new ArrayList<Point>();
 		
-		while (currentX < max_x) {
+		double currentX = min_x_lowest, currentY;
+		
+		while (currentX < max_x_highest) {
 			currentY = plotter.getYValue(currentX);
 			if (Double.isNaN(currentY) || Double.isInfinite(currentY)) {
 				currentX += resolution;
@@ -112,22 +125,26 @@ public class CalcGraph extends JComponent implements Runnable {
 	 * dimensions specified by double precision <b>width</b> and <b>height</b>. 
 	 */
 	private void transformPoints() {
-		for (Point p : points) {
+		transformedPoints = new ArrayList<Point>();
+		for (int ii = 0; ii < points.size(); ii++) {
+			Point p = points.get(ii);
 			double oldx = p.getX();
 			double oldy = p.getY();
 			double newx = width * (oldx - min_x)/(max_x - min_x);
 			double newy = height * (max_y - oldy)/(max_y - min_y);
-			p.setX(newx);
-			p.setY(newy);
+			transformedPoints.add(new Point(newx, newy));
 		}
 	}
 	
 	@Override
 	public void paintComponent(Graphics g) {
+		//First transform the points to the appropriate viewport
+		transformPoints();
+		
 		//cast to Graphics2D cuz Graphics2D is so much better (more methods)
 		Graphics2D g2d = (Graphics2D)g;
 		
-		//Antialiasing! Hellz yeah
+		//Antialiasing! Hellz yeah!
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
 		
@@ -140,12 +157,13 @@ public class CalcGraph extends JComponent implements Runnable {
 		paintLabels(g2d);
 		
 		//draw the curve (a concatenation of small linear lines actually)
-		Point currentPoint = points.get(0);
+		Point currentPoint = transformedPoints.get(0);
 		g2d.setColor(function_color);
-		for (Point p : points) {
+		for (Point p : transformedPoints) {
 			if ((int)p.getY() >= 0 && (int)p.getY() <= height)
 			g2d.drawLine((int)currentPoint.getX(), (int)currentPoint.getY(), (int)p.getX(), (int)p.getY());
-			
+			//System.out.println("CP:" + currentPoint.getX() + " " + currentPoint.getY());
+			//System.out.println("P: " + p.getX() + " " + p.getY());
 			currentPoint = p;
 		}
 	}
@@ -210,7 +228,117 @@ public class CalcGraph extends JComponent implements Runnable {
 		int yminWidth = (int)metrics.getStringBounds(ymin, g).getWidth();
 		g.drawString(ymin, originX - yminWidth - padding, height - padding);
 	}
+
+	/**
+	 * Centers the JFrame on the screen. Stole this code from my java guitar hero
+	 * thing.
+	 */
+	private void centerWindow() {
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension frameSize = frame.getSize();
+		if (frameSize.height > screenSize.height)
+			frameSize.height = screenSize.height;
+		if (frameSize.width > screenSize.width)
+			frameSize.width = screenSize.width;
+		frame.setLocation((screenSize.width - frameSize.width)/2, 
+				(screenSize.height - frameSize.height)/2);
+	}
 	
+	/**
+	 * Truncates a double to 2 decimal places
+	 * @param x
+	 * @return x to 2 decimal places
+	 */
+	private static double truncate(double x) {
+		if (x > 0)
+			return Math.floor(x * 100)/100;
+		else
+			return Math.ceil(x * 100)/100;
+	}
+	
+	private int oldMouseX = Integer.MIN_VALUE, oldMouseY = Integer.MIN_VALUE, newMouseX, newMouseY;
+	
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		//System.out.println(InputEvent.getModifiersExText(e.getModifiersEx()));
+		oldMouseX = Integer.MIN_VALUE;
+		oldMouseY = Integer.MIN_VALUE;
+	}
+	
+	@Override
+	public void mouseDragged(MouseEvent e) {	//Handle PAN
+		//System.out.println(InputEvent.getModifiersExText(e.getModifiersEx()));
+		if (oldMouseX == Integer.MIN_VALUE || oldMouseY == Integer.MIN_VALUE) {	//initial mouse position
+			oldMouseX = e.getX(); oldMouseY = e.getY();
+			return;
+		}
+		else {
+			newMouseX = e.getX(); newMouseY = e.getY();
+			int deltaMouseX = newMouseX - oldMouseX;
+			int deltaMouseY = newMouseY - oldMouseY;
+			double xOffset = -((max_x - min_x)*deltaMouseX/width);
+			double yOffset = ((max_y - min_y)*deltaMouseY/height);
+			max_x = truncate(max_x + xOffset);
+			min_x = truncate(min_x + xOffset);
+			max_y = truncate(max_y + yOffset);
+			min_y = truncate(min_y + yOffset);
+			oldMouseX = newMouseX;
+			oldMouseY = newMouseY;
+		}
+		if (max_x > max_x_highest || min_x < min_x_lowest) { //if pan goes beyond the current amount of information, repopulate points
+			if (max_x > max_x_highest) max_x_highest = max_x;	//TODO OPTIMIZE THIS SHIT!
+			if (min_x < min_x_lowest) min_x_lowest = min_x;
+			populatePoints();
+		}
+		repaint();
+	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {	//Handle ZOOM
+		
+		//System.out.println(e);
+		if (e.getWheelRotation() > 0) { //zoom out
+			max_x = truncate(max_x + zoom_factor);
+			min_x = truncate(min_x - zoom_factor);
+			max_y = truncate(max_y + zoom_factor);
+			min_y = truncate(min_y - zoom_factor);
+		}
+		else {	//zoom in
+			max_x = truncate(max_x - zoom_factor);
+			min_x = truncate(min_x + zoom_factor);
+			max_y = truncate(max_y - zoom_factor);
+			min_y = truncate(min_y + zoom_factor);
+		}
+		if (max_x <= min_x) { //make sure the zoom-in has a limit
+			max_x = truncate(max_x + zoom_factor);
+			min_x = truncate(min_x - zoom_factor);
+			return;
+		}
+		if (max_y <= min_y) { //make sure the zoom-in has a limit
+			max_y = truncate(max_y + zoom_factor);
+			min_y = truncate(min_y - zoom_factor);
+			return;
+		}
+		if (max_x > max_x_highest || min_x < min_x_lowest) { //if zoom-out goes beyond the current amount of information, repopulate points
+			if (max_x > max_x_highest) max_x_highest = max_x;	//TODO OPTIMIZE THIS SHIT!
+			if (min_x < min_x_lowest) min_x_lowest = min_x;
+			populatePoints();
+		}
+		repaint();
+	}
+	
+	//unused but nevertheless required implements
+	@Override
+	public void mouseMoved(MouseEvent e) {}
+	@Override
+	public void mouseClicked(MouseEvent e) {}
+	@Override
+	public void mouseEntered(MouseEvent e) {}
+	@Override
+	public void mouseExited(MouseEvent e) {}
+	@Override
+	public void mousePressed(MouseEvent e) {}
+
 	/**
 	 * @return the min_x
 	 */
@@ -266,21 +394,6 @@ public class CalcGraph extends JComponent implements Runnable {
 	public void setMax_y(double max_y) {
 		this.max_y = max_y;
 	}
-
-	/**
-	 * Centers the JFrame on the screen. Stole this code from my java guitar hero
-	 * thing.
-	 */
-    private void centerWindow() {
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		Dimension frameSize = frame.getSize();
-		if (frameSize.height > screenSize.height)
-		    frameSize.height = screenSize.height;
-		if (frameSize.width > screenSize.width)
-		    frameSize.width = screenSize.width;
-		frame.setLocation((screenSize.width - frameSize.width)/2, 
-						(screenSize.height - frameSize.height)/2);
-    }
 	
     /**
      * Bare-bones custom point class used with javaCalc 2D graphing package.
@@ -305,5 +418,4 @@ public class CalcGraph extends JComponent implements Runnable {
 			y = yIn;
 		}
 	}
-
 }
