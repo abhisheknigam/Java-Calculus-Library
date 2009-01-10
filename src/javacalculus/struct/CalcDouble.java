@@ -3,7 +3,6 @@ package javacalculus.struct;
 import java.math.BigDecimal;
 
 import javacalculus.core.CALC;
-import javacalculus.exception.CalcIndeterminateException;
 import javacalculus.exception.CalcUnsupportedException;
 
 /**
@@ -155,6 +154,8 @@ public class CalcDouble implements CalcObject {
 		if (isNaN || input.isNaN()) return new CalcDouble(Double.NaN);
 		else if (isPositiveInfinity) return input.isNegativeInfinity()? new CalcDouble(0.0D):new CalcDouble(Double.POSITIVE_INFINITY);
 		else if (isNegativeInfinity) return input.isPositiveInfinity()? new CalcDouble(0.0D):new CalcDouble(Double.NEGATIVE_INFINITY);
+		else if (input.isPositiveInfinity()) return isNegativeInfinity()? new CalcDouble(0.0D):new CalcDouble(Double.POSITIVE_INFINITY);
+		else if (input.isNegativeInfinity()) return isPositiveInfinity()? new CalcDouble(0.0D):new CalcDouble(Double.NEGATIVE_INFINITY);
 		else return new CalcDouble(value.add(input.bigDecimalValue()));
 	}
 
@@ -170,7 +171,7 @@ public class CalcDouble implements CalcObject {
 	public CalcDouble divide(CalcDouble input) {
 		if (isNaN || input.isNaN()) return new CalcDouble(Double.NaN);
 		else if (isPositiveInfinity) {
-			if (input.isPositiveInfinity) {
+			if (input.isPositiveInfinity()) {
 				return new CalcDouble(1.0D);
 			}
 			else if (input.isNegativeInfinity()) {
@@ -179,7 +180,7 @@ public class CalcDouble implements CalcObject {
 			else return new CalcDouble(Double.POSITIVE_INFINITY);
 		}
 		else if (isNegativeInfinity) {
-			if (input.isPositiveInfinity) {
+			if (input.isPositiveInfinity()) {
 				return new CalcDouble(-1.0D);
 			}
 			else if (input.isNegativeInfinity()) {

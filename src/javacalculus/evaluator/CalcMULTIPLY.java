@@ -1,10 +1,14 @@
 package javacalculus.evaluator;
 
-import test.TestAPI;
-import javacalculus.struct.*;
-import javacalculus.core.*;
+import javacalculus.core.CALC;
 import javacalculus.evaluator.extend.CalcNParamFunctionEvaluator;
 import javacalculus.evaluator.extend.CalcOperatorEvaluator;
+import javacalculus.struct.CalcDouble;
+import javacalculus.struct.CalcFraction;
+import javacalculus.struct.CalcFunction;
+import javacalculus.struct.CalcInteger;
+import javacalculus.struct.CalcObject;
+import javacalculus.struct.CalcSymbol;
 
 /**
  * Evaluator that handles multiplication of expressions. Handles basic simplification.
@@ -57,7 +61,6 @@ public class CalcMULTIPLY extends CalcNParamFunctionEvaluator implements CalcOpe
 				return CALC.MULTIPLY.createFunction(input1, input2);
 			}
 			else if (input2 instanceof CalcFunction) {
-				CalcFunction function2 = (CalcFunction) input2;
 				CalcFunction function = CALC.MULTIPLY.createFunction(input1, input2);
 				return function.evaluateParameters();
 			}
@@ -108,8 +111,6 @@ public class CalcMULTIPLY extends CalcNParamFunctionEvaluator implements CalcOpe
 		char operatorChar = '*';
 		StringBuffer buffer = new StringBuffer();
 		CalcObject temp = null;
-		boolean unaryNegative = false;
-		
 		for (int ii = 0; ii < function.size(); ii++) {
 			temp = function.get(ii);
 			//a*1/x -> a/x
@@ -144,11 +145,8 @@ public class CalcMULTIPLY extends CalcNParamFunctionEvaluator implements CalcOpe
 			}*/
 			if (temp.equals(CALC.NEG_ONE)) {
 				buffer.append('-');	//-1*x = -x
-				unaryNegative = true;
 			}
 			else {
-				unaryNegative = false;
-				
 				if (temp.getPrecedence() < precedence) {
 					buffer.append('('); //handle parenthesis
 				}

@@ -12,7 +12,6 @@ import javacalculus.struct.CalcDouble;
 import javacalculus.struct.CalcFunction;
 import javacalculus.struct.CalcObject;
 import javacalculus.struct.CalcSymbol;
-import test.TestAPI;
 
 /**
  * This evaluator implements the CalcPlotter interface to use the CalcGraph utility for

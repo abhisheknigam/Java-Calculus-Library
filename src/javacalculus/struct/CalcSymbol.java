@@ -4,10 +4,7 @@
 package javacalculus.struct;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-
 import javacalculus.core.CALC;
-import javacalculus.evaluator.*;
 import javacalculus.evaluator.extend.CalcConstantEvaluator;
 import javacalculus.evaluator.extend.CalcFunctionEvaluator;
 import javacalculus.evaluator.extend.CalcNullEvaluator;

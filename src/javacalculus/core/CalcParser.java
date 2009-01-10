@@ -1,9 +1,14 @@
 package javacalculus.core;
 
-import javacalculus.struct.*;
 import javacalculus.evaluator.CalcSUB;
-import javacalculus.evaluator.extend.CalcFunctionEvaluator;
-import javacalculus.exception.*;
+import javacalculus.exception.CalcSyntaxException;
+import javacalculus.exception.CalcUnsupportedException;
+import javacalculus.struct.CalcDouble;
+import javacalculus.struct.CalcFraction;
+import javacalculus.struct.CalcFunction;
+import javacalculus.struct.CalcInteger;
+import javacalculus.struct.CalcObject;
+import javacalculus.struct.CalcSymbol;
 
 /**
  * Parses a mathematical expression string into a CalcObject
