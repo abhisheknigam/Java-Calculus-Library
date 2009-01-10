@@ -29,7 +29,7 @@ public final class CALC {
 	public static boolean operator_notation = false;
 	
 	/**
-	 * Standard operator symbols
+	 * Standard unaryChar operator symbols
 	 */
 	public static final CalcSymbol ADD = new CalcSymbol("ADD", new CalcADD(),
 			CalcSymbol.OPERATOR | CalcSymbol.COMMUTATIVE | CalcSymbol.ASSOCIATIVE | CalcSymbol.UNIPARAM_IDENTITY);
@@ -41,6 +41,8 @@ public final class CALC {
 			CalcSymbol.OPERATOR | CalcSymbol.UNIPARAM_IDENTITY);
 	public static final CalcSymbol POWER = new CalcSymbol("POWER", new CalcPOWER(),
 			CalcSymbol.OPERATOR | CalcSymbol.UNIPARAM_IDENTITY);
+	public static final CalcSymbol FACTORIAL = new CalcSymbol("FACTORIAL", new CalcFACTORIAL(),
+			CalcSymbol.OPERATOR);
 	
 	/**
 	 * Special function symbols
@@ -60,6 +62,8 @@ public final class CALC {
 			CalcSymbol.OPERATOR | CalcSymbol.FAST_EVAL);
 	public static final CalcSymbol SUB = new CalcSymbol("SUB", new CalcSUB(),
 			CalcSymbol.FAST_EVAL);
+	public static final CalcSymbol TAYLOR = new CalcSymbol("TAYLOR", new CalcTAYLOR(),
+			CalcSymbol.NO_PROPERTY);
 	public static final CalcSymbol PLOT = new CalcSymbol("PLOT", new CalcPLOT(),
 			CalcSymbol.FAST_EVAL);
 	
@@ -77,6 +81,8 @@ public final class CALC {
 	public static final CalcDouble D_NEG_ONE = new CalcDouble(NEG_ONE); 
 	private static final byte[] IntegerTwo = {2}; 
 	public static final CalcInteger TWO = new CalcInteger(IntegerTwo);
+	private static final byte[] IntegerNegTwo = {-2}; 
+	public static final CalcInteger NEG_TWO = new CalcInteger(IntegerNegTwo);
 	public static final CalcDouble D_TWO = new CalcDouble(TWO);
 	private static final byte[] IntegerFour = {4}; 
 	public static final CalcInteger FOUR = new CalcInteger(IntegerFour);
@@ -243,6 +249,7 @@ public final class CALC {
 		else if (identifier.equals("DIFF")) return (CalcSymbol)DIFF.clone();
 		else if (identifier.equals("DEFINE")) return (CalcSymbol)DEFINE.clone();
 		else if (identifier.equals("PLOT")) return (CalcSymbol)PLOT.clone();
+		else if (identifier.equals("TAYLOR")) return (CalcSymbol)TAYLOR.clone();
 		else if (identifier.equals("PI")) return PI;
 		else if (identifier.equals("E")) return E;
 		else return null;

@@ -3,6 +3,7 @@ package javacalculus.struct;
 import java.math.BigDecimal;
 
 import javacalculus.core.CALC;
+import javacalculus.exception.CalcUnsupportedException;
 
 /**
  * 
@@ -115,7 +116,11 @@ public class CalcDouble implements CalcObject {
 			}
 			return value.doubleValue() == (((CalcDouble)obj).doubleValue());
 		}
-		return false;
+		else if (obj instanceof CalcInteger) {
+			if (value == null) return false;
+			else return value.doubleValue() == (double)((CalcInteger)obj).intValue();
+		}
+		else return false;
 	}
 
 	@Override
@@ -194,30 +199,45 @@ public class CalcDouble implements CalcObject {
 
 	@Override
 	public int compareTo(CalcObject obj) {
+		if (obj.isNumber()) {
+			if (obj instanceof CalcInteger) {
+				if (value.doubleValue() < (double)((CalcInteger)obj).intValue()) {
+					return -1;
+				}
+				else if (value.doubleValue() > (double)((CalcInteger)obj).intValue()) {
+					return 1;
+				}
+				else return 0;
+			}
+			else if (obj instanceof CalcDouble) {
+				if (isPositiveInfinity) {
+					if (((CalcDouble)obj).isPositiveInfinity())
+						return 0;
+					else if (((CalcDouble)obj).isNegativeInfinity())
+						return 1;
+					else return 1;
+				}
+				else if (isNegativeInfinity) {
+					if (((CalcDouble)obj).isPositiveInfinity())
+						return -1;
+					else if (((CalcDouble)obj).isNegativeInfinity())
+						return 0;
+					else return -1;
+				}
+				else if (isNaN || ((CalcDouble)obj).isNaN()) {
+					return 0;
+				}
+				else return value.compareTo(((CalcDouble)obj).bigDecimalValue());
+			}
+			else throw new CalcUnsupportedException(obj.toString());
+		}
 		if (getHierarchy() > obj.getHierarchy()) {
 			return 1;
 		}
 		else if (getHierarchy() < obj.getHierarchy()) {
 			return -1;
 		}
-		else if (isPositiveInfinity) {
-			if (((CalcDouble)obj).isPositiveInfinity())
-				return 0;
-			else if (((CalcDouble)obj).isNegativeInfinity())
-				return 1;
-			else return 1;
-		}
-		else if (isNegativeInfinity) {
-			if (((CalcDouble)obj).isPositiveInfinity())
-				return -1;
-			else if (((CalcDouble)obj).isNegativeInfinity())
-				return 0;
-			else return -1;
-		}
-		else if (isNaN || ((CalcDouble)obj).isNaN()) {
-			return 0;
-		}
-		else return value.compareTo(((CalcDouble)obj).bigDecimalValue());
+		else return 0;
 	}
 
 	@Override
@@ -228,7 +248,7 @@ public class CalcDouble implements CalcObject {
 	@Override
 	public int getPrecedence() {
 		if (value.compareTo(BigDecimal.ZERO) < 0) {
-			return 100;
+		//	return 100;
 		}
 		return 9999999; //it's over NINE MILLION AGAIN!!!!
 	}

@@ -70,9 +70,17 @@ public class CalcSUB implements CalcFunctionEvaluator {
 		return returnVal;
 	}
 
-	public static CalcFunction numericSubstitute(CalcFunction input, CalcSymbol variable, CalcDouble number) {
+	public static CalcObject numericSubstitute(CalcObject input, CalcSymbol variable, CalcDouble number) {
+		if (input.isNumber()) {
+			return input;
+		}
+		if (input instanceof CalcSymbol) {
+			return number;
+		}
+		CalcFunction inputFunction = (CalcFunction)input;
 		CalcFunction result = new CalcFunction(input.getHeader());
-		for (CalcObject obj : input) {
+
+		for (CalcObject obj : inputFunction) {
 			if (obj.equals(variable)) {
 				result.add(number);
 			}

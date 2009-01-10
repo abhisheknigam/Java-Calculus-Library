@@ -4,6 +4,7 @@ import java.math.BigInteger;
 
 import javacalculus.core.CALC;
 import javacalculus.exception.CalcArithmeticException;
+import javacalculus.exception.CalcUnsupportedException;
 
 /**
  * Hierarchially encapsulates the java integer. BigInteger is used as the medium
@@ -125,13 +126,13 @@ public class CalcInteger implements CalcObject {
 		return A;
 	}
 	
-	public int compareTo(CalcInteger obj) {
-		return value.compareTo(obj.bigIntegerValue());
-	}
-	
 	public boolean equals(Object obj) {
 		if (obj instanceof CalcInteger) {
 			return value.equals(((CalcInteger)obj).bigIntegerValue());
+		}
+		else if (obj instanceof CalcDouble) {
+			if (value == null || !((CalcDouble)obj).isInteger()) return false;
+			else return value.intValue() == (int)((CalcDouble)obj).doubleValue();
 		}
 		else return false;
 	}
@@ -163,15 +164,28 @@ public class CalcInteger implements CalcObject {
 
 	@Override
 	public int compareTo(CalcObject obj) {
-		if (getHierarchy() > obj.getHierarchy()) {
+		if (obj.isNumber()) {
+			if (obj instanceof CalcInteger) {
+				return value.compareTo(((CalcInteger)obj).bigIntegerValue());
+			}
+			else if (obj instanceof CalcDouble) {
+				if ((double)value.intValue() < ((CalcDouble)obj).doubleValue()) {
+					return -1;
+				}
+				else if ((double)value.intValue() > ((CalcDouble)obj).doubleValue()) {
+					return 1;
+				}
+				else return 0;
+			}
+			else throw new CalcUnsupportedException(obj.toString());
+		}
+		else if (getHierarchy() > obj.getHierarchy()) {
 			return 1;
 		}
 		else if (getHierarchy() < obj.getHierarchy()) {
 			return -1;
 		}
-		else if (obj instanceof CalcInteger) {
-			return value.compareTo(((CalcInteger)obj).bigIntegerValue());
-		}
+
 		else return 0;
 	}
 

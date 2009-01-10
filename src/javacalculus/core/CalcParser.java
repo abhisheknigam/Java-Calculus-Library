@@ -33,7 +33,8 @@ public final class CalcParser {
 	CALC_IDENTIFIER = 8,		//variable names. function names, symbolic anything
 	CALC_DIGIT = 9,				//numbers
 	CALC_COMMA = 10,			//commas (mostly used in function argument list)
-	CALC_DEFINE = 11;			//variable assignment (i.e. x=10, f(x)=x+4, etc)
+	CALC_DEFINE = 11,			//variable assignment (i.e. x=10, f(x)=x+4, etc)
+	CALC_FACTORIAL = 12;		//factorial (x!)
 	
 	private String inputString;
 	private char currentChar;
@@ -122,6 +123,9 @@ public final class CalcParser {
 						break;
 					case '=':
 						token = CALC_DEFINE;
+						break;
+					case '!':
+						token = CALC_FACTORIAL;
 						break;
 					default:
 						throw new CalcSyntaxException("Unidentified character: " + currentChar);
@@ -272,7 +276,7 @@ public final class CalcParser {
 	}
 	
 	private CalcObject parsePower() throws CalcSyntaxException {
-		CalcObject returnVal = parseTerm();
+		CalcObject returnVal = parseFactorial();
 		
 		if (token != CALC_POWER) {
 			return returnVal;
@@ -281,8 +285,19 @@ public final class CalcParser {
 		while (token == CALC_POWER) {
 			parseNextToken();
 			CalcFunction function = new CalcFunction(CALC.POWER, returnVal);
-			function.add(parseTerm());
+			function.add(parseFactorial());
 			returnVal = function;
+		}
+		
+		return returnVal;
+	}
+	
+	private CalcObject parseFactorial() throws CalcSyntaxException {
+		CalcObject returnVal = parseTerm();
+		
+		while (token == CALC_FACTORIAL) {
+			parseNextToken();
+			returnVal = CALC.FACTORIAL.createFunction(returnVal);
 		}
 		
 		return returnVal;
