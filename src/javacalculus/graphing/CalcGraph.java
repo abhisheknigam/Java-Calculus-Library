@@ -17,6 +17,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
 import javax.swing.JComponent;
@@ -62,6 +63,7 @@ public class CalcGraph extends JComponent implements Runnable, MouseListener, Mo
 	private Color function_color = Color.BLUE;
 	private Color background_color = Color.WHITE;
 	private Color text_color = Color.RED;
+	private Color zoom_rectangle_color = Color.ORANGE;
 	
 	private Font labelFont = new Font("Dialog", Font.BOLD, 10);
 	
@@ -69,6 +71,7 @@ public class CalcGraph extends JComponent implements Runnable, MouseListener, Mo
 	private CalcPlotter plotter;
 	private ArrayList<Point> points = new ArrayList<Point>();
 	private ArrayList<Point> transformedPoints = new ArrayList<Point>();
+	private Rectangle2D Zoom_Rectangle;
 	
 	/**
 	 * Constructor
@@ -86,6 +89,7 @@ public class CalcGraph extends JComponent implements Runnable, MouseListener, Mo
 		addMouseMotionListener(this);
 		addMouseWheelListener(this);
 		populatePoints();
+		transformPoints();
 		repaint();
 		frame = new JFrame("PLOT -> " + plotter.getFunction());
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -126,6 +130,13 @@ public class CalcGraph extends JComponent implements Runnable, MouseListener, Mo
 	 */
 	private void transformPoints() {
 		transformedPoints = new ArrayList<Point>();
+		
+		if (max_x > max_x_highest || min_x < min_x_lowest) { //if zoom or pan goes beyond the current amount of information, repopulate points
+			if (max_x > max_x_highest) max_x_highest = max_x;	//TODO OPTIMIZE THIS SHIT!
+			if (min_x < min_x_lowest) min_x_lowest = min_x;
+			populatePoints();
+		}
+		
 		for (int ii = 0; ii < points.size(); ii++) {
 			Point p = points.get(ii);
 			double oldx = p.getX();
@@ -138,8 +149,6 @@ public class CalcGraph extends JComponent implements Runnable, MouseListener, Mo
 	
 	@Override
 	public void paintComponent(Graphics g) {
-		//First transform the points to the appropriate viewport
-		transformPoints();
 		
 		//cast to Graphics2D cuz Graphics2D is so much better (more methods)
 		Graphics2D g2d = (Graphics2D)g;
@@ -155,6 +164,14 @@ public class CalcGraph extends JComponent implements Runnable, MouseListener, Mo
 		//draw the axis and labels
 		paintAxis(g2d);
 		paintLabels(g2d);
+		
+		if (Zoom_Rectangle != null) {
+			g.setColor(zoom_rectangle_color);
+			g.drawRect(	(int)Zoom_Rectangle.getX(),
+						(int)Zoom_Rectangle.getY(), 
+						(int)Zoom_Rectangle.getWidth(), 
+						(int)Zoom_Rectangle.getHeight());
+		}
 		
 		//draw the curve (a concatenation of small linear lines actually)
 		Point currentPoint = transformedPoints.get(0);
@@ -263,19 +280,42 @@ public class CalcGraph extends JComponent implements Runnable, MouseListener, Mo
 		//System.out.println(InputEvent.getModifiersExText(e.getModifiersEx()));
 		oldMouseX = Integer.MIN_VALUE;
 		oldMouseY = Integer.MIN_VALUE;
+		
+		//calculate and draw new boundary points from the zoom rectangle upon mouse release
+		if (Zoom_Rectangle != null) {			
+			double min_x_rec = Zoom_Rectangle.getMinX();
+			double max_x_rec = Zoom_Rectangle.getMaxX();
+			double min_y_rec = Zoom_Rectangle.getMinY();
+			double max_y_rec = Zoom_Rectangle.getMaxY();
+			double new_min_x = min_x + (max_x - min_x)*(min_x_rec/width);
+			double new_max_x = min_x + (max_x - min_x)*(max_x_rec/width);
+			double new_max_y = max_y - (max_x - min_y)*(min_y_rec/height);
+			double new_min_y = max_y - (max_y - min_y)*(max_y_rec/height);
+			min_x = truncate(new_min_x);
+			max_x = truncate(new_max_x);
+			min_y = truncate(new_min_y);
+			max_y = truncate(new_max_y);
+			Zoom_Rectangle = null;
+			transformPoints();
+			repaint();
+		}
 	}
 	
 	@Override
-	public void mouseDragged(MouseEvent e) {	//Handle PAN
+	public void mouseDragged(MouseEvent e) {	//Handle PAN and RECTANGLE ZOOM
 		//System.out.println(InputEvent.getModifiersExText(e.getModifiersEx()));
 		if (oldMouseX == Integer.MIN_VALUE || oldMouseY == Integer.MIN_VALUE) {	//initial mouse position
 			oldMouseX = e.getX(); oldMouseY = e.getY();
 			return;
 		}
-		else {
-			newMouseX = e.getX(); newMouseY = e.getY();
-			int deltaMouseX = newMouseX - oldMouseX;
-			int deltaMouseY = newMouseY - oldMouseY;
+		
+		newMouseX = e.getX(); newMouseY = e.getY();
+		int deltaMouseX = newMouseX - oldMouseX;
+		int deltaMouseY = newMouseY - oldMouseY;
+		
+		//if the left mouse button (button1) is held, execute code for PAN
+		if (e.getModifiersEx() == MouseEvent.BUTTON1_DOWN_MASK) {
+
 			double xOffset = -((max_x - min_x)*deltaMouseX/width);
 			double yOffset = ((max_y - min_y)*deltaMouseY/height);
 			max_x = truncate(max_x + xOffset);
@@ -284,13 +324,19 @@ public class CalcGraph extends JComponent implements Runnable, MouseListener, Mo
 			min_y = truncate(min_y + yOffset);
 			oldMouseX = newMouseX;
 			oldMouseY = newMouseY;
+				
+			transformPoints();
+			repaint();
 		}
-		if (max_x > max_x_highest || min_x < min_x_lowest) { //if pan goes beyond the current amount of information, repopulate points
-			if (max_x > max_x_highest) max_x_highest = max_x;	//TODO OPTIMIZE THIS SHIT!
-			if (min_x < min_x_lowest) min_x_lowest = min_x;
-			populatePoints();
+		//if the right mouse button is held down, execute code for RECTANGLE ZOOM
+		else if (e.getModifiersEx() == MouseEvent.BUTTON3_DOWN_MASK) {
+			if (Zoom_Rectangle == null) {
+				Zoom_Rectangle = new Rectangle2D.Double(oldMouseX, oldMouseY, 0.0D, 0.0D);
+				return;
+			}
+			Zoom_Rectangle.setFrameFromDiagonal(oldMouseX, oldMouseY, newMouseX, newMouseY);
+			repaint();
 		}
-		repaint();
 	}
 
 	@Override
@@ -319,11 +365,7 @@ public class CalcGraph extends JComponent implements Runnable, MouseListener, Mo
 			min_y = truncate(min_y - zoom_factor);
 			return;
 		}
-		if (max_x > max_x_highest || min_x < min_x_lowest) { //if zoom-out goes beyond the current amount of information, repopulate points
-			if (max_x > max_x_highest) max_x_highest = max_x;	//TODO OPTIMIZE THIS SHIT!
-			if (min_x < min_x_lowest) min_x_lowest = min_x;
-			populatePoints();
-		}
+		transformPoints();
 		repaint();
 	}
 	
