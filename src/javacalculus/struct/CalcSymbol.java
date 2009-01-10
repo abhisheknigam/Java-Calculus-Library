@@ -189,7 +189,7 @@ public class CalcSymbol implements CalcObject {
 		
 		CalcObject returnVal = function.evaluateParameters();
 		
-		if (!returnVal.getHeader().equals(function.getHeader())) return returnVal;
+		if (returnVal.getHeader() != null && !returnVal.getHeader().equals(function.getHeader())) return returnVal;
 		
 		if (returnVal instanceof CalcFunction) return evaluator.evaluate((CalcFunction)returnVal);
 		else return returnVal;

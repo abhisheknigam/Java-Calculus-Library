@@ -72,6 +72,7 @@ public abstract class CalcNParamFunctionEvaluator extends Calc2ParamFunctionEval
 				}
 				return result;
 			}
+			return result;
 		}
 		return null;
 	}
