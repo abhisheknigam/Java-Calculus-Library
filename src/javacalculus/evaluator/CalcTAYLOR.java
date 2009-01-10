@@ -9,8 +9,7 @@ import javacalculus.exception.CalcWrongParametersException;
 import javacalculus.struct.*;
 
 /**
- * This function evaluator applies the derivative operator to a function with respect to
- * a given variable. An optional "order" parameter is built in to take multiple derivatives.
+ * This function evaluator constructs the Taylor series for a given function. The command is TAYLOR(function, variable, center, order)
  * @author Duyun Chen <A HREF="mailto:duchen@seas.upenn.edu">[duchen@seas.upenn.edu]</A>,
  * Seth Shannin <A HREF="mailto:sshannin@seas.upenn.edu">[sshannin@seas.upenn.edu]</A>
  *  

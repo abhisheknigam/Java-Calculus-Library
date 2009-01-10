@@ -11,6 +11,9 @@ import javacalculus.struct.CalcObject;
 import javacalculus.struct.CalcSymbol;
 
 /**
+ * Handles user defined functions (e.g. f(x)=x^2). Stores defined functions
+ * in CALC.defined.
+ * @see CALC
  * @author Duyun Chen <A HREF="mailto:duchen@seas.upenn.edu">[duchen@seas.upenn.edu]</A>,
  * Seth Shannin <A HREF="mailto:sshannin@seas.upenn.edu">[sshannin@seas.upenn.edu]</A>
  *  

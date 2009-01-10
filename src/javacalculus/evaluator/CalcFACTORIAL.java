@@ -13,6 +13,7 @@ import javacalculus.struct.CalcObject;
 import javacalculus.struct.CalcSymbol;
 
 /**
+ * Factorial evaluator (x! = x*(x-1)*(x-2)*...*1). Supports negative numbers.
  * @author Duyun Chen <A HREF="mailto:duchen@seas.upenn.edu">[duchen@seas.upenn.edu]</A>,
  * Seth Shannin <A HREF="mailto:sshannin@seas.upenn.edu">[sshannin@seas.upenn.edu]</A>
  *  

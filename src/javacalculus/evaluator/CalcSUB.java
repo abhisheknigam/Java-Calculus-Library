@@ -3,7 +3,6 @@
  */
 package javacalculus.evaluator;
 
-import test.TestAPI;
 import javacalculus.core.CALC;
 import javacalculus.evaluator.extend.CalcFunctionEvaluator;
 import javacalculus.exception.CalcWrongParametersException;
@@ -13,6 +12,10 @@ import javacalculus.struct.CalcObject;
 import javacalculus.struct.CalcSymbol;
 
 /**
+ * Evaluator for numeric and symbolic substitution. Works in conjunction with CalcDEFINE
+ * and CALC but also has a static method for numeric substitutions.
+ * @see CalcDEFINE
+ * @see CALC
  * @author Duyun Chen <A HREF="mailto:duchen@seas.upenn.edu">[duchen@seas.upenn.edu]</A>,
  * Seth Shannin <A HREF="mailto:sshannin@seas.upenn.edu">[sshannin@seas.upenn.edu]</A>
  *  

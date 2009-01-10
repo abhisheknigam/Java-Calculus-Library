@@ -13,6 +13,7 @@ import javacalculus.struct.CalcObject;
 import javacalculus.struct.CalcSymbol;
 
 /**
+ *  * Trignometric Cosine function evaluator. Supports fast evaluation of special values (various multiples of PI and PI fractions).
  * @author Duyun Chen <A HREF="mailto:duchen@seas.upenn.edu">[duchen@seas.upenn.edu]</A>,
  * Seth Shannin <A HREF="mailto:sshannin@seas.upenn.edu">[sshannin@seas.upenn.edu]</A>
  *  
