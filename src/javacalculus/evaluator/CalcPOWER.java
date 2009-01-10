@@ -23,7 +23,7 @@ public class CalcPOWER extends Calc2ParamFunctionEvaluator implements CalcOperat
 			}
 			if (input2 instanceof CalcInteger &&
 				((CalcInteger)input2).isNegative()) {
-				throw new CalcArithmeticException("Division by zero");
+				return new CalcDouble(Double.POSITIVE_INFINITY);
 			}
 			return CALC.ZERO;
 		}

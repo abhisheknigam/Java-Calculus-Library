@@ -3,6 +3,7 @@ package javacalculus.struct;
 import java.math.BigDecimal;
 
 import javacalculus.core.CALC;
+import javacalculus.exception.CalcIndeterminateException;
 import javacalculus.exception.CalcUnsupportedException;
 
 /**
@@ -151,22 +152,47 @@ public class CalcDouble implements CalcObject {
 	}
 
 	public CalcDouble add(CalcDouble input) {
-		return new CalcDouble(value.add(input.bigDecimalValue()));
+		if (isNaN || input.isNaN()) return new CalcDouble(Double.NaN);
+		else if (isPositiveInfinity) return input.isNegativeInfinity()? new CalcDouble(0.0D):new CalcDouble(Double.POSITIVE_INFINITY);
+		else if (isNegativeInfinity) return input.isPositiveInfinity()? new CalcDouble(0.0D):new CalcDouble(Double.NEGATIVE_INFINITY);
+		else return new CalcDouble(value.add(input.bigDecimalValue()));
 	}
 
 	public CalcDouble multiply(CalcDouble input) {
 		if (isNaN || input.isNaN()) return new CalcDouble(Double.NaN);
-		return new CalcDouble(value.multiply(input.bigDecimalValue()));
+		else if (isPositiveInfinity) return input.isNegative()? new CalcDouble(Double.NEGATIVE_INFINITY):new CalcDouble(Double.POSITIVE_INFINITY);
+		else if (isNegativeInfinity) return input.isNegative()? new CalcDouble(Double.POSITIVE_INFINITY):new CalcDouble(Double.NEGATIVE_INFINITY);
+		else if (input.isPositiveInfinity()) return isNegative()? new CalcDouble(Double.NEGATIVE_INFINITY):new CalcDouble(Double.POSITIVE_INFINITY);
+		else if (input.isNegativeInfinity()) return isNegative()? new CalcDouble(Double.POSITIVE_INFINITY):new CalcDouble(Double.NEGATIVE_INFINITY);		
+		else return new CalcDouble(value.multiply(input.bigDecimalValue()));
 	}
 	
 	public CalcDouble divide(CalcDouble input) {
 		if (isNaN || input.isNaN()) return new CalcDouble(Double.NaN);
+		else if (isPositiveInfinity) {
+			if (input.isPositiveInfinity) {
+				return new CalcDouble(1.0D);
+			}
+			else if (input.isNegativeInfinity()) {
+				return new CalcDouble(-1.0D);
+			}
+			else return new CalcDouble(Double.POSITIVE_INFINITY);
+		}
+		else if (isNegativeInfinity) {
+			if (input.isPositiveInfinity) {
+				return new CalcDouble(-1.0D);
+			}
+			else if (input.isNegativeInfinity()) {
+				return new CalcDouble(1.0D);
+			}
+			else return new CalcDouble(Double.NEGATIVE_INFINITY);			
+		}
 		return new CalcDouble(value.divide(input.bigDecimalValue(), CALC.mathcontext));
 	}
 	
 	public CalcDouble power(CalcDouble input) {
 		if (isNaN || input.isNaN()) return new CalcDouble(Double.NaN);
-		return new CalcDouble(Math.pow(doubleValue(), input.doubleValue()));
+		else return new CalcDouble(Math.pow(doubleValue(), input.doubleValue()));
 	}
 	
 	public CalcDouble mod(CalcDouble input) {
@@ -175,6 +201,11 @@ public class CalcDouble implements CalcObject {
 	
 	public boolean isDivisibleBy(CalcDouble input) {
 		return mod(input).equals(CALC.D_ZERO);
+	}
+	
+	public boolean isNegative() {
+		if (value == null) return isNegativeInfinity;
+		else return compareTo(CALC.D_ZERO) < 0;
 	}
 	
 	public void negate() {
@@ -196,12 +227,24 @@ public class CalcDouble implements CalcObject {
 		if (isNaN || isPositiveInfinity || isNegativeInfinity) return false;
 		return (mod(CALC.D_ONE).equals(CALC.D_ZERO));
 	}
+	
+	public boolean isInfinity() {
+		return isPositiveInfinity || isNegativeInfinity;
+	}
 
 	@Override
 	public int compareTo(CalcObject obj) {
+		if (isNaN) return 0;
+		
 		if (obj.isNumber()) {
 			if (obj instanceof CalcInteger) {
-				if (value.doubleValue() < (double)((CalcInteger)obj).intValue()) {
+				if (isPositiveInfinity) {
+					return 1;
+				}
+				else if (isNegativeInfinity) {
+					return -1;
+				}
+				else if (value.doubleValue() < (double)((CalcInteger)obj).intValue()) {
 					return -1;
 				}
 				else if (value.doubleValue() > (double)((CalcInteger)obj).intValue()) {
@@ -247,9 +290,6 @@ public class CalcDouble implements CalcObject {
 
 	@Override
 	public int getPrecedence() {
-		if (value.compareTo(BigDecimal.ZERO) < 0) {
-		//	return 100;
-		}
 		return 9999999; //it's over NINE MILLION AGAIN!!!!
 	}
 }
