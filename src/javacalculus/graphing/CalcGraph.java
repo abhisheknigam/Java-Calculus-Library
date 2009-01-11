@@ -72,6 +72,8 @@ public class CalcGraph extends JComponent implements Runnable, MouseListener, Mo
 	private ArrayList<Point> transformedPoints = new ArrayList<Point>();
 	private Rectangle2D Zoom_Rectangle;
 	
+	private boolean firstPopulate = true;
+	
 	/**
 	 * Constructor
 	 * @param plotterIn the plotter that calculates the points on this graph
@@ -104,22 +106,54 @@ public class CalcGraph extends JComponent implements Runnable, MouseListener, Mo
 	
 	/**
 	 * Calculate all the unique points on the graph using boundary and resolution
-	 * information. This is where the custom plotter is used.
+	 * information. This is where the custom plotter is used. This is quite optimized
+	 * but can probably be squeezed even more memory-wise.
 	 */
 	private void populatePoints() {
-		points = new ArrayList<Point>();
 		
 		double currentX = min_x_lowest, currentY;
+		ArrayList<Point> prepend = new ArrayList<Point>();
 		
 		while (currentX < max_x_highest) {
-			currentY = plotter.getYValue(currentX);
-			if (Double.isNaN(currentY) || Double.isInfinite(currentY)) {
+			//initial populate: all points
+			if (firstPopulate) {
+				currentY = plotter.getYValue(currentX);
+				if (Double.isNaN(currentY) || Double.isInfinite(currentY)) {
+					currentX += resolution;
+					continue; //we don't want THESE points ^ on the graph...
+				}
+				points.add(new Point(currentX, currentY));
 				currentX += resolution;
-				continue; //we don't want THESE points ^ on the graph...
 			}
-			points.add(new Point(currentX, currentY));
-			currentX += resolution;
+			//all additional populates thereafter only populate the points that aren't there already.
+			else {
+				double lowestX = points.get(0).getX();
+				double highestX = points.get(points.size()-1).getX();
+				if (currentX >= lowestX && currentX <= highestX) {
+					currentX += resolution;	//the point already exists, move on
+					continue;
+				}
+				if (currentX < lowestX) {
+					currentY = plotter.getYValue(currentX);
+					if (Double.isNaN(currentY) || Double.isInfinite(currentY)) {
+						currentX += resolution;
+						continue; //we don't want THESE points ^ on the graph...
+					}
+					prepend.add(new Point(currentX, currentY));
+				}
+				if (currentX > highestX) {
+					currentY = plotter.getYValue(currentX);
+					if (Double.isNaN(currentY) || Double.isInfinite(currentY)) {
+						currentX += resolution;
+						continue; //we don't want THESE points ^ on the graph...
+					}
+					points.add(new Point(currentX, currentY));
+				}
+				currentX += resolution;
+			}
 		}
+		points.addAll(0, prepend);	//add in all the "left" values in the correct location
+		firstPopulate = false;
 	}
 	
 	/**
@@ -148,7 +182,6 @@ public class CalcGraph extends JComponent implements Runnable, MouseListener, Mo
 	
 	@Override
 	public void paintComponent(Graphics g) {
-		
 		//cast to Graphics2D cuz Graphics2D is so much better (more methods)
 		Graphics2D g2d = (Graphics2D)g;
 		
