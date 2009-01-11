@@ -36,29 +36,6 @@ public class CalcGAMMA extends Calc1ParamFunctionEvaluator {
 	
 	@Override
 	protected CalcObject evaluateObject(CalcObject input) {
-		CalcDouble PI = null;
-		try {
-			PI = (CalcDouble)CALC.PI.evaluate();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-		if (input.equals(PI)) {	//COS(PI) = -1
-			return CALC.NEG_ONE;
-		}
-		if (input instanceof CalcDouble) {
-			CalcDouble param = (CalcDouble)input;
-			param = param.divide(PI); //retrieve coefficient of pi
-			if (param.isInteger() && param.isEven()) { //COS((2k)*PI) = 1
-				return CALC.ONE;
-			}
-			else if (param.isInteger() && !param.isEven()) {	//COS((2k+1)*PI) = -1
-				return CALC.NEG_ONE;
-			}
-			if (param.mod(CALC.D_HALF).equals(CALC.D_ZERO)) { //COS(c*PI/2) = 0
-				return CALC.ZERO;
-			}
-		}
 		return null;
 	}
 	
