@@ -52,7 +52,7 @@ public class CalcGraph extends JComponent implements Runnable, MouseListener, Mo
 	max_x = 10, max_x_highest = max_x,
 	min_y = -10,
 	max_y = 10,
-	resolution = 0.01,	//distance between each x-value sample
+	resolution = 0.005,	//distance between each x-value sample
 	zoom_factor = 1;
 
 	private int 	width = DEFAULT_WIDTH,
@@ -467,6 +467,14 @@ public class CalcGraph extends JComponent implements Runnable, MouseListener, Mo
 	 */
 	public void setMax_y(double max_y) {
 		this.max_y = max_y;
+	}
+	
+	public double getResolution() {
+		return resolution;
+	}
+	
+	public void setResolution(double resolution) {
+		this.resolution = resolution;
 	}
 	
     /**
