@@ -99,6 +99,17 @@ public class CalcFraction implements CalcObject {
 	public boolean isNumber() {
 		return true;
 	}
+	
+	public boolean isNegative() {
+		return !((numerator.compareTo(BigInteger.ZERO) < 0 
+					&& denominator.compareTo(BigInteger.ZERO) < 0)
+				|| (numerator.compareTo(BigInteger.ZERO) > 0 
+					&& denominator.compareTo(BigInteger.ZERO) > 0));
+	}
+	
+	public void negate() {
+		numerator.negate();
+	}
 
 	@Override
 	public CalcSymbol getHeader() {

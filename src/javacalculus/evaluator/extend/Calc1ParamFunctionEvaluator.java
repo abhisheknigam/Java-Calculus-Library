@@ -1,5 +1,6 @@
 package javacalculus.evaluator.extend;
 
+import javacalculus.core.CALC;
 import javacalculus.struct.*;
 
 /**
@@ -16,6 +17,7 @@ public abstract class Calc1ParamFunctionEvaluator implements CalcFunctionEvaluat
 	public CalcObject evaluate(CalcFunction input) {
 		if (input.size() == 1) {
 			CalcObject parameter = input.get(0);
+			//parameter = CALC.SYM_EVAL(parameter);
 			CalcObject returnVal = evaluateObject(parameter);
 			if (returnVal != null) return returnVal;
 			

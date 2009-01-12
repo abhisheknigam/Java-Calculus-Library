@@ -209,19 +209,17 @@ public class CalcDouble implements CalcObject {
 		else return compareTo(CALC.D_ZERO) < 0;
 	}
 	
-	public void negate() {
+	public CalcDouble negate() {
 		if (isPositiveInfinity) {
-			isPositiveInfinity = false;
-			isNegativeInfinity = true;
+			return new CalcDouble(Double.NEGATIVE_INFINITY); 
 		}
 		else if (isNegativeInfinity) {
-			isNegativeInfinity = false;
-			isPositiveInfinity = true;
+			return new CalcDouble(Double.POSITIVE_INFINITY);
 		}
 		else if (isNaN) {
-			return;
+			return new CalcDouble(Double.NaN);
 		}
-		else value = value.negate();
+		else return new CalcDouble(value.negate());
 	}
 	
 	public boolean isInteger() {

@@ -43,6 +43,8 @@ public final class CALC {
 			CalcSymbol.OPERATOR | CalcSymbol.UNIPARAM_IDENTITY);
 	public static final CalcSymbol FACTORIAL = new CalcSymbol("FACTORIAL", new CalcFACTORIAL(),
 			CalcSymbol.OPERATOR);
+	public static final CalcSymbol ABS = new CalcSymbol("ABS", new CalcABS(), 
+			CalcSymbol.OPERATOR);
 	
 	/**
 	 * Special function symbols
@@ -54,7 +56,7 @@ public final class CALC {
 	public static final CalcSymbol TAN = new CalcSymbol("TAN", new CalcTAN(),
 			CalcSymbol.NO_PROPERTY);
 	public static final CalcSymbol LN = new CalcSymbol("LN", new CalcLN(), 
-			CalcSymbol.NO_PROPERTY);
+			CalcSymbol.NO_PROPERTY);	
 	public static final CalcSymbol DIFF = new CalcSymbol("DIFF", new CalcDIFF(),
 			CalcSymbol.NO_PROPERTY);
 	//TODO implement INT (integration). This is gonna a hell of a lot harder.
@@ -247,7 +249,8 @@ public final class CALC {
 		if (identifier.equals("SIN")) return (CalcSymbol)SIN.clone();
 		else if (identifier.equals("COS")) return (CalcSymbol)COS.clone();
 		else if (identifier.equals("TAN")) return (CalcSymbol)TAN.clone();
-		else if (identifier.equals("LN")) return (CalcSymbol)LN.clone();		
+		else if (identifier.equals("LN")) return (CalcSymbol)LN.clone();	
+		else if (identifier.equals("ABS")) return (CalcSymbol)ABS.clone();
 		else if (identifier.equals("DIFF")) return (CalcSymbol)DIFF.clone();
 		else if (identifier.equals("DEFINE")) return (CalcSymbol)DEFINE.clone();
 		else if (identifier.equals("PLOT")) return (CalcSymbol)PLOT.clone();

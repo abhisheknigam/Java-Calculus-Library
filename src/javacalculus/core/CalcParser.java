@@ -39,7 +39,8 @@ public final class CalcParser {
 	CALC_DIGIT = 9,				//numbers
 	CALC_COMMA = 10,			//commas (mostly used in function argument list)
 	CALC_DEFINE = 11,			//variable assignment (i.e. x=10, f(x)=x+4, etc)
-	CALC_FACTORIAL = 12;		//factorial (x!)
+	CALC_FACTORIAL = 12,		//factorial (x!)
+	CALC_ABS = 13;				//absolute value (|x|)
 	
 	private String inputString;
 	private char currentChar;
@@ -131,6 +132,9 @@ public final class CalcParser {
 						break;
 					case '!':
 						token = CALC_FACTORIAL;
+						break;
+					case '|':
+						token = CALC_ABS;
 						break;
 					default:
 						throw new CalcSyntaxException("Unidentified character: " + currentChar);
@@ -298,7 +302,7 @@ public final class CalcParser {
 	}
 	
 	private CalcObject parseFactorial() throws CalcSyntaxException {
-		CalcObject returnVal = parseTerm();
+		CalcObject returnVal = parseAbs();
 		
 		while (token == CALC_FACTORIAL) {
 			parseNextToken();
@@ -306,6 +310,26 @@ public final class CalcParser {
 		}
 		
 		return returnVal;
+	}
+	
+	private CalcObject parseAbs() throws CalcSyntaxException {
+		CalcObject returnVal;
+		
+		if (token == CALC_ABS) {
+			parseNextToken();
+			
+			returnVal = CALC.ABS.createFunction(parseExpression());
+			
+			if (token != CALC_ABS) {
+				throw new CalcSyntaxException("Missing close vertical bar");
+			}
+			
+			parseNextToken();
+			
+			return returnVal;
+		}
+		
+		return parseTerm();
 	}
 	
 	private CalcObject parseTerm() throws CalcSyntaxException {

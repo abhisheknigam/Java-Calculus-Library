@@ -273,11 +273,11 @@ public class CalcFunction implements CalcObject, Iterable<CalcObject> {
 	 * Convert the parameters of this function to StringBuffer
 	 * @return the StringBuffer containing the parameters
 	 */
-	private StringBuffer parametersToStringBuffer() {
+	private StringBuffer parametersToString() {
 		StringBuffer returnVal = new StringBuffer();
 		
 		for (int ii = 0; ii < parameters.size(); ii++) {
-			returnVal.append(parameters.get(ii).toStringBuffer());
+			returnVal.append(parameters.get(ii).toString());
 			if (ii != parameters.size() - 1) {
 				returnVal.append(",");		
 			}
@@ -358,7 +358,7 @@ public class CalcFunction implements CalcObject, Iterable<CalcObject> {
 		
 		out.append(functionHeader.toStringBuffer());
 		out.append("(");
-		out.append(parametersToStringBuffer());
+		out.append(parametersToString());
 		out.append(")");
 		
 		return out;
