@@ -38,7 +38,7 @@ public class TestAPI extends JFrame implements ActionListener, KeyListener {
 	private JTextField input = new JTextField();
 	private JLabel inputLabel = new JLabel("Command:");
 	private JTextArea console = new JTextArea("[OUTPUT]\nKeyboard shortcuts: Enter -> Execute, Up/down -> Navigate command history\n");
-	private JTextArea error = new JTextArea("[ERROR]\n");
+	//private JTextArea error = new JTextArea("[ERROR]\n");
 	private JButton execute = new JButton("EXECUTE");
 	
 	private ArrayList<String> commandHistory = new ArrayList<String>();
@@ -57,8 +57,8 @@ public class TestAPI extends JFrame implements ActionListener, KeyListener {
 		super("Javacalculus Test GUI");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
-		System.setOut(new PrintStream(new consoleOutputStream(false)));
-		System.setErr(new PrintStream(new consoleOutputStream(true)));
+		System.setOut(new PrintStream(new consoleOutputStream()));
+		//System.setErr(new PrintStream(new consoleOutputStream(true)));
 		inputLabel.setLabelFor(input);
 		input.setPreferredSize(new Dimension(300,20));
 		input.setBorder(BorderFactory.createLoweredBevelBorder());
@@ -75,14 +75,14 @@ public class TestAPI extends JFrame implements ActionListener, KeyListener {
 				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		consolePane.setPreferredSize(new Dimension(600,300));
 		consolePane.setBorder(BorderFactory.createLoweredBevelBorder());
-		error.setLineWrap(true);
-		error.setWrapStyleWord(true);
-		error.setEditable(false);
-    	error.setFont(new Font("Dialog", Font.ITALIC, 12));
-		JScrollPane errorPane = new JScrollPane(error, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		errorPane.setBorder(BorderFactory.createLoweredBevelBorder());
-		errorPane.setPreferredSize(new Dimension(600,300));
+//		error.setLineWrap(true);
+//		error.setWrapStyleWord(true);
+//		error.setEditable(false);
+//    	error.setFont(new Font("Dialog", Font.ITALIC, 12));
+//		JScrollPane errorPane = new JScrollPane(error, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+//				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+//		errorPane.setBorder(BorderFactory.createLoweredBevelBorder());
+//		errorPane.setPreferredSize(new Dimension(600,300));
 		//content.setPreferredSize(new Dimension(400,400));
 		content.setLayout(new GridBagLayout());
 		content.setBorder(BorderFactory.createLoweredBevelBorder());
@@ -96,8 +96,8 @@ public class TestAPI extends JFrame implements ActionListener, KeyListener {
 		content.add(execute, c);
 		c.gridx = 0; c.gridy = 1; c.gridwidth = 3;
 		content.add(consolePane, c);
-		c.gridx = 0; c.gridy = 2;
-		content.add(errorPane, c);
+//		c.gridx = 0; c.gridy = 2;
+//		content.add(errorPane, c);
 		add(content);
 		
 		pack();
@@ -121,10 +121,10 @@ public class TestAPI extends JFrame implements ActionListener, KeyListener {
 		console.setCaretPosition(console.getDocument().getLength());
 	}
 	
-	private void printError(String string) {
-		error.append(string);
-		error.setCaretPosition(error.getDocument().getLength());
-	}
+//	private void printError(String string) {
+//		error.append(string);
+//		error.setCaretPosition(error.getDocument().getLength());
+//	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
@@ -154,10 +154,10 @@ public class TestAPI extends JFrame implements ActionListener, KeyListener {
 	public void keyTyped(KeyEvent e) {}
 	
 	private class consoleOutputStream extends OutputStream {
-		private boolean isError = false;
+		//private boolean isError = false;
 		
-		public consoleOutputStream(boolean isError) {
-			this.isError = isError;
+		public consoleOutputStream() {
+//			this.isError = isError;
 		}
 		
 		@Override	
@@ -165,8 +165,8 @@ public class TestAPI extends JFrame implements ActionListener, KeyListener {
 		{
 			String out = new String(b);
 			if (out.endsWith("\n")) out = out.substring(0, out.length() - 2); //remove endline char
-			if (isError) printError(out);
-			else print(out);
+			//if (isError) printError(out);
+			print(out);
 		}
 		
 		@Override	
@@ -174,8 +174,8 @@ public class TestAPI extends JFrame implements ActionListener, KeyListener {
 		{
 			String out = new String(b, off, len);
 			if (out.endsWith("\n")) out = out.substring(0, out.length() - 2); //remove endline char
-			if (isError) printError(out);
-			else print(out);
+			//if (isError) printError(out);
+			print(out);
 		}
 		@Override
 		public void write(int b) throws IOException {}	
