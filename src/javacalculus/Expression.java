@@ -400,7 +400,7 @@ public final class Expression
 	 */
 	public static String eval(String expression, Variable[] args)
 	{
-		//System.out.println("eval received: "+expression);
+		expression.replace(" ","");
 		while(ExpressionTools.extraParPair(expression))
 			  expression=expression.substring(1,expression.length()-1);
 		expression=ExpressionTools.removeExtraOp(expression);
@@ -424,37 +424,32 @@ public final class Expression
 		}
 		//check for +,-
 		char cur;
-		int pMIndex=ExpressionTools.getPlusMinInd(expression);
-		if(pMIndex!=-1)
+		int index=ExpressionTools.getPlusMinInd(expression);
+		if(index!=-1)
 		{
-			cur=expression.charAt(pMIndex);
+			cur=expression.charAt(index);
 			if(cur=='+')
-				return Expression.add(Expression.eval(expression.substring(0,pMIndex),args),Expression.eval(expression.substring(pMIndex+1,expression.length()),args));
+				return Expression.add(Expression.eval(expression.substring(0,index),args),Expression.eval(expression.substring(index+1,expression.length()),args));
 			if(cur=='-')
-				return Expression.subtract(Expression.eval(expression.substring(0,pMIndex),args),Expression.eval(expression.substring(pMIndex+1,expression.length()),args));
+				return Expression.subtract(Expression.eval(expression.substring(0,index),args),Expression.eval(expression.substring(index+1,expression.length()),args));
 		}
 		
 		int parCounter=0;
-	
+		
 		//Check for *,/,%
-		parCounter=0;
-		for (int i=expression.length()-1; i>0; i--)
+		index=ExpressionTools.getMDMInd(expression);
+		if(index!=-1)
 		{
-			cur=expression.charAt(i);
-			if(parCounter==0)
-			{
-				if (cur=='/')
-					return Expression.divide(Expression.eval(expression.substring(0,i),args),Expression.eval(expression.substring(i+1,expression.length()),args));
-				if(cur=='*')
-					return Expression.multiply(Expression.eval(expression.substring(0,i),args),Expression.eval(expression.substring(i+1,expression.length()),args));
-				if(cur=='%')
-					return Expression.modulo(Expression.eval(expression.substring(0,i),args),Expression.eval(expression.substring(i+1,expression.length()),args));
-			}
-			if(cur=='(')
-					parCounter++;	
-			if (cur==')')
-				parCounter--;	
+			cur=expression.charAt(index);
+			if (cur=='/')
+				return Expression.divide(Expression.eval(expression.substring(0,index),args),Expression.eval(expression.substring(index+1,expression.length()),args));
+			if(cur=='*')
+				return Expression.multiply(Expression.eval(expression.substring(0,index),args),Expression.eval(expression.substring(index+1,expression.length()),args));
+			if(cur=='%')
+				return Expression.modulo(Expression.eval(expression.substring(0,index),args),Expression.eval(expression.substring(index+1,expression.length()),args));
 		}
+		
+		parCounter=0;
 	
 		//Check for unary negating operator
 		//By the previous processes, it must be the first character at this point 

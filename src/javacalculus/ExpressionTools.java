@@ -195,8 +195,8 @@ public final class ExpressionTools
 	
 	/**
 	 * Used to parse out complete terms separated by + or - operators. 
-	 * Finds the + or - operator which is at the highest level of the equation (not nested) 
-	 * and is the furthest to the right of the equation.  Accounts for "-" as negation
+	 * Finds the + or - operator which is at the highest level of the expression (not nested) 
+	 * and is the furthest to the right of the expression.  Accounts for "-" as negation
 	 * @param expression The String to be separated
 	 * @return The index of the +/- sign.  -1 if none found.
 	 */
@@ -222,6 +222,33 @@ public final class ExpressionTools
 		return -1;
 	}
 	
+	/**
+	 * Used to parse out terms seperated by *,/,% operators.
+	 *Finds the operator which is at the highest level of the expression (not nested) 
+	 * and is the furthest to the right of the expression. 
+	 * @param expression The String to be separated
+	 * @return The index of the *,/,% sign.  -1 if none found.
+	 */
+	public static int getMDMInd(String expression)
+	{
+		int parCounter=0;
+		char cur;
+		for (int i=expression.length()-1; i>0; i--)
+		{
+			cur=expression.charAt(i);
+			if(parCounter==0)
+			{
+				if (cur=='/'||cur=='*'||cur=='%')
+					return i;
+			}
+			if(cur=='(')
+					parCounter++;	
+			if (cur==')')
+				parCounter--;	
+		}	
+		return -1;
+	}
+	
 	public static String simplify(String expression)
 	{
 		//first remove double -'s
@@ -233,23 +260,18 @@ public final class ExpressionTools
 		int ind=getPlusMinInd(expression);
 		while(ind!=-1)
 		{
-			terms.add(new PMTerm(Expression.eval(expression.substring(ind+1,last)),expression.charAt(ind)=='-'?false:true));
+			terms.add(new PMTerm(Expression.eval(expression.substring(ind,last))));
 			last = ind;
 			ind=getPlusMinInd(expression.substring(0,ind));
 		}
-		char cur=expression.charAt(0);
 		String leftOver=expression.substring(0,last);
-		if (cur=='-')
-			terms.add(new PMTerm(Expression.eval(leftOver.substring(1,leftOver.length())),false));
-		else
-			terms.add(new PMTerm(Expression.eval(leftOver.substring(0,leftOver.length())),true));
+		terms.add(new PMTerm(Expression.eval(leftOver.substring(0,leftOver.length()))));
 		
 		//combine # terms
 		boolean done=false;
 		while(!done)
 		{
 			done=true;
-			System.out.println("loop1");
 			for(int i=terms.size()-1;i>0;i--)
 			{
 				System.out.println("i: "+terms.get(i));
@@ -306,28 +328,142 @@ public final class ExpressionTools
 		return ""+buffer;
 	}
 	
-	
 	private static class PMTerm
 	{
-		private String termValue;
+		private String tValue;
 		private boolean positive;
+		private ArrayList<MDDTerm> inTerms=new ArrayList<MDDTerm>();
 		
-		public PMTerm(String termValue, boolean positive)
-		{
-			this.termValue=termValue;
-			this.positive=positive;
-		}
 		public PMTerm(String term)
 		{
 			if(term.charAt(0)=='-')
 			{
-				termValue=term.substring(1,term.length());
+				tValue=term.substring(1,term.length());
 				positive=false;
 			}
 			else
 			{
-				termValue=term;
 				positive=true;
+				tValue=term.charAt(0)=='+'?term.substring(1,term.length()):term;
+			}
+			
+			//build the constituent mddterms
+			int last=tValue.length();
+			int ind=getMDMInd(tValue);
+			while(ind!=-1)
+			{
+				inTerms.add(new MDDTerm(Expression.eval(tValue.substring(ind+1,last))));
+				last = ind;
+				ind=getMDMInd(tValue.substring(0,ind));
+			}
+			
+		}
+		
+		public ArrayList<MDDTerm> getMDDS()
+		{	return inTerms;	}
+		
+		public String getVal()
+		{	return tValue;	}
+		
+	/**
+	 * Checks whether a pm term is positive or negative
+	 * @return false if negative, true otherwise
+	 */
+		public boolean pos()
+		{	return positive;	}
+		
+		public static PMTerm combine(PMTerm term1, PMTerm term2)
+		{
+			ArrayList<MDDTerm> termsOne=term1.getMDDS();
+			ArrayList<MDDTerm> termsTwo=term2.getMDDS();
+			int coEffFir=1;
+			int coEffSec=1;
+			//check for mdd terms found in one and not in other
+			for (MDDTerm a: termsOne)
+			{
+				String val=a.getVal();
+				if(isNumber(val))
+					continue;
+				
+				for(int i=0;i<=termsTwo.size();i++)
+				{
+					//checks index; if this high, there were no matches
+					if(i==termsTwo.size())
+						return null;
+					//breaks if match is found
+					if(termsTwo.get(i).getVal().equals(val))
+					{
+						termsTwo.remove(i);
+						break;
+					}
+				}
+			}
+			for (MDDTerm a: termsTwo)
+			{
+				String val=a.getVal();
+				try
+				{	
+					double temp=Double.parseDouble(val);
+					if(a.getOp()=='*')
+						coEffSec*=temp;
+					if(a.getOp()=='/')
+						coEffSec/=temp;	
+					continue;
+				}
+				catch(NumberFormatException e)
+				{
+					//exception throw if remaining is not a number
+					//this means it's a variable or function that wasn't removed
+					//which means it was not in the first terms
+					return null;
+				}
+			}
+			//at this point, the coefficient of the second term is all computer
+			//now the first one needs to be iterated to build the coefficient and to build the variable mddterms
+			StringBuffer newTerm=new StringBuffer();
+			for (MDDTerm a: termsOne)
+			{
+				String val=a.getVal();
+				try
+				{	
+					double temp=Double.parseDouble(val);
+					if(a.getOp()=='*')
+						coEffFir*=temp;
+					if(a.getOp()=='/')
+						coEffFir/=temp;	
+					continue;
+				}
+				catch(NumberFormatException e)
+				{	newTerm.append(""+a);		}
+			}			
+			return new PMTerm((coEffFir*coEffSec)+"*"+newTerm);
+		}
+		
+		public String toString()
+		{	return positive?tValue:"-"+(tValue);	}
+	}
+
+	private static class MDDTerm
+	{
+		private String termValue;
+		private char op;
+		
+		public MDDTerm(String termValue, char leftOp)
+		{
+			this.termValue=termValue;
+			op=leftOp;
+		}
+		public MDDTerm(String term)
+		{
+			if(term.charAt(0)=='/')
+			{
+				termValue=term.substring(1,term.length());
+				op='/';
+			}
+			else
+			{
+				termValue=term.substring(1,term.length());
+				op='*';
 			}
 			
 		}
@@ -338,10 +474,10 @@ public final class ExpressionTools
 	 * Checks whether a pm term is positive or negative
 	 * @return false if negative, true otherwise
 	 */
-		public boolean pos()
-		{	return positive;	}
+		public char getOp()
+		{	return op;	}
 		
 		public String toString()
-		{	return positive?termValue:"-"+(termValue);	}
+		{	return op+termValue;	}
 	}
 }
