@@ -345,13 +345,14 @@ public final class CalcParser {
 			if (token == CALC_PARENTHESISOPEN) {
 				return parseFunction(id);
 			}
-			return id;
+			else if (CALC.hasDefinedVariable(id)) {
+				return CALC.getDefinedVariable(id);
+			}
+			else return id;
 		}
-		
 		if (token == CALC_DIGIT) {
 			return parseNumber();
 		}
-		
 		if (token == CALC_PARENTHESISOPEN) {
 			
 			parseNextToken();
@@ -433,7 +434,8 @@ public final class CalcParser {
 		else {
 			symbol = new CalcSymbol(identifier);
 			if (CALC.hasDefinedVariable(symbol)) { //if the symbol is a defined variable, use a substitution evaluator
-				symbol.setEvaluator(new CalcSUB()); 
+				symbol.setEvaluator(new CalcSUB());
+				//return CALC.getDefinedVariable(symbol);
 			}
 		}
 		

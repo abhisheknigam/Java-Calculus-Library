@@ -59,6 +59,8 @@ public final class CALC {
 			CalcSymbol.NO_PROPERTY);	
 	public static final CalcSymbol DIFF = new CalcSymbol("DIFF", new CalcDIFF(),
 			CalcSymbol.NO_PROPERTY);
+	public static final CalcSymbol INT = new CalcSymbol("INT", new CalcINT(),
+			CalcSymbol.NO_PROPERTY);
 	//TODO implement INT (integration). This is gonna a hell of a lot harder.
 	public static final CalcSymbol DEFINE = new CalcSymbol("DEFINE", new CalcDEFINE(),
 			CalcSymbol.OPERATOR | CalcSymbol.FAST_EVAL);
@@ -252,6 +254,7 @@ public final class CALC {
 		else if (identifier.equals("LN")) return (CalcSymbol)LN.clone();	
 		else if (identifier.equals("ABS")) return (CalcSymbol)ABS.clone();
 		else if (identifier.equals("DIFF")) return (CalcSymbol)DIFF.clone();
+		else if (identifier.equals("INT")) return (CalcSymbol)INT.clone();
 		else if (identifier.equals("DEFINE")) return (CalcSymbol)DEFINE.clone();
 		else if (identifier.equals("PLOT")) return (CalcSymbol)PLOT.clone();
 		else if (identifier.equals("TAYLOR")) return (CalcSymbol)TAYLOR.clone();

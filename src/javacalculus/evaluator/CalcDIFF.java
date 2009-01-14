@@ -130,6 +130,11 @@ public class CalcDIFF implements CalcFunctionEvaluator {
 			CalcObject firstObj = function.get(0);
 			return CALC.MULTIPLY.createFunction(CALC.NEG_ONE, CALC.SIN.createFunction(firstObj), differentiate(firstObj, var)); 
 		}
+		if (obj.getHeader().equals(CALC.ABS)) {	//	(d/dx) |u| = u/|u|*u';
+			CalcFunction function = (CalcFunction)obj;
+			CalcObject firstObj = function.get(0);
+			return CALC.MULTIPLY.createFunction(firstObj, differentiate(firstObj, var), CALC.POWER.createFunction(obj, CALC.NEG_ONE)); 
+		}
 		return CALC.DIFF.createFunction(obj, var); //don't know how to differentiate (yet). Return original expression.
 	}
 }
