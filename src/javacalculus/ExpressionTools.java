@@ -267,47 +267,21 @@ public final class ExpressionTools
 		String leftOver=expression.substring(0,last);
 		terms.add(new PMTerm(Expression.eval(leftOver.substring(0,leftOver.length()))));
 		
-		//combine # terms
+		//combine terms
+		//hellacious looping and breaking, but seems more or less necessary
+		//because loops have to be restarted when elements are combined, changed, or removed
 		boolean done=false;
 		while(!done)
 		{
 			done=true;
 			for(int i=terms.size()-1;i>0;i--)
 			{
-				System.out.println("i: "+terms.get(i));
 				for (int j=terms.size()-2;j>=0;j--)
 				{
-					if(isNumber(terms.get(i).getVal())&&isNumber(terms.get(j).getVal()))
+					PMTerm combined=PMTerm.combine(terms.get(i), terms.get(j));
+					if(combined!=null)
 					{
-						System.out.println(terms.get(i)+","+terms.get(j));
-						terms.set(i,new PMTerm(Expression.add(""+terms.get(j),""+terms.get(i))));
-						terms.remove(j);
-						done=false;
-						break;
-					}
-				}
-				if(!done)
-					break;
-			}
-		}
-		
-		//combining like var terms
-		//probably should end up with prev.
-		//need to find */ terms and check if contain same vars/functions
-		done=false;
-		while(!done)
-		{
-			done=true;
-			System.out.println("loop1");
-			for(int i=terms.size()-1;i>0;i--)
-			{
-				System.out.println("i: "+terms.get(i));
-				for (int j=terms.size()-2;j>=0;j--)
-				{
-					if(isNumber(terms.get(i).getVal())&&isNumber(terms.get(j).getVal()))
-					{
-						System.out.println(terms.get(i)+","+terms.get(j));
-						terms.set(i,new PMTerm(Expression.add(""+terms.get(j),""+terms.get(i))));
+						terms.set(i,combined);
 						terms.remove(j);
 						done=false;
 						break;
