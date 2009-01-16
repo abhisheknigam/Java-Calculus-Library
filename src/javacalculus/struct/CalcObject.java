@@ -20,7 +20,8 @@ public interface CalcObject extends Comparable<CalcObject> {
 	public final static int INTEGER 	= 0x02;
 	public final static int FRACTION 	= 0x04;
 	public final static int SYMBOL	 	= 0x08;
-	public final static int FUNCTION 	= 0x10;
+	public final static int MATRIX 		= 0x10;	
+	public final static int FUNCTION 	= 0x20;
 
 	/**
 	 * Evaluate the object if possible. If not, throw general exception

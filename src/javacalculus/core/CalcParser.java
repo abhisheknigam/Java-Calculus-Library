@@ -35,12 +35,14 @@ public final class CalcParser {
 	CALC_ADD = 5,				//add
 	CALC_PARENTHESISOPEN = 6,	//open parenthesis
 	CALC_PARENTHESISCLOSE = 7,	//close parenthesis
-	CALC_IDENTIFIER = 8,		//variable names. function names, symbolic anything
-	CALC_DIGIT = 9,				//numbers
-	CALC_COMMA = 10,			//commas (mostly used in function argument list)
-	CALC_DEFINE = 11,			//variable assignment (i.e. x=10, f(x)=x+4, etc)
-	CALC_FACTORIAL = 12,		//factorial (x!)
-	CALC_ABS = 13;				//absolute value (|x|)
+	CALC_MATRIXOPEN = 8,		//open matrix declaration
+	CALC_MATRIXCLOSE = 9,		//close matrix declaration
+	CALC_IDENTIFIER = 10,		//variable names. function names, symbolic anything
+	CALC_DIGIT = 11,			//numbers
+	CALC_COMMA = 12,			//commas (mostly used in function argument list)
+	CALC_DEFINE = 13,			//variable assignment (i.e. x=10, f(x)=x+4, etc)
+	CALC_FACTORIAL = 14,		//factorial (x!)
+	CALC_ABS = 15;				//absolute value (|x|)
 	
 	private String inputString;
 	private char currentChar;
@@ -108,6 +110,12 @@ public final class CalcParser {
 						break;
 					case ')':
 						token = CALC_PARENTHESISCLOSE;
+						break;
+					case '[':
+						token = CALC_MATRIXOPEN;
+						break;
+					case ']':
+						token = CALC_MATRIXCLOSE;
 						break;
 					case ',':
 						token = CALC_COMMA;
@@ -329,8 +337,61 @@ public final class CalcParser {
 			return returnVal;
 		}
 		
-		return parseTerm();
+		else return parseTerm();
 	}
+	
+//	private CalcObject parseMatrix() throws CalcSyntaxException {
+//		ArrayList<ArrayList<CalcObject>> elements = new ArrayList<ArrayList<CalcObject>>();
+//		
+//		if (token == CALC_MATRIXOPEN) {
+//			parseNextToken();
+//			
+//			while (true) {
+//				//elements.add(parseMatrixTerm());
+//					
+//				if (token != ',') break;
+//					
+//				parseNextToken();
+//			}
+//			
+//			if (token != CALC_MATRIXCLOSE) {
+//				throw new CalcSyntaxException("Missing close matrix bracket");
+//			}
+//			
+//			parseNextToken();
+//			
+//			//return returnVal;
+//		}
+//		
+//		else return parseTerm();
+//	}
+	
+//	private CalcObject parseMatrixTerm() throws CalcSyntaxException {
+//		CalcVector returnVal = new CalcVector("Vector");
+//		
+//		if (token == CALC_MATRIXOPEN) {
+//			parseNextToken();
+//			
+//			while (true) {
+//				returnVal.add(parseExpression());
+//					
+//				if (token != ',') break;
+//					
+//				parseNextToken();
+//			}
+//			
+//			//parseNextToken();
+//			
+//			if (token != CALC_MATRIXCLOSE) {
+//				throw new CalcSyntaxException("Missing close matrix term bracket");
+//			}
+//			
+//			parseNextToken();
+//			
+//			return returnVal;
+//		}
+//		else return parseTerm();
+//	}
 	
 	private CalcObject parseTerm() throws CalcSyntaxException {
 		CalcObject returnVal;

@@ -34,7 +34,7 @@ public class CalcFunction implements CalcObject, Iterable<CalcObject> {
 	public static final int COMMUTATIVE_EVALUATED = 0x0002;
 	
 	private CalcSymbol functionHeader;
-	private ArrayList<CalcObject> parameters = new ArrayList<CalcObject>();
+	protected ArrayList<CalcObject> parameters = new ArrayList<CalcObject>();
 	
 	private int properties = 0x0000;
 	
