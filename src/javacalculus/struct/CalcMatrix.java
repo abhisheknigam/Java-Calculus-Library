@@ -20,7 +20,10 @@ public class CalcMatrix implements CalcObject {
 	public static final char matrixOpen = '[';
 	public static final char matrixClose = ']';
 	public static final char matrixDelim = ',';
-
+	
+	/**
+	 * Default constructor
+	 */
 	public CalcMatrix() {}
 	
 	public CalcMatrix(int width, int height) {
@@ -31,21 +34,29 @@ public class CalcMatrix implements CalcObject {
 	
 	public CalcMatrix(int rows, CalcObject[] elements) {
 		if (elements.length % rows != 0) {
-			
+			throw new CalcDimensionException("CalcMatrix -> Element dimension mismatch");
 		}
 		this.elements = elements;
 		height = rows;
 		width = elements.length / rows;
-//		width=rows;
-//		if(elements.length % rows != 0)
-//			throw new CalcDimensionException("Given width and array sizes do not like each other");
-//		height = elements.length/width;
-//		elements = new CalcObject[width*height];
-//		int index=0;
-//		for(int i=0; i < width; i++) {
-//			for (int j=0; j < height; index++, j++)
-//				elements[i][j]=element[index];
-//		}
+	}
+	
+	/**
+	 * Returns the element matrix at i = <b>row</b> and j = <b>col</b> 
+	 * @param row
+	 * @param col
+	 * @return
+	 */
+	public CalcObject get(int row, int col) {
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @return every element of this matrix in a 1D array
+	 */
+	public CalcObject[] getAll() {
+		return elements;
 	}
 	
 	@Override
@@ -59,7 +70,7 @@ public class CalcMatrix implements CalcObject {
 			buffer.append(matrixOpen);
 			for (int jj = 0; jj < width; jj++) {
 				if (jj > 0) buffer.append(matrixDelim);
-				//buffer.append(get(index).toString());
+				buffer.append(get(ii, jj).toString());
 				index++;
 			}
 			buffer.append(matrixClose);
@@ -73,6 +84,7 @@ public class CalcMatrix implements CalcObject {
 
 	@Override
 	public int compareTo(CalcObject obj) {
+		//TODO figure out how to determine if one matrix is greater than/less than than another
 		return 0;
 	}
 	
