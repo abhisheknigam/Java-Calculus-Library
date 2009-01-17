@@ -5,8 +5,8 @@ package javacalculus;
 import java.util.ArrayList;
 
 /**
- * @author Seth Shannin
- *
+ * @author Duyun Chen <A HREF="mailto:duchen@seas.upenn.edu">[duchen@seas.upenn.edu]</A>,
+ * Seth Shannin <A HREF="mailto:sshannin@seas.upenn.edu">[sshannin@seas.upenn.edu]</A>
  */
 public final class ExpressionTools 
 {
@@ -19,6 +19,7 @@ public final class ExpressionTools
 	 */
 	public static boolean extraParPair(String expression)
 	{
+		
 		if(expression.charAt(0)!='(')
 			return false;
 		if(expression.charAt(expression.length()-1)!=')')
@@ -322,6 +323,7 @@ public final class ExpressionTools
 			}
 			
 			//build the constituent mddterms
+			String s=tValue;
 			int last=tValue.length();
 			int ind=getMDMInd(tValue);
 			while(ind!=-1)
@@ -330,6 +332,7 @@ public final class ExpressionTools
 				last = ind;
 				ind=getMDMInd(tValue.substring(0,ind));
 			}
+			inTerms.add(new MDDTerm(Expression.eval(tValue.substring(0,last))));
 			
 		}
 		
@@ -350,6 +353,12 @@ public final class ExpressionTools
 		{
 			ArrayList<MDDTerm> termsOne=term1.getMDDS();
 			ArrayList<MDDTerm> termsTwo=term2.getMDDS();
+//			System.out.println("One: ");
+//			for (MDDTerm a: termsOne)
+//				System.out.println(a.getVal());
+//			System.out.println("Two: ");
+//			for (MDDTerm a: termsTwo)
+//				System.out.println(a.getVal());
 			int coEffFir=1;
 			int coEffSec=1;
 			//check for mdd terms found in one and not in other
@@ -378,10 +387,10 @@ public final class ExpressionTools
 				try
 				{	
 					double temp=Double.parseDouble(val);
-					if(a.getOp()=='*')
-						coEffSec*=temp;
 					if(a.getOp()=='/')
 						coEffSec/=temp;	
+					else if(a.getOp()=='*'||a.getOp()=='z')
+						coEffSec*=temp;
 					continue;
 				}
 				catch(NumberFormatException e)
@@ -405,12 +414,18 @@ public final class ExpressionTools
 						coEffFir*=temp;
 					if(a.getOp()=='/')
 						coEffFir/=temp;	
+					if(a.getOp()=='z')
+						coEffFir*=temp;
 					continue;
 				}
 				catch(NumberFormatException e)
 				{	newTerm.append(""+a);		}
 			}			
-			return new PMTerm((coEffFir*coEffSec)+"*"+newTerm);
+			String temp=newTerm.length()==0?"":"*"+newTerm;
+			if(term2.pos())
+				return new PMTerm(Expression.add(""+coEffFir,""+coEffSec)+temp);
+			else
+				return new PMTerm(Expression.subtract(""+coEffFir,""+coEffSec)+temp);
 		}
 		
 		public String toString()
@@ -434,12 +449,17 @@ public final class ExpressionTools
 				termValue=term.substring(1,term.length());
 				op='/';
 			}
+			else if(term.charAt(0)=='*')
+			{
+				op='*';
+				termValue=term.substring(1,term.length());
+			}
 			else
 			{
-				termValue=term.substring(1,term.length());
-				op='*';
-			}
-			
+				//used as a magic number solely within this class because null can't be assigned to primitives
+				op='z';
+				termValue=term;
+			}			
 		}
 		
 		public String getVal()
@@ -452,6 +472,6 @@ public final class ExpressionTools
 		{	return op;	}
 		
 		public String toString()
-		{	return op+termValue;	}
+		{	return op=='z'?termValue:op+termValue;	}
 	}
 }

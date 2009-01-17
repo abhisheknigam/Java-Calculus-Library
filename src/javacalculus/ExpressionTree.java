@@ -3,7 +3,8 @@ package javacalculus;
 import java.util.ArrayList;
 
 /**
- * @author Seth Shannin
+ * @author Duyun Chen <A HREF="mailto:duchen@seas.upenn.edu">[duchen@seas.upenn.edu]</A>,
+ * Seth Shannin <A HREF="mailto:sshannin@seas.upenn.edu">[sshannin@seas.upenn.edu]</A>
  */
 public class ExpressionTree 
 {
