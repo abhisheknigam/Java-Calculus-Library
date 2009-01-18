@@ -72,6 +72,8 @@ public final class CALC {
 			CalcSymbol.NO_PROPERTY);
 	public static final CalcSymbol PLOT = new CalcSymbol("PLOT", new CalcPLOT(),
 			CalcSymbol.FAST_EVAL);
+	public static final CalcSymbol PLOT3D = new CalcSymbol("PLOT3D", new CalcPLOT3D(),
+			CalcSymbol.FAST_EVAL);
 	
 	/**
 	 * Useful numerical constants
@@ -214,11 +216,11 @@ public final class CALC {
 		
 		if (returnVal == null) return null;
 		
-		//If the evaluation object is PLOT, no need to continue.
+		//If the evaluation object is PLOT or PLOT3D, no need to continue.
 		//most likely the graph is already rendered at this point (after
 		//first evaluation). Failure to include this line results in multiple
 		//graphs rendered from multiple evaluations... waste of CPU cycles.
-		if (returnVal.getHeader().equals(CALC.PLOT)) {
+		if (returnVal.getHeader().equals(CALC.PLOT) || returnVal.getHeader().equals(CALC.PLOT3D)) {
 			return returnVal;
 		}
 		
@@ -259,6 +261,7 @@ public final class CALC {
 		else if (identifier.equals("INT")) return (CalcSymbol)INT.clone();
 		else if (identifier.equals("DEFINE")) return (CalcSymbol)DEFINE.clone();
 		else if (identifier.equals("PLOT")) return (CalcSymbol)PLOT.clone();
+		else if (identifier.equals("PLOT3D")) return (CalcSymbol)PLOT3D.clone();
 		else if (identifier.equals("TAYLOR")) return (CalcSymbol)TAYLOR.clone();
 		else if (identifier.equals("GAMMA")) return (CalcSymbol)GAMMA.clone();
 		else if (identifier.equals("PI")) return PI;

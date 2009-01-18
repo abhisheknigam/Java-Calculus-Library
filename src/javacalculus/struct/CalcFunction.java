@@ -136,6 +136,10 @@ public class CalcFunction implements CalcObject, Iterable<CalcObject> {
 		functionHeader.removeVariable(index);
 	}
 	
+	public void removeAllVariables() {
+		functionHeader.removeAllVariables();
+	}
+	
 	public int getNumberOfVariables() {
 		return functionHeader.getNumberOfVariables();
 	}

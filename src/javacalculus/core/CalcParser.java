@@ -340,8 +340,8 @@ public final class CalcParser {
 		else return parseTerm();
 	}
 	
-//	private CalcObject parseMatrix() throws CalcSyntaxException {
-//		ArrayList<ArrayList<CalcObject>> elements = new ArrayList<ArrayList<CalcObject>>();
+	//private CalcObject parseMatrix() throws CalcSyntaxException {
+		//ArrayList<ArrayList<CalcObject>> elements = new ArrayList<ArrayList<CalcObject>>();
 //		
 //		if (token == CALC_MATRIXOPEN) {
 //			parseNextToken();

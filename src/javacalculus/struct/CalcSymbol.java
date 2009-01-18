@@ -115,6 +115,10 @@ public class CalcSymbol implements CalcObject {
 		if (variables.size() > 0) variables.remove(index);
 	}
 	
+	public void removeAllVariables() {
+		variables.removeAll(variables);
+	}
+	
 	public int getNumberOfVariables() {
 		return variables.size();
 	}
