@@ -42,12 +42,14 @@ public class CalcGraph3D extends JApplet implements Runnable {
 	
 	private Vector3f lightDirection = new Vector3f(0.0f, 0.0f, -1.0f);
 	private Color3f lightColor = new Color3f(0.5f, 0.5f, 0.5f); 
+	private Color3f graphColor = new Color3f(1.0f, 0.0f, 0.0f);
 	
     //a bounding sphere specifies a region a behavior is active
     //create a sphere centered at the origin with radius of 1.0f
     private BoundingSphere bounds = new BoundingSphere();
 	private CalcPlotter3D plotter;
-    private float[] points; 
+    private float[] points;
+    private Color3f[] colors;
     private int[] stripCounts = new int[1];
     
     private float 
@@ -60,8 +62,9 @@ public class CalcGraph3D extends JApplet implements Runnable {
 	 */
 	public CalcGraph3D(CalcPlotter3D plotter) {
     	this.plotter = plotter;
-    	this.points = new float[3*(int)((xmax - xmin)*(ymax - ymin)/(resolution*resolution))];
-    	this.stripCounts[0] = (int)((xmax - xmin)*(ymax - ymin)/(resolution*resolution));
+    	this.points = new float[3*(int)((xmax - xmin)*(ymax - ymin)/(resolution*resolution))+3];
+    	this.stripCounts[0] = (int)((xmax - xmin)*(ymax - ymin)/(resolution*resolution)+1);
+    	this.colors = new Color3f[((int)((xmax - xmin)*(ymax - ymin)/(resolution*resolution)))+1];
     	populatePoints();
 		EventQueue.invokeLater(this);
 	}
@@ -92,12 +95,18 @@ public class CalcGraph3D extends JApplet implements Runnable {
 	private void populatePoints() {
 		float x = xmin, y = ymin;
 		int index = -1;
+		int colorIndex = -1;
+		Color3f gradient = graphColor;
 		
 		while (x < xmax) {
+			y = ymin;
+			gradient = graphColor;
 			while (y < ymax) {
 				points[++index] = x;
 				points[++index] = y;
 				points[++index] = (float) plotter.getZValue(x, y);
+				gradient.add(new Color3f(0.0f, 0.01f, 0.01f));
+				colors[++colorIndex] = gradient;
 				y += resolution;
 			}
 			x += resolution;
@@ -140,6 +149,7 @@ public class CalcGraph3D extends JApplet implements Runnable {
 		GeometryInfo graphGeometry = new GeometryInfo(GeometryInfo.POLYGON_ARRAY);
 		graphGeometry.setCoordinates(points);
 		graphGeometry.setStripCounts(stripCounts);
+		graphGeometry.setColors(colors);
         
         graph.setGeometry(graphGeometry.getGeometryArray());
         graph.setAppearance(createGraphAppearance());

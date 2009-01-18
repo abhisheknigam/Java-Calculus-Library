@@ -1,6 +1,5 @@
 package test;
 
-import javacalculus.ExpressionFormatException;
 import javacalculus.ExpressionTree;
 
 public class TreeTest 
