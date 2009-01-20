@@ -111,20 +111,6 @@ public final class ExpressionTools
 		}
 		catch(NumberFormatException e)
 		{	return false;	}
-		
-//		boolean decFound=false;
-//		for(int i=0;i<expression.length();i++)
-//		{
-//			if(expression.charAt(i)=='.')
-//			{
-//				if(decFound)
-//					return false;
-//				decFound=true;
-//			}	
-//			if(!Character.isDigit(expression.charAt(i)))
-//				return false;
-//		}
-//		return true;
 	}
 	
 	public static boolean isVar(String expression)
@@ -255,6 +241,10 @@ public final class ExpressionTools
 		//first remove double -'s
 		expression=removeExtraOp(expression);
 		
+		//save some time here
+		if(isNumber(expression)||isVar(expression))
+			return expression;
+		
 		//break across +/-
 		ArrayList<PMTerm> terms=new ArrayList<PMTerm>();
 		int last=expression.length();
@@ -269,7 +259,7 @@ public final class ExpressionTools
 		terms.add(new PMTerm(Expression.eval(leftOver.substring(0,leftOver.length()))));
 		
 		//combine terms
-		//hellacious looping and breaking, but seems more or less necessary
+		//hellacious looping and breaking, but seems more or less necessary without goto
 		//because loops have to be restarted when elements are combined, changed, or removed
 		boolean done=false;
 		while(!done)
@@ -353,14 +343,9 @@ public final class ExpressionTools
 		{
 			ArrayList<MDDTerm> termsOne=term1.getMDDS();
 			ArrayList<MDDTerm> termsTwo=term2.getMDDS();
-//			System.out.println("One: ");
-//			for (MDDTerm a: termsOne)
-//				System.out.println(a.getVal());
-//			System.out.println("Two: ");
-//			for (MDDTerm a: termsTwo)
-//				System.out.println(a.getVal());
 			int coEffFir=1;
 			int coEffSec=1;
+			
 			//check for mdd terms found in one and not in other
 			for (MDDTerm a: termsOne)
 			{
@@ -395,7 +380,7 @@ public final class ExpressionTools
 				}
 				catch(NumberFormatException e)
 				{
-					//exception throw if remaining is not a number
+					//exception thrown if remaining is not a number
 					//this means it's a variable or function that wasn't removed
 					//which means it was not in the first terms
 					return null;

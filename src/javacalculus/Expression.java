@@ -23,9 +23,9 @@ public final class Expression
 			f=Double.parseDouble(first);
 		if(ExpressionTools.isNumber(second))
 			s=Double.parseDouble(second);
-		if(Math.ceil(f)==0)
+		if(f==0)
 			return second;
-		if(Math.ceil(s)==0)
+		if(s==0)
 			return first;
 		
 		if(Double.isNaN(f)||Double.isNaN(s))
@@ -50,9 +50,9 @@ public final class Expression
 			f=Double.parseDouble(first);
 		if(ExpressionTools.isNumber(second))
 			s=Double.parseDouble(second);
-		if(Math.ceil(f)==0)
+		if(f==0)
 			return second;
-		if(Math.ceil(s)==0)
+		if(s==0)
 			return Expression.negate(first);
 		
 		if(Double.isNaN(f)||Double.isNaN(s))
@@ -78,11 +78,11 @@ public final class Expression
 			f=Double.parseDouble(first);
 		if(ExpressionTools.isNumber(second))
 			s=Double.parseDouble(second);
-		if(Math.ceil(f)==0||Math.ceil(s)==0)
+		if(f==0||s==0)
 			return "0";
-		if(Math.ceil(f)==1)
+		if(f==1)
 			return second;
-		if(Math.ceil(s)==1)
+		if(s==1)
 			return first;
 		
 		if(Double.isNaN(f)||Double.isNaN(s))
@@ -107,11 +107,11 @@ public final class Expression
 			f=Double.parseDouble(first);
 		if(ExpressionTools.isNumber(second))
 			s=Double.parseDouble(second);
-		if(Math.ceil(f)==0)
+		if(f==0)
 			return "0";
-		if(Math.ceil(s)==1)
+		if(s==1)
 			return first;
-		if(Math.ceil(s)==0)
+		if(s==0)
 			return ""+Double.NaN;
 		
 		if(Double.isNaN(f)||Double.isNaN(s))
@@ -136,11 +136,11 @@ public final class Expression
 			f=Double.parseDouble(first);
 		if(ExpressionTools.isNumber(second))
 			s=Double.parseDouble(second);
-		if(Math.ceil(f)==0)
+		if(f==0)
 			return "0";
-		if(Math.ceil(s)==1)
+		if(s==1)
 			return first;
-		if(Math.ceil(s)==0)
+		if(s==0)
 			return ""+Double.NaN;
 		
 		if(Double.isNaN(f)||Double.isNaN(s))
@@ -161,6 +161,8 @@ public final class Expression
 		double f=Double.NaN;
 		if(ExpressionTools.isNumber(first))
 			f=Double.parseDouble(first);
+		if(f==0)
+			return "0";
 		
 		if(Double.isNaN(f))
 		{
@@ -182,9 +184,11 @@ public final class Expression
 			f=Double.parseDouble(first);
 		if(ExpressionTools.isNumber(second))
 			s=Double.parseDouble(second);
-		if(Math.ceil(s)==0)
+		if(f==0)
+			return "0";
+		if(s==0)
 			return "1";
-		if(Math.ceil(s)==1)
+		if(s==1)
 			return first;
 		
 		if(Double.isNaN(f)||Double.isNaN(s))
@@ -382,6 +386,7 @@ public final class Expression
 		return eval(expression,terms.toArray(array));
 	}
 	
+	//TODO, make it parse args from the single string
 	/**
 	 * Evaluates an expression. 
 	 * @param expression The expression to be evaluated 
@@ -401,6 +406,7 @@ public final class Expression
 	 */
 	public static String eval(String expression, Variable[] args)
 	{
+		
 		expression.replace(" ","");
 		while(ExpressionTools.extraParPair(expression))
 			  expression=expression.substring(1,expression.length()-1);
@@ -435,8 +441,6 @@ public final class Expression
 				return Expression.subtract(Expression.eval(expression.substring(0,index),args),Expression.eval(expression.substring(index+1,expression.length()),args));
 		}
 		
-		int parCounter=0;
-		
 		//Check for *,/,%
 		index=ExpressionTools.getMDMInd(expression);
 		if(index!=-1)
@@ -449,8 +453,6 @@ public final class Expression
 			if(cur=='%')
 				return Expression.modulo(Expression.eval(expression.substring(0,index),args),Expression.eval(expression.substring(index+1,expression.length()),args));
 		}
-		
-		parCounter=0;
 	
 		//Check for unary negating operator
 		//By the previous processes, it must be the first character at this point 
@@ -458,7 +460,7 @@ public final class Expression
 			return Expression.negate(Expression.eval(expression.substring(1,expression.length()),args));
 		
 		//Check for exponentiation
-		parCounter=0;
+		int parCounter=0;
 		for (int i=expression.length()-1; i>0; i--)
 		{
 			cur=expression.charAt(i);
@@ -487,295 +489,8 @@ public final class Expression
 		}		
 		return expression;
 	}
-	
-	private enum UnFunction 
-	{
-		
-	ln   
-		  { 
-		String eval(String expression,Variable[] args) 
-		  	{ 
-			  String arg=Expression.eval(expression,args);
-			  if(ExpressionTools.isNumber(arg))
-					return ""+Math.log(Double.parseDouble(arg));	
-				else
-					return "ln("+arg+")";			
-			} 
-		  String diff(String expression, String var)
-			{
-				return Expression.multiply(
-						Expression.diff(expression, var),
-						Expression.divide("1",expression));
-			}
-		  },
-	log   
-		  { 
-			  String eval(String expression,Variable[] args) 
-		  	{ 
-			  String arg=Expression.eval(expression,args);
-			  if(ExpressionTools.isNumber(arg))
-					return ""+Math.log10(Double.parseDouble(arg));	
-				else
-					return "log("+arg+")";		
-			} 
-		  	String diff(String expression, String var)
-			{
-				return Expression.multiply(
-						Expression.diff(expression, var),
-						Expression.divide(""+1/Math.log(10),expression));
-			}
-		  },
-	sqrt   
-		  { 
-			  String eval(String expression,Variable[] args) 
-		  	{ 
-			  String arg=Expression.eval(expression,args);
-			  if(ExpressionTools.isNumber(arg))
-					return ""+Math.sqrt(Double.parseDouble(arg));	
-				else
-					return "sqrt"+arg+")";		
-			} 
-			 String diff(String expression, String var)
-				{
-					return Expression.multiply(
-							Expression.diff(expression, var),
-							Expression.multiply(
-								".5", 
-								Expression.exp(
-									expression, "-.5")));
-				}
-		  },
-	abs   
-		  { 
-			  String eval(String expression,Variable[] args) 
-		  	{ 
-			  String arg=Expression.eval(expression,args);
-			  if(ExpressionTools.isNumber(arg))
-					return ""+Math.abs(Double.parseDouble(arg));	
-				else
-					return "abs("+arg+")";		
-			} 
-			  String diff(String expression, String var)
-				{
-					return "undefined";
-				}
-		  },
-	sin   
-		  { 
-			  String eval(String expression,Variable[] args) 
-		  	{ 
-			  String arg=Expression.eval(expression,args);
-			  if(ExpressionTools.isNumber(arg))
-					return ""+Math.sin(Double.parseDouble(arg));	
-				else
-					return "sin("+arg+")";		
-			} 
-			  String diff(String expression, String var)
-				{
-					return Expression.multiply(
-							Expression.diff(expression, var),
-							Expression.eval("cos("+expression+")"));
-				}
-		  },
-		  
-	cos   
-		  { 
-			String eval(String expression,Variable[] args) 
-		  	{ 
-			  String arg=Expression.eval(expression,args);
-			  if(ExpressionTools.isNumber(arg))
-				  return ""+Math.cos(Double.parseDouble(arg));
-				else
-					return "cos("+arg+")";		
-			} 
-			String diff(String expression, String var)
-			{
-				return Expression.multiply(
-						Expression.diff(expression, var),
-						Expression.eval("sin("+expression+")"));
-			}
-		  },
-	tan   
-		  { 
-			  String eval(String expression,Variable[] args) 
-		  	{ 
-			  String arg=Expression.eval(expression,args);
-			  if(ExpressionTools.isNumber(arg))
-					return ""+Math.tan(Double.parseDouble(arg));	
-				else
-					return "tan("+arg+")";		
-			} 
-			  String diff(String expression, String var)
-				{
-					return Expression.multiply(
-							Expression.diff(expression, var),
-							Expression.exp("sec("+expression+")","2"));
-				}
-		  },
-	csc   
-		  { String eval(String expression,Variable[] args) 
-		  	{ 
-			  String arg=Expression.eval(expression,args);
-				if(ExpressionTools.isNumber(arg))
-					return ""+(1/Math.sin(Double.parseDouble(arg)));
-				else
-					return "csc("+arg+")";		
-			} 
-		  String diff(String expression, String var)
-			{
-				return Expression.multiply(
-						Expression.diff(expression, var),
-						Expression.multiply(
-								"-csc("+expression+")",
-								"cot("+expression+")"));
-			}
-		  },
-	sec   
-		  { String eval(String expression,Variable[] args) 
-		  	{ 
-			  String arg=Expression.eval(expression,args);
-			  if(ExpressionTools.isNumber(arg))
-				return ""+(1/Math.cos(Double.parseDouble(arg)));	
-			  else
-				return "cos("+arg+")";	
-			} 
-		  String diff(String expression, String var)
-			{
-				return Expression.multiply(
-						Expression.diff(expression, var),
-						Expression.multiply(
-								"sec("+expression+")",
-								"tan("+expression+")"));
-			}
-		  },
-	cot   
-		  { String eval(String expression,Variable[] args) 
-		  	{ 
-			  String arg=Expression.eval(expression,args);
-			  if(ExpressionTools.isNumber(arg))
-				  return ""+(1/Math.tan(Double.parseDouble(arg)));	
-			  else
-				return "cot("+arg+")";	
-			}
-		  String diff(String expression, String var)
-			{
-				return Expression.multiply(
-						Expression.diff(expression, var),
-						Expression.exp("-csc("+expression+")","2"));
-			}
-		  },
-    atan   
-		  { 
-			  String eval(String expression,Variable[] args) 
-		  	{ 
-			  String arg=Expression.eval(expression,args);
-			  if(ExpressionTools.isNumber(arg))
-					return ""+Math.atan(Double.parseDouble(arg));	
-			  else
-					return "atan("+arg+")";	
-			} 
-		  String diff(String expression, String var)
-			{
-				return Expression.multiply(
-						Expression.diff(expression, var),
-						Expression.divide(
-								"1",
-								Expression.add(
-									"1",
-									Expression.exp(expression,"2"))));
-			}
-		  },
-	acos   
-		  { 
-			  String eval(String expression,Variable[] args) 
-		  	{ 
-			  String arg=Expression.eval(expression,args);
-			  if(ExpressionTools.isNumber(arg))
-					return ""+Math.acos(Double.parseDouble(arg));	
-			  else
-					return "acos("+arg+")";	
-			} 
-		  String diff(String expression, String var)
-			{
-				return Expression.multiply(
-						Expression.diff(expression, var),
-						"sqrt("+Expression.divide(
-								"-1",
-								Expression.subtract(
-									"1",
-									Expression.exp(expression,"2")))+")");
-			}
-		  
-		  },	  
-	asin   
-		  { 
-			  String eval(String expression,Variable[] args) 
-		  	{ 
-			  String arg=Expression.eval(expression,args);
-			  if(ExpressionTools.isNumber(arg))
-					return ""+Math.asin(Double.parseDouble(arg));	
-			  else
-					return "asin("+arg+")";	
-			} 
-			  String diff(String expression, String var)
-				{
-					return Expression.multiply(
-							Expression.diff(expression, var),
-							"sqrt("+Expression.divide(
-									"1",
-									Expression.subtract(
-										"1",
-										Expression.exp(expression,"2")))+")");
-				}
-		  },
-	sinh   
-		  { String eval(String expression,Variable[] args) 
-		  	{ 
-			  String arg=Expression.eval(expression,args);
-			  if(ExpressionTools.isNumber(arg))
-					return ""+Math.sinh(Double.parseDouble(arg));	
-			  else
-					return "sinh("+arg+")";	
-			} 
-		  String diff(String expression, String var)
-			{
-				return "undefined";
-			}
-		  },
-	cosh   
-		  { String eval(String expression,Variable[] args) 
-		  	{ 
-			  String arg=Expression.eval(expression,args);
-			  if(ExpressionTools.isNumber(arg))
-					return ""+Math.cosh(Double.parseDouble(arg));	
-			  else
-					return "cosh("+arg+")";	
-			} 
-		  String diff(String expression, String var)
-			{
-				return "undefined";
-			}
-		  },
-	tanh   
-		  { 
-			String eval(String expression,Variable[] args) 
-		  	{ 
-			  String arg=Expression.eval(expression,args);
-			  if(ExpressionTools.isNumber(arg))
-					return ""+Math.tanh(Double.parseDouble(arg));	
-			  else
-					return "tanh("+arg+")";	
-			} 
-		  String diff(String expression, String var)
-			{
-				return "undefined";
-			}
-		  };
-		 		  
-		  abstract String eval(String expression,Variable[] args);
-		  abstract String diff(String expression, String var);
-	}
-	
+
+	//none bothered with yet
 	private enum BinFunction 
 	{
 	nthRoot   
