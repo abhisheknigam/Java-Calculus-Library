@@ -48,7 +48,7 @@ public class CalcMatrix implements CalcObject {
 	 * @return
 	 */
 	public CalcObject get(int row, int col) {
-		return null;
+		return elements[row*width + col];
 	}
 	
 	/**
@@ -57,6 +57,28 @@ public class CalcMatrix implements CalcObject {
 	 */
 	public CalcObject[] getAll() {
 		return elements;
+	}
+	
+	public int getWidth() {
+		return width;
+	}
+	
+	public int getHeight() {
+		return height;
+	}
+	
+	public CalcObject add(CalcMatrix input) {
+		if (input.getWidth() != width || input.getHeight() != height) {
+			throw new CalcDimensionException("Adding matrices of different dimensions");
+		}
+		
+		CalcObject[] inputElements = input.getAll();
+		
+		for (int ii = 0; ii < elements.length; ii++) {
+			elements[ii] = CALC.ADD.createFunction(elements[ii], inputElements[ii]);
+		}
+		
+		return this;
 	}
 	
 	@Override
@@ -74,7 +96,7 @@ public class CalcMatrix implements CalcObject {
 				index++;
 			}
 			buffer.append(matrixClose);
-			buffer.append(matrixDelim);
+			if (ii < height - 1) buffer.append(matrixDelim);
 		}
 		
 		buffer.append(matrixClose);
@@ -90,6 +112,10 @@ public class CalcMatrix implements CalcObject {
 	
 	@Override
 	public CalcObject evaluate() throws Exception {
+		//evaluate every entry first
+		for (int ii = 0; ii < elements.length; ii++) {
+			elements[ii] = CALC.SYM_EVAL(elements[ii]);
+		}
 		return this;
 	}
 	

@@ -100,6 +100,10 @@ public class CalcADD extends CalcNParamFunctionEvaluator implements CalcOperator
 			CalcFraction input2) {
 		return input1.add(input2);
 	}
+	
+	protected CalcObject evaluateMatrix(CalcMatrix input1, CalcMatrix input2) {
+		return input1.add(input2);
+	}
 
 	@Override
 	protected CalcObject evaluateFunction(CalcFunction input1,
