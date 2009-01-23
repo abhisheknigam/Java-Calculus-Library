@@ -14,7 +14,7 @@ import javacalculus.exception.CalcDimensionException;
  */
 public class CalcMatrix implements CalcObject {
 	
-	private CalcObject[] elements;
+	private CalcVector[] elements;
 	private int width = 0, height = 0;
 	
 	public static final char matrixOpen = '[';
@@ -26,19 +26,26 @@ public class CalcMatrix implements CalcObject {
 	 */
 	public CalcMatrix() {}
 	
+	/**
+	 * Constructor for a zero matrix with given width and height
+	 * @param width
+	 * @param height
+	 */
 	public CalcMatrix(int width, int height) {
-		elements = new CalcObject[width*height];
+		elements = new CalcVector[height];
+		
+		for (int ii = 0; ii < elements.length; ii++) {
+			elements[ii] = new CalcVector(width);
+		}
+		
 		this.width = width;
 		this.height = height;
 	}
 	
-	public CalcMatrix(int rows, CalcObject[] elements) {
-		if (elements.length % rows != 0) {
-			throw new CalcDimensionException("CalcMatrix -> Element dimension mismatch");
-		}
+	public CalcMatrix(CalcVector[] elements) {
 		this.elements = elements;
-		height = rows;
-		width = elements.length / rows;
+		height = elements.length;
+		width = elements[0].size();
 	}
 	
 	/**
@@ -48,14 +55,14 @@ public class CalcMatrix implements CalcObject {
 	 * @return
 	 */
 	public CalcObject get(int row, int col) {
-		return elements[row*width + col];
+		return elements[row].get(col);
 	}
 	
 	/**
 	 * 
 	 * @return every element of this matrix in a 1D array
 	 */
-	public CalcObject[] getAll() {
+	public CalcVector[] getAll() {
 		return elements;
 	}
 	
@@ -69,13 +76,34 @@ public class CalcMatrix implements CalcObject {
 	
 	public CalcObject add(CalcMatrix input) {
 		if (input.getWidth() != width || input.getHeight() != height) {
-			throw new CalcDimensionException("Adding matrices of different dimensions");
+			throw new CalcDimensionException("Adding matrices or vectors of different dimensions");
 		}
 		
-		CalcObject[] inputElements = input.getAll();
+		CalcVector[] inputElements = input.getAll();
 		
 		for (int ii = 0; ii < elements.length; ii++) {
-			elements[ii] = CALC.ADD.createFunction(elements[ii], inputElements[ii]);
+			elements[ii] = elements[ii].add(inputElements[ii]);
+		}
+		
+		return this;
+	}
+	
+	public CalcObject multiply(CalcObject input) {
+		if (input.isNumber()) { //multiply matrix by a scalar
+			for (int ii = 0; ii < elements.length; ii++) {
+				elements[ii] = elements[ii].multiply(input);
+			}
+			return this;
+		}
+		if (input instanceof CalcMatrix) { //multiply matrix by a matrix
+			CalcMatrix matrix = (CalcMatrix) input;
+			if (matrix.getHeight() != width) {
+				throw new CalcDimensionException("Incompatible dimensions in matrix multiplication");
+			}
+			
+			CalcVector[] inputElements = matrix.getAll();
+			
+			
 		}
 		
 		return this;
@@ -107,14 +135,20 @@ public class CalcMatrix implements CalcObject {
 	@Override
 	public int compareTo(CalcObject obj) {
 		//TODO figure out how to determine if one matrix is greater than/less than than another
+		if (getHierarchy() > obj.getHierarchy()) {
+			return 1;
+		}
+		else if (getHierarchy() < obj.getHierarchy()) {
+			return -1;
+		}
 		return 0;
 	}
 	
 	@Override
 	public CalcObject evaluate() throws Exception {
-		//evaluate every entry first
+		//evaluate every element first
 		for (int ii = 0; ii < elements.length; ii++) {
-			elements[ii] = CALC.SYM_EVAL(elements[ii]);
+			elements[ii].evaluate();
 		}
 		return this;
 	}

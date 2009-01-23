@@ -111,7 +111,7 @@ public final class CALC {
 	public static final CalcSymbol DOUBLE = new CalcSymbol("Double");
 	public static final CalcSymbol FRACTION = new CalcSymbol("Fraction");
 	public static final CalcSymbol SYMBOL = new CalcSymbol("Symbol");
-	public static final CalcSymbol MATRIX = new CalcSymbol("MATRIX");
+	public static final CalcSymbol MATRIX = new CalcSymbol("Matrix");
 	public static final CalcSymbol VECTOR = new CalcSymbol("Vector");
 	
 	/**

@@ -70,6 +70,9 @@ public abstract class Calc2ParamFunctionEvaluator implements CalcFunctionEvaluat
 		else if (parameter1 instanceof CalcSymbol && parameter2 instanceof CalcSymbol) {
 			return evaluateSymbol((CalcSymbol)parameter1, (CalcSymbol)parameter2);
 		}
+		else if (parameter1 instanceof CalcVector && parameter2 instanceof CalcVector) {
+			return evaluateVector((CalcVector)parameter1, (CalcVector)parameter2);
+		}
 		else if (parameter1 instanceof CalcMatrix && parameter2 instanceof CalcMatrix) {
 			return evaluateMatrix((CalcMatrix)parameter1, (CalcMatrix)parameter2);
 		}
@@ -83,6 +86,10 @@ public abstract class Calc2ParamFunctionEvaluator implements CalcFunctionEvaluat
 	protected abstract CalcObject evaluateSymbol(CalcSymbol input1, CalcSymbol input2);
 	protected abstract CalcObject evaluateFunction(CalcFunction input1, CalcFunction input2);
 	protected abstract CalcObject evaluateFunctionAndInteger(CalcFunction input1, CalcInteger input2);
+	//will make these abstract later. Right now we need a default implementation.
+	protected CalcObject evaluateVector(CalcVector input1, CalcVector input2) {
+		return null;
+	}
 	protected CalcObject evaluateMatrix(CalcMatrix input1, CalcMatrix input2) {
 		return null;
 	}

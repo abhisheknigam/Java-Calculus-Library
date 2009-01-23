@@ -12,6 +12,7 @@ import javacalculus.struct.CalcInteger;
 import javacalculus.struct.CalcMatrix;
 import javacalculus.struct.CalcObject;
 import javacalculus.struct.CalcSymbol;
+import javacalculus.struct.CalcVector;
 
 /**
  * Parses a mathematical expression string into a CalcObject
@@ -344,22 +345,16 @@ public final class CalcParser {
 	}
 	
 	private CalcObject parseMatrix() throws CalcSyntaxException {
-		ArrayList<CalcObject> elements = new ArrayList<CalcObject>();
-		int rows = 1;
-		boolean flag = false;	//this is used to differentiate between a horizontal
-								//vector and an actual matrix
+		ArrayList<CalcVector> elements = new ArrayList<CalcVector>();
 		
 		if (token == CALC_MATRIXOPEN) {
 			parseNextToken();
 			
 			while (true) {
-				flag = parseMatrixTerm(elements);
+				elements.add(parseVector());
 					
 				if (token != CALC_COMMA) {
 					break;
-				}
-				else if (!flag){
-					rows++;
 				}
 					
 				parseNextToken();
@@ -371,16 +366,22 @@ public final class CalcParser {
 			
 			parseNextToken();
 			
-			CalcObject[] objArray = new CalcObject[elements.size()];
-			elements.toArray(objArray);
+			CalcVector[] vectorArray = new CalcVector[elements.size()];
+			elements.toArray(vectorArray);
 			
-			return new CalcMatrix(rows, objArray);
+			if (elements.size() == 1) {
+				return elements.get(0);	//case simply a vector
+			}
+			else {
+				return new CalcMatrix(vectorArray);	// case an actual matrix
+			}
 		}
 		
 		else return parseTerm();
 	}
 	
-	private boolean parseMatrixTerm(ArrayList<CalcObject> elements) throws CalcSyntaxException {
+	private CalcVector parseVector() throws CalcSyntaxException {
+		ArrayList<CalcObject> elements = new ArrayList<CalcObject>();
 		
 		if (token == CALC_MATRIXOPEN) {
 			parseNextToken();
@@ -396,15 +397,20 @@ public final class CalcParser {
 			//parseNextToken();
 			
 			if (token != CALC_MATRIXCLOSE) {
-				throw new CalcSyntaxException("Missing close matrix term bracket");
+				throw new CalcSyntaxException("Missing close vector bracket");
 			}
 			
 			parseNextToken();
-			return false;
+			
+			CalcObject[] elementArray = new CalcObject[elements.size()];
+			elements.toArray(elementArray);
+			
+			return new CalcVector(elementArray);
 		}
-		else {
-			elements.add(parseTerm());
-			return true;
+		else {	//case -> just one element with no open or close identifiers
+			CalcObject[] elementArray = new CalcObject[1];
+			elementArray[0] = parseExpression();
+			return new CalcVector(elementArray);
 		}
 	}
 	
