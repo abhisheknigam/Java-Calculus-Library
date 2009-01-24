@@ -49,6 +49,15 @@ public class CalcMatrix implements CalcObject {
 	}
 	
 	/**
+	 * 
+	 * @param row
+	 * @return the vector at row
+	 */
+	public CalcVector get(int row) {
+		return elements[row];
+	}
+	
+	/**
 	 * Returns the element matrix at i = <b>row</b> and j = <b>col</b> 
 	 * @param row
 	 * @param col
@@ -56,6 +65,16 @@ public class CalcMatrix implements CalcObject {
 	 */
 	public CalcObject get(int row, int col) {
 		return elements[row].get(col);
+	}
+	
+	/**
+	 * Set obj into (row, col) in this matrix
+	 * @param row
+	 * @param col
+	 * @param obj
+	 */
+	public void set(int row, int col, CalcObject obj) {
+		elements[row].set(col, obj);
 	}
 	
 	/**
@@ -107,6 +126,10 @@ public class CalcMatrix implements CalcObject {
 		}
 		
 		return this;
+	}
+	
+	public Object clone() {
+		return new CalcMatrix(elements);
 	}
 	
 	@Override

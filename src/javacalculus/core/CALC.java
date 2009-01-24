@@ -70,6 +70,8 @@ public final class CALC {
 			CalcSymbol.NO_PROPERTY);
 	public static final CalcSymbol GAMMA = new CalcSymbol("GAMMA", new CalcGAMMA(), 
 			CalcSymbol.NO_PROPERTY);
+	public static final CalcSymbol DET = new CalcSymbol("DET", new CalcDET(), 
+			CalcSymbol.NO_PROPERTY);	
 	public static final CalcSymbol PLOT = new CalcSymbol("PLOT", new CalcPLOT(),
 			CalcSymbol.FAST_EVAL);
 	public static final CalcSymbol PLOT3D = new CalcSymbol("PLOT3D", new CalcPLOT3D(),
@@ -264,6 +266,7 @@ public final class CALC {
 		else if (identifier.equals("PLOT3D")) return (CalcSymbol)PLOT3D.clone();
 		else if (identifier.equals("TAYLOR")) return (CalcSymbol)TAYLOR.clone();
 		else if (identifier.equals("GAMMA")) return (CalcSymbol)GAMMA.clone();
+		else if (identifier.equals("DET")) return (CalcSymbol)DET.clone();
 		else if (identifier.equals("PI")) return PI;
 		else if (identifier.equals("E")) return E;
 		else return null;

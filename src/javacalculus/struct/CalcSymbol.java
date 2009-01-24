@@ -234,6 +234,10 @@ public class CalcSymbol implements CalcObject {
 		else if (getHierarchy() < obj.getHierarchy()) {
 			return -1;
 		}
+		else if (obj instanceof CalcSymbol) {
+			CalcSymbol symbol = (CalcSymbol)obj;
+			return symbol.getName().compareTo(name);
+		}
 		return 0;
 	}
 

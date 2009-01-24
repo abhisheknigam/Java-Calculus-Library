@@ -41,8 +41,32 @@ public class CalcVector implements CalcObject {
 		this.elements = elements;
 	}
 	
+	/**
+	 * Construct a vector from a given array of elements with one index excluded
+	 * @param elements
+	 * @param exclude
+	 */
+	public CalcVector(CalcObject[] elements, int exclude) {
+		this.elements = new CalcObject[elements.length - 1];
+		int index = 0;
+		
+		for (int ii = 0; ii < elements.length; ii++) {
+			if (ii == exclude) {
+				continue;
+			}
+			this.elements[index++] = elements[ii];
+		}
+	}
+	
 	public int size() {
 		return elements.length;
+	}
+	
+	public void set(int index, CalcObject obj) {
+		if (index >= elements.length) {
+			throw new CalcDimensionException("Vector does not contain index " + index);
+		}
+		elements[index] = obj;
 	}
 	
 	public CalcObject get(int index) {

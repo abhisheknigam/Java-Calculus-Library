@@ -43,12 +43,7 @@ public interface CalcObject extends Comparable<CalcObject> {
 	 */
 	public String toString();
 	
-	/**
-	 * 
-	 * @param obj
-	 * @return whether this CalcObject is equal to obj. Overrides java.lang.Object.equals(Object obj
-	 * 
-	 */
+	@Override
 	public boolean equals(Object obj);
 	
 	@Override
