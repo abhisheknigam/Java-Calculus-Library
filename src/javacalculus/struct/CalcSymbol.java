@@ -203,17 +203,12 @@ public class CalcSymbol implements CalcObject {
 		if (evaluator instanceof CalcOperatorEvaluator) {
 			return ((CalcOperatorEvaluator)evaluator).toOperatorString(function);
 		}
-		else return function.toStringBuffer().toString();
+		else return function.toString();
 	}
 	
 	@Override
 	public String toString() {
 		return name;
-	}
-	
-	@Override
-	public StringBuffer toStringBuffer() {
-		return new StringBuffer(name);
 	}
 
 	@Override

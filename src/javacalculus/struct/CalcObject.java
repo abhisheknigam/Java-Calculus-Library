@@ -32,12 +32,6 @@ public interface CalcObject extends Comparable<CalcObject> {
 	public CalcObject evaluate() throws Exception;
 	
 	/**
-	 * Convert the object into a stringbuffer
-	 * @return the stringbuffer
-	 */
-	public StringBuffer toStringBuffer();
-	
-	/**
 	 * Convert the object into a string. Overrides the toString method in java.lang.Object
 	 * @return the string
 	 */

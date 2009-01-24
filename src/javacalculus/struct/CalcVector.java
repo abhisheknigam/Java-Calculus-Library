@@ -160,11 +160,6 @@ public class CalcVector implements CalcObject {
 	public boolean isNumber() {
 		return false;
 	}
-
-	@Override
-	public StringBuffer toStringBuffer() {
-		return null;
-	}
 	
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();

@@ -121,8 +121,7 @@ public class CalcFraction implements CalcObject {
 		return new CalcDouble((new BigDecimal(numerator)).divide(new BigDecimal(denominator), CALC.mathcontext));
 	}
 
-	@Override
-	public StringBuffer toStringBuffer() {
+	public String toString() {
 		StringBuffer returnVal = new StringBuffer();
 		if (denominator.compareTo(CALC.ONE.bigIntegerValue()) == 0) {
 			returnVal.append(numerator.toString()); //if denominator is 1, then just append numerator
@@ -132,11 +131,7 @@ public class CalcFraction implements CalcObject {
 			returnVal.append('/');
 			returnVal.append(denominator.toString());
 		}
-		return returnVal;
-	}
-
-	public String toString() {
-		return toStringBuffer().toString();
+		return returnVal.toString();
 	}
 
 	@Override

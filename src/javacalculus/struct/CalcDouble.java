@@ -75,20 +75,6 @@ public class CalcDouble implements CalcObject {
 	}
 	
 	@Override
-	public StringBuffer toStringBuffer() {
-		if (isPositiveInfinity) {
-			return new StringBuffer("INFINITY");
-		}
-		else if (isNegativeInfinity) {
-			return new StringBuffer("-INFINITY");
-		}
-		else if (isNaN) {
-			return new StringBuffer("NaN");
-		}
-		else return new StringBuffer(value.toString());
-	}
-	
-	@Override
 	public String toString() {
 		if (isPositiveInfinity) {
 			return "INFINITY";

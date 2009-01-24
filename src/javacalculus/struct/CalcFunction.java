@@ -357,23 +357,20 @@ public class CalcFunction implements CalcObject, Iterable<CalcObject> {
 	}	
 	
 	@Override
-	public StringBuffer toStringBuffer() {
-		StringBuffer out = new StringBuffer();
-		
-		out.append(functionHeader.toStringBuffer());
-		out.append("(");
-		out.append(parametersToString());
-		out.append(")");
-		
-		return out;
-	}
-	
-	@Override
 	public String toString() {
 		if (CALC.operator_notation) {
 			return functionHeader.toOperatorString(this);
 		}
-		else return toStringBuffer().toString();
+		else {
+			StringBuffer out = new StringBuffer();
+			
+			out.append(functionHeader.toString());
+			out.append("(");
+			out.append(parametersToString());
+			out.append(")");
+			
+			return out.toString();
+		}
 	}
 
 	@Override

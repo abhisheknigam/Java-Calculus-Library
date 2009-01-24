@@ -221,9 +221,4 @@ public class CalcMatrix implements CalcObject {
 	public boolean isNumber() {
 		return false;
 	}
-	
-	@Override
-	public StringBuffer toStringBuffer() {
-		return null;
-	}
 }

@@ -152,11 +152,6 @@ public class CalcInteger implements CalcObject {
 	public CalcObject evaluate() {
 		return this;
 	}
-
-	@Override
-	public StringBuffer toStringBuffer() {
-		return new StringBuffer(value.toString());
-	}
 	
 	public String toString() {
 		return value.toString();
