@@ -6,7 +6,7 @@ package javacalculus.evaluator;
 import javacalculus.core.CALC;
 import javacalculus.evaluator.extend.Calc1ParamFunctionEvaluator;
 import javacalculus.exception.CalcDimensionException;
-import javacalculus.exception.CalcIllegalParametersException;
+import javacalculus.exception.CalcWrongParametersException;
 import javacalculus.struct.CalcDouble;
 import javacalculus.struct.CalcFraction;
 import javacalculus.struct.CalcFunction;
@@ -190,7 +190,7 @@ public class CalcDET extends Calc1ParamFunctionEvaluator {
 
 	@Override
 	protected CalcObject evaluateFunction(CalcFunction input) {
-		throw new CalcIllegalParametersException("Determinants can only be evaluated given matrices");
+		throw new CalcWrongParametersException("Determinants can only be evaluated given matrices");
 	}
 
 	@Override
