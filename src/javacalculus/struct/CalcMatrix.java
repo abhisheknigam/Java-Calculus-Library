@@ -108,24 +108,50 @@ public class CalcMatrix implements CalcObject {
 	}
 	
 	public CalcObject multiply(CalcObject input) {
-		if (input.isNumber()) { //multiply matrix by a scalar
+		if (input.isNumber() || input instanceof CalcSymbol || input instanceof CalcFunction) { //multiply matrix by a scalar
 			for (int ii = 0; ii < elements.length; ii++) {
 				elements[ii] = elements[ii].multiply(input);
 			}
 			return this;
 		}
-		if (input instanceof CalcMatrix) { //multiply matrix by a matrix
-			CalcMatrix matrix = (CalcMatrix) input;
-			if (matrix.getHeight() != width) {
-				throw new CalcDimensionException("Incompatible dimensions in matrix multiplication");
+		else if (input instanceof CalcVector) {
+			CalcVector vector = (CalcVector) input;
+			if (height != vector.size()) {
+				throw new CalcDimensionException("Incompatible dimensions in matrix/vector multiplication");
 			}
 			
-			CalcVector[] inputElements = matrix.getAll();
+			CalcVector[] outputElements = new CalcVector[height];
 			
+			for (int ii = 0; ii < height; ii++) {
+				outputElements[ii] = elements[ii].multiply(vector.get(ii));
+			}
 			
+			return new CalcMatrix(outputElements);
 		}
-		
-		return this;
+		else if (input instanceof CalcMatrix) { //multiply matrix by a matrix
+			CalcMatrix matrix = (CalcMatrix) input;
+			if (height != matrix.getWidth()) {
+				throw new CalcDimensionException("Incompatible dimensions in matrix/matrix multiplication");
+			}
+			
+			CalcVector[] outputElements = new CalcVector[height];
+			
+			for (int ii = 0; ii < height; ii++) {
+				CalcVector current = new CalcVector(matrix.getWidth());
+				int kk = 0;
+				
+				for (int jj = 0; jj < width; jj++) {
+					current.add(matrix.get(kk++).multiply(get(ii, jj)));	
+				}
+				
+				outputElements[ii] = current;
+			}
+			
+			return new CalcMatrix(outputElements);
+		}
+		else {
+			return this;
+		}
 	}
 	
 	public Object clone() {

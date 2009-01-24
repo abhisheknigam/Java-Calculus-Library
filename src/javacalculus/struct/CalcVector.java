@@ -95,10 +95,11 @@ public class CalcVector implements CalcObject {
 	}
 	
 	public CalcVector multiply(CalcObject input) {
+		CalcVector result = new CalcVector(size());
 		for (int ii = 0; ii < elements.length; ii++) {
-			elements[ii] = CALC.MULTIPLY.createFunction(input, elements[ii]);
+			result.set(ii, CALC.MULTIPLY.createFunction(input, elements[ii]));
 		}
-		return this;
+		return result;
 	}
 	
 	/**

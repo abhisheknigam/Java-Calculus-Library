@@ -407,9 +407,18 @@ public final class CalcParser {
 			
 			return new CalcVector(elementArray);
 		}
-		else {	//case -> just one element with no open or close identifiers
-			CalcObject[] elementArray = new CalcObject[1];
-			elementArray[0] = parseExpression();
+		else {	//case -> just list of elements with no open or close identifiers
+			while (true) {
+				elements.add(parseExpression());
+					
+				if (token != CALC_COMMA) break;
+				
+				parseNextToken();
+			}
+			
+			CalcObject[] elementArray = new CalcObject[elements.size()];
+			elements.toArray(elementArray);
+			
 			return new CalcVector(elementArray);
 		}
 	}

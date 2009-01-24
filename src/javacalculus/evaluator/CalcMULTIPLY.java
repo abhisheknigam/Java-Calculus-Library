@@ -7,8 +7,10 @@ import javacalculus.struct.CalcDouble;
 import javacalculus.struct.CalcFraction;
 import javacalculus.struct.CalcFunction;
 import javacalculus.struct.CalcInteger;
+import javacalculus.struct.CalcMatrix;
 import javacalculus.struct.CalcObject;
 import javacalculus.struct.CalcSymbol;
+import javacalculus.struct.CalcVector;
 
 /**
  * Evaluator that handles multiplication of expressions. Handles basic simplification.
@@ -92,6 +94,31 @@ public class CalcMULTIPLY extends CalcNParamFunctionEvaluator implements CalcOpe
 	@Override
 	protected CalcObject evaluateFunctionAndInteger(CalcFunction input1, CalcInteger input2) {
 		return null;
+	}
+	
+	@Override
+	protected CalcObject evaluateVectorAndScalar(CalcVector input1, CalcObject input2) {
+		return input1.multiply(input2);
+	}
+	
+	@Override
+	protected CalcObject evaluateVector(CalcVector input1, CalcVector input2) {
+		return input1.dot(input2);
+	}
+	
+	@Override
+	protected CalcObject evaluateMatrixAndScalar(CalcMatrix input1, CalcObject input2) {
+		return input1.multiply(input2);
+	}
+	
+	@Override
+	protected CalcObject evaluateMatrixAndVector(CalcMatrix input1, CalcVector input2) {
+		return input1.multiply(input2);
+	}
+	
+	@Override
+	protected CalcObject evaluateMatrix(CalcMatrix input1, CalcMatrix input2) {
+		return input1.multiply(input2);
 	}
 
 	@Override
