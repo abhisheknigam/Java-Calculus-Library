@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import javacalculus.core.CALC;
+import javacalculus.evaluator.extend.CalcFunctionEvaluator;
+import javacalculus.evaluator.extend.CalcOperatorEvaluator;
 
 
 /**
@@ -359,18 +361,20 @@ public class CalcFunction implements CalcObject, Iterable<CalcObject> {
 	@Override
 	public String toString() {
 		if (CALC.operator_notation) {
-			return functionHeader.toOperatorString(this);
+			CalcFunctionEvaluator e = functionHeader.getEvaluator();
+			if (e instanceof CalcOperatorEvaluator) {
+				return ((CalcOperatorEvaluator)e).toOperatorString(this);
+			}
 		}
-		else {
-			StringBuffer out = new StringBuffer();
+		
+		StringBuffer out = new StringBuffer();
 			
-			out.append(functionHeader.toString());
-			out.append("(");
-			out.append(parametersToString());
-			out.append(")");
+		out.append(functionHeader.toString());
+		out.append("(");
+		out.append(parametersToString());
+		out.append(")");
 			
-			return out.toString();
-		}
+		return out.toString();
 	}
 
 	@Override

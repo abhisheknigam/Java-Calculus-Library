@@ -198,13 +198,6 @@ public class CalcSymbol implements CalcObject {
 		if (returnVal instanceof CalcFunction) return evaluator.evaluate((CalcFunction)returnVal);
 		else return returnVal;
 	}
-
-	public String toOperatorString(CalcFunction function) {
-		if (evaluator instanceof CalcOperatorEvaluator) {
-			return ((CalcOperatorEvaluator)evaluator).toOperatorString(function);
-		}
-		else return function.toString();
-	}
 	
 	@Override
 	public String toString() {
