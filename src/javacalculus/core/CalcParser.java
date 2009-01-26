@@ -535,7 +535,6 @@ public final class CalcParser {
 
 	private CalcObject parseNumber() throws CalcSyntaxException {
 		StringBuffer numberString = new StringBuffer();
-		//char firstChar = currentChar;
 		boolean IsFloating = false;
 		
 		numberString.append(currentChar); //append first digit
@@ -554,11 +553,19 @@ public final class CalcParser {
 				parseNextChar();
 			}
 		}
-		
+	
 		currentCharIndex--;
-		
 		parseNextToken();
 		
+		if (!(currentChar >= '0' && currentChar <= '9') && currentChar != ',' && currentChar != ']') {		
+			if (IsFloating) {
+				return CALC.MULTIPLY.createFunction(new CalcDouble(numberString.toString()), parseTerm());
+			}
+			else {
+				return CALC.MULTIPLY.createFunction(new CalcInteger(numberString.toString()), parseTerm());
+			}
+		}
+	
 		if (IsFloating) {
 			return new CalcDouble(numberString.toString());
 		}
