@@ -557,14 +557,14 @@ public final class CalcParser {
 		currentCharIndex--;
 		parseNextToken();
 		
-		if (!(currentChar >= '0' && currentChar <= '9') && currentChar != ',' && currentChar != ']') {		
+		/*if (!(currentChar >= '0' && currentChar <= '9') && currentChar != ',' && currentChar != ']') {		
 			if (IsFloating) {
 				return CALC.MULTIPLY.createFunction(new CalcDouble(numberString.toString()), parseTerm());
 			}
 			else {
 				return CALC.MULTIPLY.createFunction(new CalcInteger(numberString.toString()), parseTerm());
 			}
-		}
+		}*/
 	
 		if (IsFloating) {
 			return new CalcDouble(numberString.toString());
