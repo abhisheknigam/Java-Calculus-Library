@@ -290,7 +290,7 @@ public final class CALC {
 			}
 			catch (Exception e) {};
 		}
-		return null
+		return null;
 	}
     
 	public static void setMathContext(int precision) {
