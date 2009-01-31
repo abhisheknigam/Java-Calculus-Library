@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javacalculus.evaluator.*;
 import javacalculus.evaluator.extend.CalcConstantEvaluator;
+import javacalculus.evaluator.extend.CalcFunctionEvaluator;
 import javacalculus.struct.*;
 
 /**
@@ -269,7 +270,27 @@ public final class CALC {
 		else if (identifier.equals("DET")) return (CalcSymbol)DET.clone();
 		else if (identifier.equals("PI")) return PI;
 		else if (identifier.equals("E")) return E;
-		else return null;
+		else {
+			String name = "javacalculus.evaluator.Calc" + identifier;
+			
+			Class cls = null;
+			CalcFunctionEvaluator evaluator;
+			CalcSymbol symbol = new CalcSymbol(identifier);
+			
+			try {
+				cls = Class.forName(name);
+			}
+			catch (ClassNotFoundException e) {}
+			
+			try
+			{
+				evaluator = (CalcFunctionEvaluator) cls.newInstance();
+				symbol.setEvaluator(evaluator);
+				return symbol;
+			}
+			catch (Exception e) {};
+		}
+		return null
 	}
     
 	public static void setMathContext(int precision) {
