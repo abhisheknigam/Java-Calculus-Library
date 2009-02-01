@@ -136,7 +136,7 @@ public class CalcVector implements CalcObject {
 	@Override
 	public CalcObject evaluate() throws Exception {
 		for (int ii = 0; ii < elements.length; ii++) {	//evaluate each element first
-			elements[ii] = CALC.SYM_EVAL(elements[ii]);
+			elements[ii] = elements[ii].evaluate();
 		}
 		return this;
 	}
