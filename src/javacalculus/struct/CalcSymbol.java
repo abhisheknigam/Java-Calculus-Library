@@ -112,7 +112,8 @@ public class CalcSymbol implements CalcObject {
 	}
 	
 	public void removeVariable(int index) {
-		if (variables.size() > 0) variables.remove(index);
+		if (index < variables.size() && index >= 0) 
+			variables.remove(index);
 	}
 	
 	public void removeAllVariables() {
@@ -211,9 +212,7 @@ public class CalcSymbol implements CalcObject {
 		}
 		else return this;
 	}
-	
-
-	
+		
 	@Override
 	public int compareTo(CalcObject obj) {
 		if (getHierarchy() > obj.getHierarchy()) {

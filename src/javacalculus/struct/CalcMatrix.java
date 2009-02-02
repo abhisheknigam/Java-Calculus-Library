@@ -54,14 +54,16 @@ public class CalcMatrix implements CalcObject {
 	 * @return the vector at row
 	 */
 	public CalcVector get(int row) {
+		if(row >= elements.length)
+			throw new CalcDimensionException("Matrix"+this+"does not have "+row+" rows to get from.");
 		return elements[row];
 	}
 	
 	/**
-	 * Returns the element matrix at i = <b>row</b> and j = <b>col</b> 
-	 * @param row
-	 * @param col
-	 * @return
+	 * Returns the element at i = <b>row</b> and j = <b>col</b> 
+	 * @param row The row number of the element to get
+	 * @param col The column number of the element to get
+	 * @return The element at row,col.
 	 */
 	public CalcObject get(int row, int col) {
 		return elements[row].get(col);

@@ -63,13 +63,16 @@ public class CalcVector implements CalcObject {
 	}
 	
 	public void set(int index, CalcObject obj) {
-		if (index >= elements.length) {
+		if (index >= elements.length || index < 0) {
 			throw new CalcDimensionException("Vector does not contain index " + index);
 		}
 		elements[index] = obj;
 	}
 	
 	public CalcObject get(int index) {
+		if (index >= elements.length || index < 0) {
+			throw new CalcDimensionException("Vector does not contain index " + index);
+		}
 		return elements[index];
 	}
 	
@@ -107,11 +110,11 @@ public class CalcVector implements CalcObject {
 	 * @param input
 	 */
 	public CalcObject dot(CalcVector input) {	//computes the dot product between two vectors
-		CalcFunction returnVal = CALC.ADD.createFunction();
-		
 		if (size() != input.size()) {
 			throw new CalcDimensionException("Mismatched vector sizes in dot product");
 		}
+		
+		CalcFunction returnVal = CALC.ADD.createFunction();
 		
 		CalcObject[] inputElements = input.getAll();
 		
