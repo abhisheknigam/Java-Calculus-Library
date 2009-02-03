@@ -13,10 +13,13 @@ import javax.media.j3d.Background;
 import javax.media.j3d.BoundingSphere;
 import javax.media.j3d.BranchGroup;
 import javax.media.j3d.Canvas3D;
+import javax.media.j3d.ColoringAttributes;
 import javax.media.j3d.DirectionalLight;
 import javax.media.j3d.GeometryArray;
 import javax.media.j3d.GraphicsConfigTemplate3D;
 import javax.media.j3d.Group;
+import javax.media.j3d.LineArray;
+import javax.media.j3d.LineAttributes;
 import javax.media.j3d.Locale;
 import javax.media.j3d.Material;
 import javax.media.j3d.PhysicalBody;
@@ -57,13 +60,13 @@ public class CalcGraph3D extends JApplet implements Runnable {
 	private GraphicsConfiguration config;
 	private Locale locale;
 	private Shape3D graph;
+	private Shape3D axes;
 	
 	private BranchGroup rootGroup;
 	private TransformGroup rotateGroup;
 	
 	private Vector3f lightDirection = new Vector3f(0.0f, 0.0f, -1.0f);
 	private Color3f lightColor = new Color3f(0.5f, 0.5f, 0.5f); 
-	private Color3f graphColor = new Color3f(0.5f, 0.5f, 0.2f);
 	
     //a bounding sphere specifies a region a behavior is active
     //create a sphere centered at the origin with radius of 1.0f
@@ -72,9 +75,9 @@ public class CalcGraph3D extends JApplet implements Runnable {
     private double[][] points;
     
     private double
-    x_min = -10, x_max = 10, y_min = -10, y_max = 10, z_max = 10, z_min = -10, xIncrement, yIncrement;
+    x_min = -10, x_max = 10, y_min = -10, y_max = 10, z_max = 10, z_min = -10;
     
-    private int resolution = 50;
+    private int resolution = 100;
     	
 	/**
 	 * Constructor
@@ -165,17 +168,12 @@ public class CalcGraph3D extends JApplet implements Runnable {
 		createEnvironment(branchGroup);
 		
 		rotateGroup.addChild(createLighting());
-		
 		rotateGroup.addChild(createAmbientLighting());
-		
-		branchGroup.addChild(createView());
-		
+
+		branchGroup.addChild(createView());		
 		branchGroup.addChild(mouseRotator);
-		
 		branchGroup.addChild(mouseZoomer);
-		
 		branchGroup.addChild(rotateGroup);
-		
 		branchGroup.compile();
 		
 		return branchGroup;
@@ -221,19 +219,38 @@ public class CalcGraph3D extends JApplet implements Runnable {
         rotateGroup.setCapability(TransformGroup.ALLOW_CHILDREN_WRITE);
         
 		graph = new Shape3D();
-		
 		graph.setCapability(Shape3D.ALLOW_GEOMETRY_WRITE);
+        graph.setGeometry(createGraphGeometry());
+        graph.setAppearance(createGraphAppearance());
+         
+		createAxesGeometry();
 		
 		rotateGroup.addChild(graph);
-        
-		
-        graph.setGeometry(createGeometry());
-        graph.setAppearance(createGraphAppearance());
-        
+		rotateGroup.addChild(axes);
+		 
 		return rotateGroup;
 	}
+	
+	private void createAxesGeometry() {
+        axes = new Shape3D();
+        Appearance axesAppearance = new Appearance();
+        axesAppearance.setLineAttributes(new LineAttributes(1f, LineAttributes.PATTERN_SOLID, true));
+        axesAppearance.setColoringAttributes(new ColoringAttributes(new Color3f(), ColoringAttributes.NICEST));
+        axes.setAppearance(axesAppearance);
+        axes.setCapability(Shape3D.ALLOW_GEOMETRY_WRITE);
+        
+        LineArray axesArray = new LineArray(6, LineArray.COORDINATES);
 
-	private GeometryArray createGeometry() {
+        axesArray.setCoordinate(0, new Point3d(-2.0d, 0.0d, 0.0d));	//x axis
+        axesArray.setCoordinate(1, new Point3d(2.0d, 0.0d, 0.0d));
+        axesArray.setCoordinate(2, new Point3d(0.0d, -2.0d, 0.0d));	//y axis
+        axesArray.setCoordinate(3, new Point3d(0.0d, 2.0d, 0.0d));
+        axesArray.setCoordinate(4, new Point3d(0.0d, 0.0d, -2.0d));	//z axis
+        axesArray.setCoordinate(5, new Point3d(0.0d, 0.0d, 2.0d));
+        axes.addGeometry(axesArray);
+	}
+
+	private GeometryArray createGraphGeometry() {
 		TriangleArray arr = new TriangleArray(6*resolution*resolution,
 				TriangleArray.COORDINATES | TriangleArray.NORMALS | TriangleArray.COLOR_3);
 		Point3d p1 = new Point3d();
@@ -249,9 +266,6 @@ public class CalcGraph3D extends JApplet implements Runnable {
 		int triangle = 0;
 		int x = 0;
 		int y = 0;
-
-//		xOffset = (float)(x_min / xIncrement) - Math.round(x_min / xIncrement);
-//		yOffset = (float)(y_min / yIncrement) - Math.round(y_min / yIncrement);
 
 		for (x = 0; x < resolution; ++x) {
 			y = 0;
@@ -345,9 +359,7 @@ public class CalcGraph3D extends JApplet implements Runnable {
     }
     
     private boolean inBounds(double a, double b, double c) {
-        return a <= z_max && a >= z_min
-            && b <= z_max && b >= z_min
-            && c <= z_max && c >= z_min;
+    	return a <= z_max && a >= z_min && b <= z_max && b >= z_min && c <= z_max && c >= z_min;
     }
     
 	private double transform(int value) {
@@ -355,7 +367,7 @@ public class CalcGraph3D extends JApplet implements Runnable {
 	}
 	
 	private double transform(int x, int y) {
-		return (points[x][y] / (z_max - z_min) - 0.5d);
+		return (points[x][y] / (z_max - z_min));
 	}
 	
 	private Color3f getColor(double value) {
