@@ -56,8 +56,8 @@ public final class CALC {
 			CalcSymbol.NO_PROPERTY);
 	public static final CalcSymbol TAN = new CalcSymbol("TAN", new CalcTAN(),
 			CalcSymbol.NO_PROPERTY);
-	public static final CalcSymbol COT = new CalcSymbol("COT", new CalcCOT(),
-			CalcSymbol.NO_PROPERTY);
+	//public static final CalcSymbol COT = new CalcSymbol("COT", new CalcCOT(),
+			//CalcSymbol.NO_PROPERTY);
 	public static final CalcSymbol LN = new CalcSymbol("LN", new CalcLN(), 
 			CalcSymbol.NO_PROPERTY);	
 	public static final CalcSymbol DIFF = new CalcSymbol("DIFF", new CalcDIFF(),
