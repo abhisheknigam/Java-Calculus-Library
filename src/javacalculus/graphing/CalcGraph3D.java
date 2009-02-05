@@ -77,7 +77,7 @@ public class CalcGraph3D extends JApplet implements Runnable {
     private double
     x_min = -10, x_max = 10, y_min = -10, y_max = 10, z_max = 10, z_min = -10;
     
-    private int resolution = 100;
+    private int resolution = 120;
     	
 	/**
 	 * Constructor
