@@ -48,7 +48,7 @@ import com.sun.j3d.utils.behaviors.mouse.MouseZoom;
  *  
  *
  */
-public class CalcGraph3D extends JApplet implements Runnable {
+public class CalcGraph3D implements Runnable {
 	
 	private static final long serialVersionUID = 7066480322477204662L;
 	
@@ -407,9 +407,5 @@ public class CalcGraph3D extends JApplet implements Runnable {
         AmbientLight light = new AmbientLight();
         light.setInfluencingBounds(bounds);
         return light;
-	}
-	
-	public static void main(String[] args) {
-		new CalcGraph3D(null);
 	}
 }
